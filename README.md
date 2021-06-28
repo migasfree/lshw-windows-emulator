@@ -7,6 +7,7 @@ Started in 2011 by Alfonso Gómez Sánchez for Python 2.
 
 Resumed in 2021 by Jose Antonio Chavarría:
 * Python 3 adaptation.
+* Packaging.
 
 
 License
