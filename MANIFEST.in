@@ -1,0 +1,4 @@
+# http://docs.python.org/distutils/sourcedist.html#the-manifest-in-template
+
+include AUTHORS INSTALL LICENSE README.md MANIFEST.in requirements.txt
+recursive-include lshw *.py
