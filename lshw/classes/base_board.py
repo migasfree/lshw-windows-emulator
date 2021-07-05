@@ -80,8 +80,9 @@ class BaseBoard(HardwareClass):
             self.formatted_data['children'] = [
                 Firmware().format_data(),
                 PhysicalMemory().format_data(),
-                Processor().format_data(),
                 BusPci().format_data(children=True)
             ]
+            for item in Processor().format_data():
+                self.formatted_data['children'].append(item)
 
         return self.formatted_data
