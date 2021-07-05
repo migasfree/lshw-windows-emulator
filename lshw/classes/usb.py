@@ -79,7 +79,7 @@ class Usb(HardwareClass):
         for hw_item in self.hardware_set_to_return:
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret['product'] = hw_item.get('Description', self.__ERROR__)
+            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
             item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
             item_ret['pnpdeviceid'] = hw_item.get(
                 'PNPDeviceID', self.__ERROR__
