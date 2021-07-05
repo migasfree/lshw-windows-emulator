@@ -30,57 +30,57 @@ from .hardware_class import HardwareClass
 @HardwareClass.register('CdRom')
 class CdRom(HardwareClass):
     """
-    Gets CDROM/DVDROM  units information using WMI
+    Gets CDROM/DVDROM information using WMI
     """
 
     def __init__(self, dev_id=''):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.dev_id = dev_id
 
         self.formatted_data = {
-            "id": "cdrom",
-            "class": "disk",
-            "claimed": True,
-            "handle": "",
-            "description": self.__ERROR__,
-            "product": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "businfo": "",
-            "logicalname": self.__ERROR__,
-            "DeviceID": self.__ERROR__,
-            "PNPDeviceID": self.__ERROR__,
-            "dev": "",
-            "version": "",
-            "configuration": {
-                "ansiversion": "",
-                "status": self.__ERROR__
+            'id': 'cdrom',
+            'class': 'disk',
+            'claimed': True,
+            'handle': '',
+            'description': self.__ERROR__,
+            'product': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'businfo': '',
+            'logicalname': self.__ERROR__,
+            'DeviceID': self.__ERROR__,
+            'PNPDeviceID': self.__ERROR__,
+            'dev': '',
+            'version': '',
+            'configuration': {
+                'ansiversion': '',
+                'status': self.__ERROR__
             },
-            "capabilities": {
-                "removable": "",
-                "audio": "",
-                "cd-r": "",
-                "cd-rw": "",
-                "dvd": "",
-                "dvd-r": "",
-                "dvd-ram": ""
+            'capabilities': {
+                'removable': '',
+                'audio': '',
+                'cd-r': '',
+                'cd-rw': '',
+                'dvd': '',
+                'dvd-r': '',
+                'dvd-ram': ''
             }
         }
 
         self.properties_to_get = [
-            "DeviceID",
-            "PNPDeviceID",
-            "Manufacturer",
-            "Name",
-            "Caption",
-            "MediaType",
-            "SCSIBus",
-            "SCSILogicalUnit",
-            "SCSIPort",
-            "Description",
-            "MediaLoaded",
-            "Drive"
+            'DeviceID',
+            'PNPDeviceID',
+            'Manufacturer',
+            'Name',
+            'Caption',
+            'MediaType',
+            'SCSIBus',
+            'SCSILogicalUnit',
+            'SCSIPort',
+            'Description',
+            'MediaLoaded',
+            'Drive'
         ]
 
         self._update_properties_to_return()

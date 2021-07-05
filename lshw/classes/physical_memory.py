@@ -34,45 +34,45 @@ class PhysicalMemory(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.wmi_method = 'Win32_physicalMemory'
 
         self.formatted_data = {
-            "id": "memory:0",
-            "class": "memory",
-            "claimed": True,
-            "handle": "",
-            "description": "System Memory",
-            "physid": "",
-            "slot": "",
-            "children": []
+            'id': 'memory:0',
+            'class': 'memory',
+            'claimed': True,
+            'handle': '',
+            'description': 'System Memory',
+            'physid': '',
+            'slot': '',
+            'children': []
         }
 
         self.formatted_data_default = {
-            "id": self.__ERROR__,
-            "class": "memory",
-            "claimed": True,
-            "handle": "",
-            "description": self.__ERROR__,
-            "product": self.__ERROR__,
-            "vendor": "",
-            "physid": "",
-            "serial": "",
-            "slot": self.__ERROR__,
-            "units": "bytes",
-            "size": self.__ERROR__,
-            "width": self.__ERROR__,
-            "clock": self.__ERROR__
+            'id': self.__ERROR__,
+            'class': 'memory',
+            'claimed': True,
+            'handle': '',
+            'description': self.__ERROR__,
+            'product': self.__ERROR__,
+            'vendor': '',
+            'physid': '',
+            'serial': '',
+            'slot': self.__ERROR__,
+            'units': 'bytes',
+            'size': self.__ERROR__,
+            'width': self.__ERROR__,
+            'clock': self.__ERROR__
         }
 
         self.properties_to_get = [
-            "Tag",
-            "DeviceLocator",
-            "Capacity",
-            "Speed",
-            "MemoryType",
-            "DataWidth",
+            'Tag',
+            'DeviceLocator',
+            'Capacity',
+            'Speed',
+            'MemoryType',
+            'DataWidth',
         ]
 
         self._update_properties_to_return()
@@ -85,14 +85,14 @@ class PhysicalMemory(HardwareClass):
             item_ret = deepcopy(self.formatted_data_default)
 
             if 'Tag' in hw_item:
-                item_ret["id"] = 'bank:{}'.format(hw_item['Tag'][-1])
+                item_ret['id'] = 'bank:{}'.format(hw_item['Tag'][-1])
 
-            item_ret["description"] = hw_item.get('Tag', self.__ERROR__)
-            item_ret["product"] = hw_item.get('MemoryType', self.__ERROR__)
-            item_ret["slot"] = hw_item.get('DeviceLocator', self.__ERROR__)
-            item_ret["size"] = hw_item.get('Capacity', 0)
-            item_ret["width"] = hw_item.get('DataWidth', 0)
-            item_ret["clock"] = hw_item.get('Speed', 0)
+            item_ret['description'] = hw_item.get('Tag', self.__ERROR__)
+            item_ret['product'] = hw_item.get('MemoryType', self.__ERROR__)
+            item_ret['slot'] = hw_item.get('DeviceLocator', self.__ERROR__)
+            item_ret['size'] = hw_item.get('Capacity', 0)
+            item_ret['width'] = hw_item.get('DataWidth', 0)
+            item_ret['clock'] = hw_item.get('Speed', 0)
 
             ret.append(item_ret)
 

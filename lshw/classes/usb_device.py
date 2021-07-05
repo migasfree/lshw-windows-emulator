@@ -34,38 +34,38 @@ class UsbDevice(HardwareClass):
     """
 
     def __init__(self, dev_id=[]):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.dev_id = dev_id
 
         self.formatted_data = {
-            "id": "",
-            "class": self.__ERROR__,
-            "claimed": True,
-            "description": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "businfo": "",
-            "dev": "",
-            "version": "",
-            "serial": "",
-            "PNPDeviceID": self.__ERROR__,
-            "Parent_PNPDeviceID": self.__ERROR__,
-            "DeviceID": self.__ERROR__,
-            "children": []
+            'id': '',
+            'class': self.__ERROR__,
+            'claimed': True,
+            'description': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'businfo': '',
+            'dev': '',
+            'version': '',
+            'serial': '',
+            'PNPDeviceID': self.__ERROR__,
+            'Parent_PNPDeviceID': self.__ERROR__,
+            'DeviceID': self.__ERROR__,
+            'children': []
         }
 
         self.properties_to_get = [
-            "Caption",
-            "Description",
-            "DeviceID",
-            "PNPDeviceID",
+            'Caption',
+            'Description',
+            'DeviceID',
+            'PNPDeviceID',
         ]
 
         self._update_properties_to_return()
 
         # Add Parent_PNPDeviceID and Parent_DeviceID
-        self.properties_to_return.update({"Parent_PNPDeviceID": self.__DESC__})
+        self.properties_to_return.update({'Parent_PNPDeviceID': self.__DESC__})
 
     def get_hardware(self):
         """
@@ -74,10 +74,10 @@ class UsbDevice(HardwareClass):
         """
         # Devices excluded. We don't need them
         device_excluded = [
-            "Dispositivo compuesto USB",
-            "Dispositivo de interfaz humana USB",
-            "Dispositivo de almacenamiento masivo USB",
-            "USB 2.0 Root Hub"
+            'Dispositivo compuesto USB',
+            'Dispositivo de interfaz humana USB',
+            'Dispositivo de almacenamiento masivo USB',
+            'USB 2.0 Root Hub'
         ]
 
         usb_controller_device = {}
@@ -87,7 +87,7 @@ class UsbDevice(HardwareClass):
         usb_controller_device_primary = []
 
         for usb_assoc in self.wmi_system.Win32_USBControllerdevice(
-            ["Antecedent", "Dependent"]
+            ['Antecedent', 'Dependent']
         ):
             usb_controller_device['ant_value'] = usb_assoc.antecedent.split('=')[1].replace(
                 '"', ''
@@ -156,19 +156,19 @@ class UsbDevice(HardwareClass):
 
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret["id"] = usb_id_device
-            item_ret["class"] = hw_item.get('Description', self.__ERROR__)
-            item_ret["description"] = hw_item.get(
+            item_ret['id'] = usb_id_device
+            item_ret['class'] = hw_item.get('Description', self.__ERROR__)
+            item_ret['description'] = hw_item.get(
                 'Description', self.__ERROR__
             )
-            item_ret["vendor"] = hw_item.get('Description', self.__ERROR__)
-            item_ret["PNPDeviceID"] = hw_item.get(
+            item_ret['vendor'] = hw_item.get('Description', self.__ERROR__)
+            item_ret['PNPDeviceID'] = hw_item.get(
                 'PNPDeviceID', self.__ERROR__
             )
-            item_ret["Parent_PNPDeviceID"] = hw_item.get(
+            item_ret['Parent_PNPDeviceID'] = hw_item.get(
                 'Parent_PNPDeviceID', self.__ERROR__
             )
-            item_ret["DeviceID"] = hw_item.get('DeviceID', self.__ERROR__)
+            item_ret['DeviceID'] = hw_item.get('DeviceID', self.__ERROR__)
 
             ret.append(item_ret)
 

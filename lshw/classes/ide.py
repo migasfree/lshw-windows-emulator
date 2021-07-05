@@ -34,24 +34,24 @@ class Ide(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.formatted_data = {
-            "id": "ide:0",
-            "class": "",
-            "claimed": True,
-            "handle": "",
-            "description": self.__ERROR__,
-            "product": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "businfo": "",
-            "logicalname": [],
-            "version": "",
-            "width": 0,
-            "clock": 0,
-            "pnpdeviceid": self.__ERROR__,
-            "children": []
+            'id': 'ide:0',
+            'class': '',
+            'claimed': True,
+            'handle': '',
+            'description': self.__ERROR__,
+            'product': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'businfo': '',
+            'logicalname': '',
+            'version': '',
+            'width': 0,
+            'clock': 0,
+            'pnpdeviceid': self.__ERROR__,
+            'children': []
         }
 
         self.properties_to_get = [
@@ -70,15 +70,19 @@ class Ide(HardwareClass):
 
         ide_controller_device_primary = []
         for ide_assoc in self.wmi_system.Win32_IDEControllerdevice(
-            ["Antecedent", "Dependent"]
+            ['Antecedent', 'Dependent']
         ):
             ide_controller_device['ant_pref'] = ide_assoc.antecedent.split('=')[0].split(':')[0]
             ide_controller_device['ant_class'] = ide_assoc.antecedent.split('=')[0].split(':')[1]
-            ide_controller_device['ant_value'] = ide_assoc.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+            ide_controller_device['ant_value'] = ide_assoc.antecedent.split('=')[1].replace(
+                '"', ''
+            ).replace('\\\\', '\\')
 
             ide_controller_device['dep_pref'] = ide_assoc.dependent.split('=')[0].split(':')[0]
             ide_controller_device['dep_class'] = ide_assoc.dependent.split('=')[0].split(':')[1]
-            ide_controller_device['dep_value'] = ide_assoc.dependent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+            ide_controller_device['dep_value'] = ide_assoc.dependent.split('=')[1].replace(
+                '"', ''
+            ).replace('\\\\', '\\')
 
             # get only primary IDE controllers (without duplicates)
             exist = False
@@ -106,21 +110,21 @@ class Ide(HardwareClass):
             # for ide in self.wmi_system.Win32_IDEController(self.properties_to_get, PNPDeviceID=element):
             for ide in self.wmi_system.query(wql):
                 primary_controller = {
-                    "id": "ide:{}".format(id_cont_prim),
-                    "class": "",
-                    "claimed": True,
-                    "handle": "",
-                    "description": ide.Description,
-                    "product": ide.Caption,
-                    "vendor": ide.Manufacturer,
-                    "physid": "",
-                    "businfo": "",
-                    "logicalname": "",
-                    "version": "",
-                    "width": 0,
-                    "clock": 0,
-                    "pnpdeviceid": ide.PNPDeviceID,
-                    "children": []
+                    'id': 'ide:{}'.format(id_cont_prim),
+                    'class': '',
+                    'claimed': True,
+                    'handle': '',
+                    'description': ide.Description,
+                    'product': ide.Caption,
+                    'vendor': ide.Manufacturer,
+                    'physid': '',
+                    'businfo': '',
+                    'logicalname': '',
+                    'version': '',
+                    'width': 0,
+                    'clock': 0,
+                    'pnpdeviceid': ide.PNPDeviceID,
+                    'children': []
                 }
                 id_cont_prim += 1
 
@@ -135,21 +139,21 @@ class Ide(HardwareClass):
                         )
                         for ide2 in self.wmi_system.query(wql2):
                             secondary_controller = {
-                                "id": "channel:{}".format(ide2.PNPDeviceID[-1]),
-                                "class": "",
-                                "claimed": True,
-                                "handle": "",
-                                "description": ide2.Description,
-                                "product": ide2.Caption,
-                                "vendor": ide2.Manufacturer,
-                                "physid": "",
-                                "businfo": "",
-                                "logicalname": "",
-                                "version": "",
-                                "width": 0,
-                                "clock": 0,
-                                "pnpdeviceid": ide2.PNPDeviceID,
-                                "children": []
+                                'id': 'channel:{}'.format(ide2.PNPDeviceID[-1]),
+                                'class': '',
+                                'claimed': True,
+                                'handle': '',
+                                'description': ide2.Description,
+                                'product': ide2.Caption,
+                                'vendor': ide2.Manufacturer,
+                                'physid': '',
+                                'businfo': '',
+                                'logicalname': '',
+                                'version': '',
+                                'width': 0,
+                                'clock': 0,
+                                'pnpdeviceid': ide2.PNPDeviceID,
+                                'children': []
                             }
 
                             id_cont_sec += 1
@@ -162,7 +166,7 @@ class Ide(HardwareClass):
                                             element3['dep_value']
                                         )
                                         for ide3 in self.wmi_system.query(wql3):
-                                            if len(ide3.associators(wmi_result_class="Win32_DiskDrive")) != 0:
+                                            if len(ide3.associators(wmi_result_class='Win32_DiskDrive')) != 0:
                                                 hw_item_set = PhysicalDisk(ide3.PNPDeviceID)
                                             else:
                                                 # CD or DVD
@@ -183,11 +187,11 @@ class Ide(HardwareClass):
                                 element2['dep_value']
                             )
                             for ide4 in self.wmi_system.query(wql4):
-                                if len(ide4.associators(wmi_result_class="Win32_DiskDrive")) != 0:
+                                if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
                                     disk = PhysicalDisk(ide4.PNPDeviceID).format_data(children=True)
                                     id_disk += 1
                                     primary_controller['children'].append(disk[0])
-                                elif len(ide4.associators(wmi_result_class="Win32_CDROMDrive")) != 0:
+                                elif len(ide4.associators(wmi_result_class='Win32_CDROMDrive')) != 0:
                                     disk = CdRom(ide4.PNPDeviceID).format_data(children=True)
                                     id_disk += 1
                                     primary_controller['children'].append(disk[0])

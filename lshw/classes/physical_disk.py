@@ -35,47 +35,47 @@ class PhysicalDisk(HardwareClass):
     """
 
     def __init__(self, dev_id=''):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.dev_id = dev_id
 
         self.formatted_data = {
-            "id": "disk",
-            "class": "disk",
-            "claimed": True,
-            "handle": "",
-            "description": self.__ERROR__,
-            "product": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "deviceid": self.__ERROR__,
-            "pnpdeviceid": self.__ERROR__,
-            "businfo": self.__ERROR__,
-            "logicalname": "",
-            "dev": "",
-            "version": "",
-            "serial": "",
-            "units": "bytes",
-            "size": 0,
-            "configuration": {
-                "ansiversion": "",
-                "signature": ""
+            'id': 'disk',
+            'class': 'disk',
+            'claimed': True,
+            'handle': '',
+            'description': self.__ERROR__,
+            'product': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'deviceid': self.__ERROR__,
+            'pnpdeviceid': self.__ERROR__,
+            'businfo': self.__ERROR__,
+            'logicalname': '',
+            'dev': '',
+            'version': '',
+            'serial': '',
+            'units': 'bytes',
+            'size': 0,
+            'configuration': {
+                'ansiversion': '',
+                'signature': ''
             },
-            "capabilities": {
-                "partitioned": "",
-                "partitioned:dos": ""
+            'capabilities': {
+                'partitioned': '',
+                'partitioned:dos': ''
             },
-            "children": []
+            'children': []
         }
 
         self.properties_to_get = [
-            "Caption",
-            "Description",
-            "DeviceID",
-            "Index",
-            "Manufacturer",
-            "PNPDeviceID",
-            "Size",
+            'Caption',
+            'Description',
+            'DeviceID',
+            'Index',
+            'Manufacturer',
+            'PNPDeviceID',
+            'Size',
         ]
 
         self._update_properties_to_return()
@@ -107,13 +107,13 @@ class PhysicalDisk(HardwareClass):
         for hw_item in self.hardware_set_to_return:
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret["description"] = hw_item['Description']
-            item_ret["product"] = hw_item['Caption']
-            item_ret["vendor"] = hw_item['Manufacturer']
-            item_ret["deviceid"] = hw_item['DeviceID']
-            item_ret["pnpdeviceid"] = hw_item['PNPDeviceID']
-            item_ret["size"] = int(hw_item['Size'])
-            item_ret["businfo"] = "scsi@{}:0.0.0".format(hw_item['Index'])
+            item_ret['description'] = hw_item['Description']
+            item_ret['product'] = hw_item['Caption']
+            item_ret['vendor'] = hw_item['Manufacturer']
+            item_ret['deviceid'] = hw_item['DeviceID']
+            item_ret['pnpdeviceid'] = hw_item['PNPDeviceID']
+            item_ret['size'] = int(hw_item['Size'])
+            item_ret['businfo'] = 'scsi@{}:0.0.0'.format(hw_item['Index'])
 
             if children:
                 item_ret['children'] = PartitionDisk(

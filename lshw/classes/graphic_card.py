@@ -34,44 +34,44 @@ class GraphicCard(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.wmi_method = 'Win32_videoController'
 
         self.formatted_data = {
-            "id": "display",
-            "class": "display",
-            "claimed": True,
-            "handle": "",
-            "description": self.__ERROR__,
-            "product": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "businfo": "",
-            "version": "",
-            "width": 0,
-            "clock": 0,
-            "pnpdeviceid": self.__ERROR__,
-            "configuration": {
-                "driver": "",
-                "latency": ""
+            'id': 'display',
+            'class': 'display',
+            'claimed': True,
+            'handle': '',
+            'description': self.__ERROR__,
+            'product': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'businfo': '',
+            'version': '',
+            'width': 0,
+            'clock': 0,
+            'pnpdeviceid': self.__ERROR__,
+            'configuration': {
+                'driver': '',
+                'latency': ''
             },
-            "capabilities": {
-                "msi": "",
-                "pm": "",
-                "vga": "",
-                "bus_master": "",
-                "cap_list": "",
-                "rom": ""
+            'capabilities': {
+                'msi': '',
+                'pm': '',
+                'vga': '',
+                'bus_master': '',
+                'cap_list': '',
+                'rom': ''
             }
         }
 
         self.properties_to_get = [
-            "AdapterCompatibility",
-            "Description",
-            "DeviceID",
-            "PNPDeviceID",
-            "VideoProcessor",
+            'AdapterCompatibility',
+            'Description',
+            'DeviceID',
+            'PNPDeviceID',
+            'VideoProcessor',
         ]
 
         self._update_properties_to_return()
@@ -83,16 +83,16 @@ class GraphicCard(HardwareClass):
         for hw_item in self.hardware_set_to_return:
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret["description"] = hw_item.get(
+            item_ret['description'] = hw_item.get(
                 'Description', self.__ERROR__
             )
-            item_ret["product"] = hw_item.get(
+            item_ret['product'] = hw_item.get(
                 'VideoProcessor', self.__ERROR__
             )
-            item_ret["vendor"] = hw_item.get(
+            item_ret['vendor'] = hw_item.get(
                 'AdapterCompatibility', self.__ERROR__
             )
-            item_ret["pnpdeviceid"] = hw_item.get(
+            item_ret['pnpdeviceid'] = hw_item.get(
                 'PNPDeviceID', self.__ERROR__
             )
 

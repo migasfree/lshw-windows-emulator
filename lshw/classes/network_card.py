@@ -36,73 +36,73 @@ class NetworkCard(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.formatted_data = {
-            "id": "network",
-            "class": "network",
-            "claimed": True,
-            "handle": "",
-            "description": "Ethernet interface",
-            "product": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "businfo": "",
-            "logicalname": self.__ERROR__,
-            "version": "",
-            "serial": self.__ERROR__,
-            "units": "bit/s",
-            "size": 0,
-            "capacity": 0,
-            "width": 0,
-            "clock": 0,
-            "pnpdeviceid":  self.__ERROR__,
-            "configuration": {
-                "autonegotiation": self.__ERROR__,
-                "broadcast": "",
-                "driver": "",
-                "driverversion": "",
-                "duplex": "",
-                "firmware": "",
-                "ip": "",
-                "latency": "",
-                "link": "",
-                "multicast": "",
-                "port": "",
-                "speed": self.__ERROR__
+            'id': 'network',
+            'class': 'network',
+            'claimed': True,
+            'handle': '',
+            'description': 'Ethernet interface',
+            'product': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'businfo': '',
+            'logicalname': self.__ERROR__,
+            'version': '',
+            'serial': self.__ERROR__,
+            'units': 'bit/s',
+            'size': 0,
+            'capacity': 0,
+            'width': 0,
+            'clock': 0,
+            'pnpdeviceid':  self.__ERROR__,
+            'configuration': {
+                'autonegotiation': self.__ERROR__,
+                'broadcast': '',
+                'driver': '',
+                'driverversion': '',
+                'duplex': '',
+                'firmware': '',
+                'ip': '',
+                'latency': '',
+                'link': '',
+                'multicast': '',
+                'port': '',
+                'speed': self.__ERROR__
             },
-            "capabilities": {
-                "pm": "",
-                "vpd": "",
-                "msi": "",
-                "pciexpress": "",
-                "bus_master": "",
-                "cap_list": "",
-                "ethernet": True,
-                "physical": "",
-                "tp": "",
-                "10bt": "",
-                "10bt-fd": "",
-                "100bt": "",
-                "100bt-fd": "",
-                "1000bt": "",
-                "1000bt-fd": "",
-                "autonegotiation": self.__ERROR__
+            'capabilities': {
+                'pm': '',
+                'vpd': '',
+                'msi': '',
+                'pciexpress': '',
+                'bus_master': '',
+                'cap_list': '',
+                'ethernet': True,
+                'physical': '',
+                'tp': '',
+                '10bt': '',
+                '10bt-fd': '',
+                '100bt': '',
+                '100bt-fd': '',
+                '1000bt': '',
+                '1000bt-fd': '',
+                'autonegotiation': self.__ERROR__
             }
         }
 
         self.properties_to_get = [
-            "Speed",
-            "SystemCreationClassName",
-            "AdapterType",
-            "Autosense",
-            "Caption",
-            "MACAddress",
-            "ProductName",
-            "Manufacturer",
-            "NetConnectionID",
-            "Description",
-            "PNPDeviceID"
+            'Speed',
+            'SystemCreationClassName',
+            'AdapterType',
+            'Autosense',
+            'Caption',
+            'MACAddress',
+            'ProductName',
+            'Manufacturer',
+            'NetConnectionID',
+            'Description',
+            'PNPDeviceID'
         ]
 
         self._update_properties_to_return()
@@ -127,22 +127,22 @@ class NetworkCard(HardwareClass):
         for hw_item in self.hardware_set_to_return:
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret["product"] = hw_item.get('Description', self.__ERROR__)
-            item_ret["vendor"] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret["logicalname"] = hw_item.get(
+            item_ret['product'] = hw_item.get('Description', self.__ERROR__)
+            item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
+            item_ret['logicalname'] = hw_item.get(
                 'NetConnectionID', self.__ERROR__
             )
-            item_ret["serial"] = hw_item.get('MACAddress', self.__ERROR__)
-            item_ret["pnpdeviceid"] = hw_item.get(
+            item_ret['serial'] = hw_item.get('MACAddress', self.__ERROR__)
+            item_ret['pnpdeviceid'] = hw_item.get(
                 'PNPDeviceID', self.__ERROR__
             )
-            item_ret["configuration"]["autonegotiation"] = hw_item.get(
+            item_ret['configuration']['autonegotiation'] = hw_item.get(
                 'Autosense', self.__DESC__
             )
-            item_ret["configuration"]["speed"] = hw_item.get(
+            item_ret['configuration']['speed'] = hw_item.get(
                 'Speed', self.__ERROR__
             )
-            item_ret["capabilities"]["autonegotiation"] = hw_item.get(
+            item_ret['capabilities']['autonegotiation'] = hw_item.get(
                 'Autosense', self.__DESC__
             )
 

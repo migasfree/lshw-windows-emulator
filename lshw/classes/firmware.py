@@ -32,30 +32,30 @@ class Firmware(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.wmi_method = 'Win32_bios'
 
         self.formatted_data = {
-            "id": "firmware",
-            "class": "memory",
-            "claimed": True,
-            "description": "BIOS",
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "version": self.__ERROR__,
-            "date": self.__ERROR__,
-            "serial": self.__ERROR__,
-            "units": "",
-            "size": 0,
-            "capacity": 0
+            'id': 'firmware',
+            'class': 'memory',
+            'claimed': True,
+            'description': 'BIOS',
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'version': self.__ERROR__,
+            'date': self.__ERROR__,
+            'serial': self.__ERROR__,
+            'units': '',
+            'size': 0,
+            'capacity': 0
         }
 
         self.properties_to_get = [
-            "Manufacturer",
-            "BIOSVersion",
-            "ReleaseDate",
-            "SerialNumber"
+            'Manufacturer',
+            'BIOSVersion',
+            'ReleaseDate',
+            'SerialNumber'
         ]
 
         self._update_properties_to_return()

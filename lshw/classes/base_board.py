@@ -36,7 +36,7 @@ class BaseBoard(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.wmi_method = 'Win32_baseboard'
 

@@ -33,37 +33,37 @@ class ComputerSystem(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.wmi_method = 'Win32_computersystem'
 
         self.formatted_data = {
-            "id": self.__ERROR__,
-            "class": "system",
-            "claimed": True,
-            "handle": "",
-            "description": self.__ERROR__,
-            "product": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "serial": self.__ERROR__,
-            "width": 0,
-            "children": [],
-            "configuration": {
-                "boot": "",
-                "chassis": self.__ERROR__,
-                "cpus": self.__ERROR__,
-                "family": "",
-                "sku": "",
-                "uuid": self.__ERROR__
+            'id': self.__ERROR__,
+            'class': 'system',
+            'claimed': True,
+            'handle': '',
+            'description': self.__ERROR__,
+            'product': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'serial': self.__ERROR__,
+            'width': 0,
+            'children': [],
+            'configuration': {
+                'boot': '',
+                'chassis': self.__ERROR__,
+                'cpus': self.__ERROR__,
+                'family': '',
+                'sku': '',
+                'uuid': self.__ERROR__
             }
         }
 
         self.properties_to_get = [
-            "Model",
-            "Name",
-            "Description",
-            "Manufacturer",
-            "NumberOfProcessors"
+            'Model',
+            'Name',
+            'Description',
+            'Manufacturer',
+            'NumberOfProcessors'
         ]
 
         self._update_properties_to_return()
@@ -73,44 +73,44 @@ class ComputerSystem(HardwareClass):
 
         # Win32_SystemEnclosure
         chassis_types = [
-            "Maybe Virtual Machine",
-            "??",
-            "Desktop",
-            "low-profile",
-            "Pizza Box",
-            "mini-tower",
-            "Full Tower",
-            "Portable",
-            "Laptop",
-            "notebook",
-            "Hand Held",
-            "Docking Station",
-            "All in One",
-            "Sub Notebook",
-            "Space-Saving",
-            "Lunch Box",
-            "Main System Chassis",
-            "Lunch Box",
-            "SubChassis",
-            "Bus Expansion Chassis",
-            "Peripheral Chassis",
-            "Storage Chassis",
-            "Rack Mount Unit",
-            "Sealed-Case PC"
+            'Maybe Virtual Machine',
+            '??',
+            'Desktop',
+            'low-profile',
+            'Pizza Box',
+            'mini-tower',
+            'Full Tower',
+            'Portable',
+            'Laptop',
+            'notebook',
+            'Hand Held',
+            'Docking Station',
+            'All in One',
+            'Sub Notebook',
+            'Space-Saving',
+            'Lunch Box',
+            'Main System Chassis',
+            'Lunch Box',
+            'SubChassis',
+            'Bus Expansion Chassis',
+            'Peripheral Chassis',
+            'Storage Chassis',
+            'Rack Mount Unit',
+            'Sealed-Case PC'
         ]
 
-        for hw_item in self.wmi_system.Win32_SystemEnclosure(["ChassisTypes"]):
-            if type(getattr(hw_item, "ChassisTypes")).__name__ == 'NoneType':
+        for hw_item in self.wmi_system.Win32_SystemEnclosure(['ChassisTypes']):
+            if type(getattr(hw_item, 'ChassisTypes')).__name__ == 'NoneType':
                 _chassis = self.__DESC__
             else:
-                if int(getattr(hw_item, "ChassisTypes")[0]) in range(1, len(chassis_types) + 1):
+                if int(getattr(hw_item, 'ChassisTypes')[0]) in range(1, len(chassis_types) + 1):
                     _chassis = chassis_types[hw_item.ChassisTypes[0] - 1]
 
         return _chassis
 
     def get_computer_uuid_serialnumber(self):
         for hw_item in self.wmi_system.Win32_Computersystemproduct(
-            ["UUID", "IdentifyingNumber"]
+            ['UUID', 'IdentifyingNumber']
         ):
             uuid = hw_item.UUID if getattr(hw_item, 'UUID') else self.__DESC__
             serial = hw_item.IdentifyingNumber if getattr(hw_item, 'IdentifyingNumber') else self.__DESC__
@@ -124,23 +124,23 @@ class ComputerSystem(HardwareClass):
         uuid, serial = self.get_computer_uuid_serialnumber()
 
         for hw_item in self.hardware_set_to_return:
-            self.formatted_data["id"] = hw_item.get('Name', self.__ERROR__)
-            self.formatted_data["description"] = '{}, {}'.format(
+            self.formatted_data['id'] = hw_item.get('Name', self.__ERROR__)
+            self.formatted_data['description'] = '{}, {}'.format(
                 hw_item.get('Description', self.__ERROR__),
                 chassis
             )
-            self.formatted_data["product"] = hw_item.get(
+            self.formatted_data['product'] = hw_item.get(
                 'Model', self.__ERROR__
             )
-            self.formatted_data["vendor"] = hw_item.get(
+            self.formatted_data['vendor'] = hw_item.get(
                 'Manufacturer', self.__ERROR__
             )
-            self.formatted_data["serial"] = serial
-            self.formatted_data["configuration"]["chassis"] = chassis
-            self.formatted_data["configuration"]["cpus"] = hw_item.get(
-                "NumberOfProcessors", self.__ERROR__
+            self.formatted_data['serial'] = serial
+            self.formatted_data['configuration']['chassis'] = chassis
+            self.formatted_data['configuration']['cpus'] = hw_item.get(
+                'NumberOfProcessors', self.__ERROR__
             )
-            self.formatted_data["configuration"]["uuid"] = uuid
+            self.formatted_data['configuration']['uuid'] = uuid
 
         if children:
             self.formatted_data['children'] = [

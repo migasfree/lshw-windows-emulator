@@ -34,39 +34,39 @@ class LogicalDisk(HardwareClass):
     """
 
     def __init__(self, dev_id=''):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.formatted_data = {
-            "id": self.__ERROR__,
-            "class": "volume",
-            "claimed": True,
-            "description": self.__ERROR__,
-            "physid": "",
-            "deviceid": self.__ERROR__,
-            "logicalname": self.__ERROR__,
-            "dev": "",
-            "capacity": self.__ERROR__,
-            "configuration": {
-                "mount.fstype": self.__ERROR__,
-                "mount.options": "",
-                "state": "mounted"
+            'id': self.__ERROR__,
+            'class': 'volume',
+            'claimed': True,
+            'description': self.__ERROR__,
+            'physid': '',
+            'deviceid': self.__ERROR__,
+            'logicalname': self.__ERROR__,
+            'dev': '',
+            'capacity': self.__ERROR__,
+            'configuration': {
+                'mount.fstype': self.__ERROR__,
+                'mount.options': '',
+                'state': 'mounted'
             }
         }
 
         self.dev_id = dev_id
 
         self.properties_to_get = [
-            "Caption",
-            "Name",
-            "ProviderName",
-            "Description",
-            "FileSystem",
-            "MediaType",
-            "VolumeName",
-            "Size",
-            "FreeSpace",
-            "DeviceID",
-            "DriveType"
+            'Caption',
+            'Name',
+            'ProviderName',
+            'Description',
+            'FileSystem',
+            'MediaType',
+            'VolumeName',
+            'Size',
+            'FreeSpace',
+            'DeviceID',
+            'DriveType'
         ]
 
         self._update_properties_to_return()
@@ -88,8 +88,8 @@ class LogicalDisk(HardwareClass):
             wql = 'SELECT DeviceID FROM Win32_diskpartition WHERE DeviceID="{}"'.format(self.dev_id)
             for element in self.wmi_system.query(wql):
                 for part in element.associators(
-                    wmi_association_class="Win32_LogicalDiskToPartition",
-                    wmi_result_class="Win32_LogicalDisk"
+                    wmi_association_class='Win32_LogicalDiskToPartition',
+                    wmi_result_class='Win32_LogicalDisk'
                 ):
                     self.hardware_set.append(part)
 
@@ -110,12 +110,12 @@ class LogicalDisk(HardwareClass):
             file_system = hw_item.get('FileSystem', self.__DESC__)
 
             item_ret = deepcopy(self.formatted_data)
-            item_ret["id"] = _id
-            item_ret["deviceid"] = hw_item.get('DeviceID', self.__DESC__)
-            item_ret["logicalname"] = hw_item.get('VolumeName', self.__DESC__)
-            item_ret["capacity"] = hw_item.get('Size', self.__DESC__)
+            item_ret['id'] = _id
+            item_ret['deviceid'] = hw_item.get('DeviceID', self.__DESC__)
+            item_ret['logicalname'] = hw_item.get('VolumeName', self.__DESC__)
+            item_ret['capacity'] = hw_item.get('Size', self.__DESC__)
             if 'Description' in hw_item:
-                item_ret["description"] = '{}. Volume name: [{}]. Label: {}. Filesystem: {}'.format(
+                item_ret['description'] = '{}. Volume name: [{}]. Label: {}. Filesystem: {}'.format(
                     hw_item['Description'],
                     hw_item.get('Name', self.__DESC__),
                     item_ret['logicalname'],
@@ -123,7 +123,7 @@ class LogicalDisk(HardwareClass):
                 )
             else:
                 item_ret['description'] = self.__ERROR__
-            item_ret["configuration"]["mount.fstype"] = file_system
+            item_ret['configuration']['mount.fstype'] = file_system
 
             ret.append(item_ret)
 

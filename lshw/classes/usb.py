@@ -35,39 +35,39 @@ class Usb(HardwareClass):
     """
 
     def __init__(self):
-        HardwareClass.__init__(self)
+        super().__init__()
 
         self.wmi_method = 'Win32_USBController'
 
         self.formatted_data = {
-            "id": "",
-            "class": "bus",
-            "claimed": True,
-            "handle": "",
-            "description": self.__ERROR__,
-            "vendor": self.__ERROR__,
-            "physid": "",
-            "businfo": "",
-            "version": "",
-            "width": 0,
-            "clock": 0,
-            "pnpdeviceid": self.__ERROR__,
-            "configuration": {
-                "driver": "",
-                "latency": ""
+            'id': '',
+            'class': 'bus',
+            'claimed': True,
+            'handle': '',
+            'description': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '',
+            'businfo': '',
+            'version': '',
+            'width': 0,
+            'clock': 0,
+            'pnpdeviceid': self.__ERROR__,
+            'configuration': {
+                'driver': '',
+                'latency': ''
             },
-            "children": [],
-            "capabilities": {
-                "uhci": "",
-                "bus_master": ""
+            'children': [],
+            'capabilities': {
+                'uhci': '',
+                'bus_master': ''
             }
         }
 
         self.properties_to_get = [
-            "PNPDeviceID",
-            "DeviceID",
-            "Description",
-            "Manufacturer"
+            'PNPDeviceID',
+            'DeviceID',
+            'Description',
+            'Manufacturer'
         ]
 
         self._update_properties_to_return()
@@ -79,9 +79,9 @@ class Usb(HardwareClass):
         for hw_item in self.hardware_set_to_return:
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret["product"] = hw_item.get('Description', self.__ERROR__)
-            item_ret["vendor"] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret["pnpdeviceid"] = hw_item.get(
+            item_ret['product'] = hw_item.get('Description', self.__ERROR__)
+            item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
+            item_ret['pnpdeviceid'] = hw_item.get(
                 'PNPDeviceID', self.__ERROR__
             )
 
