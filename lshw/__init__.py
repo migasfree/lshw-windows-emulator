@@ -22,4 +22,4 @@ __author__ = [
 ]
 __license__ = 'GPLv3'
 
-__version__ = '1.0'
+__version__ = '1.1'
