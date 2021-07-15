@@ -137,8 +137,7 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
-        'Environment :: X11 Applications :: Gnome',
-        'Environment :: X11 Applications :: KDE',
+        'Environment :: Win32 (MS Windows)',
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
