@@ -116,7 +116,7 @@ def pretty(d, indent=0):
 
     if isinstance(d, dict):
         for key, value in d.items():
-            if isinstance(value, dict) or isinstance(value, list):
+            if isinstance(value, (dict, list)):
                 pretty(value, indent + 1)
             else:
                 print('\t' * (indent + 1) + str(key) + ': ' + str(value))
