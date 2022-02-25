@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -80,12 +80,12 @@ def _usage_examples():
     print('\n' + 'Examples:')
 
     print('\n  ' + 'Output in JSON format:')
-    print('\t%s -j' % PROGRAM)
-    print('\t%s --json' % PROGRAM)
+    print(f'\t{PROGRAM} -j')
+    print(f'\t{PROGRAM} --json')
 
     print('\n  ' + 'Print a specific hardware class:')
-    print('\t%s --c memory' % PROGRAM)
-    print('\t%s --class-hw memory' % PROGRAM)
+    print(f'\t{PROGRAM} --c memory')
+    print(f'\t{PROGRAM} --class-hw memory')
 
 
 def parse_args(argv):
@@ -134,7 +134,7 @@ def main(argv=None):
         if _piece == 'list':
             _help_msg = "Pieces of hardware to choice:\n"
             for x, y in AVAILABLE_CLASSES.items():
-                _help_msg += '\t{}\n'.format(x)
+                _help_msg += f'\t{x}\n'
 
             print(_help_msg)
             return ALL_OK
