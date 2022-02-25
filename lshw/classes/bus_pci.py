@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -75,11 +75,11 @@ class BusPci(HardwareClass):
             id_bus = ''
             if 'DeviceID' in hw_item:
                 if hw_item['DeviceID'][0:3].lower() == 'isa':
-                    id_bus = 'isa:{}'.format(hw_item['DeviceID'][-1])
+                    id_bus = f'isa:{hw_item["DeviceID"][-1]}'
                 elif hw_item['DeviceID'][0:3].lower() == 'pci':
-                    id_bus = 'pci:{}'.format(hw_item['DeviceID'][-1])
+                    id_bus = f'pci:{hw_item["DeviceID"][-1]}'
                 elif hw_item['DeviceID'][0:3].lower() == 'pnp':
-                    id_bus = 'pnp:{}'.format(hw_item['DeviceID'][-1])
+                    id_bus = f'pnp:{hw_item["DeviceID"][-1]}'
 
             child = deepcopy(self.formatted_data)
             child['id'] = id_bus
@@ -100,7 +100,7 @@ class BusPci(HardwareClass):
 
             i = 0
             for element in Usb().format_data(children):
-                element['id'] = 'usb:{}'.format(i)
+                element['id'] = f'usb:{i}'
                 pci_child.append(element)
                 i += 1
 
