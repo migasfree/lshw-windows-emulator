@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -113,7 +113,7 @@ class PhysicalDisk(HardwareClass):
             item_ret['deviceid'] = hw_item['DeviceID']
             item_ret['pnpdeviceid'] = hw_item['PNPDeviceID']
             item_ret['size'] = int(hw_item['Size'])
-            item_ret['businfo'] = 'scsi@{}:0.0.0'.format(hw_item['Index'])
+            item_ret['businfo'] = f'scsi@{hw_item["Index"]}:0.0.0'
 
             if children:
                 item_ret['children'] = PartitionDisk(
