@@ -46,12 +46,13 @@ from distutils.log import info, error
 from distutils.dep_util import newer
 
 PATH = os.path.dirname(os.path.abspath(__file__))
-README = open(os.path.join(PATH, 'README.md')).read()
+with open(os.path.join(PATH, 'README.md'),  encoding='utf_8') as f:
+    README = f.read()
 VERSION = __import__('lshw').__version__
 
 REQUIRES = filter(
     lambda s: len(s) > 0,
-    open(os.path.join(PATH, 'requirements.txt')).read().split('\n')
+    open(os.path.join(PATH, 'requirements.txt'), encoding='utf_8').read().split('\n')
 )
 
 APP_NAME = 'lshw'
