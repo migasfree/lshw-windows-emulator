@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -76,10 +76,8 @@ class Processor(HardwareClass):
         for hw_item in self.hardware_set_to_return:
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret['id'] = 'cpu:{}'.format(cpu_id)
-            item_ret['description'] = hw_item.get(
-                'Description', self.__ERROR__
-            )
+            item_ret['id'] = f'cpu:{cpu_id}'
+            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
             item_ret['product'] = hw_item.get('Name', self.__ERROR__)
             item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
             item_ret['slot'] = hw_item.get('SocketDesignation', self.__ERROR__)
