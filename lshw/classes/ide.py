@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -103,10 +103,7 @@ class Ide(HardwareClass):
         id_cont_prim = 0
         fields = ','.join(self.properties_to_get)
         for element in ide_controller_device_primary:
-            wql = 'SELECT {} FROM Win32_IDEController WHERE PNPDeviceID="{}"'.format(
-                fields,
-                element
-            )
+            wql = f'SELECT {fields} FROM Win32_IDEController WHERE PNPDeviceID="{element}"'
             # for ide in self.wmi_system.Win32_IDEController(self.properties_to_get, PNPDeviceID=element):
             for ide in self.wmi_system.query(wql):
                 primary_controller = {
