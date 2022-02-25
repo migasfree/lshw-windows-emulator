@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -85,7 +85,7 @@ class LogicalDisk(HardwareClass):
                 self.hardware_set.append(element)
         else:
             # Gets associated partitions to a disk (DeviceID = self.dev_id)
-            wql = 'SELECT DeviceID FROM Win32_diskpartition WHERE DeviceID="{}"'.format(self.dev_id)
+            wql = f'SELECT DeviceID FROM Win32_diskpartition WHERE DeviceID="{self.dev_id}"'
             for element in self.wmi_system.query(wql):
                 for part in element.associators(
                     wmi_association_class='Win32_LogicalDiskToPartition',
@@ -103,7 +103,7 @@ class LogicalDisk(HardwareClass):
         ret = []
         for hw_item in self.hardware_set_to_return:
             try:
-                _id = 'logicalvolume:{}'.format(drive_letters.index(hw_item['DeviceID'][0]))
+                _id = f'logicalvolume:{drive_letters.index(hw_item["DeviceID"][0])}'
             except ValueError:
                 _id = self.__ERROR__
 
