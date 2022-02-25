@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -85,7 +85,7 @@ class PhysicalMemory(HardwareClass):
             item_ret = deepcopy(self.formatted_data_default)
 
             if 'Tag' in hw_item:
-                item_ret['id'] = 'bank:{}'.format(hw_item['Tag'][-1])
+                item_ret['id'] = f'bank:{hw_item["Tag"][-1]}'
 
             item_ret['description'] = hw_item.get('Tag', self.__ERROR__)
             item_ret['product'] = hw_item.get('MemoryType', self.__ERROR__)
