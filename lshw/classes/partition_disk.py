@@ -1,4 +1,26 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
+
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+__author__ = [
+    'Jose Antonio Chavarría <jachavar@gmail.com>',
+    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
+]
+__license__ = 'GPLv3'
 
 from copy import deepcopy
 
@@ -50,7 +72,6 @@ class PartitionDisk(HardwareClass):
 
         self.dev_id = dev_id
 
-        # Properties to get
         self.properties_to_get = [
             'Bootable',
             'BootPartition',
@@ -78,11 +99,9 @@ class PartitionDisk(HardwareClass):
                 self.hardware_set.append(element)
         else:
             # Gets associated partitions to a disk (DeviceID = self.dev_id)
-            wql = 'SELECT DeviceID FROM Win32_diskdrive WHERE DeviceID="{}"'.format(self.dev_id)
+            wql = f'SELECT DeviceID FROM Win32_diskdrive WHERE DeviceID="{self.dev_id}"'
             for element in self.wmi_system.query(wql):
-                for part in element.associators(
-                    'Win32_DiskDriveToDiskPartition'
-                ):
+                for part in element.associators('Win32_DiskDriveToDiskPartition'):
                     self.hardware_set.append(part)
 
         self.check_values()
@@ -114,7 +133,7 @@ class PartitionDisk(HardwareClass):
 
             item_ret = deepcopy(self.formatted_data)
 
-            item_ret['id'] = 'volume:{}'.format(hw_item['Index'])
+            item_ret['id'] = f'volume:{hw_item["Index"]}'
             item_ret['size'] = hw_item['Size']
             item_ret['capacity'] = int(hw_item['Size'])
             item_ret['PNPDeviceID'] = hw_item['PNPDeviceID']
