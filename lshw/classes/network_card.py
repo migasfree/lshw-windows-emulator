@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -110,10 +110,10 @@ class NetworkCard(HardwareClass):
     def get_hardware(self):
         fields = ','.join(self.properties_to_get)
 
-        wql = 'SELECT {} FROM Win32_NetworkAdapter WHERE (NOT PNPDeviceID LIKE "%ROOT%")'.format(fields)
+        wql = f'SELECT {fields} FROM Win32_NetworkAdapter WHERE (NOT PNPDeviceID LIKE "%ROOT%")'
         # wql is diferent in 10.0.18362 compilations and later
         if platform.release() == '10' and platform.version() >= '10.0.18362':
-            wql = 'SELECT {} FROM Win32_NetworkAdapter WHERE (PhysicalAdapter=True)'.format(fields)
+            wql = f'SELECT {fields} FROM Win32_NetworkAdapter WHERE (PhysicalAdapter=True)'
 
         for element in self.wmi_system.query(wql):
             self.hardware_set.append(element)
@@ -129,22 +129,12 @@ class NetworkCard(HardwareClass):
 
             item_ret['product'] = hw_item.get('Description', self.__ERROR__)
             item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret['logicalname'] = hw_item.get(
-                'NetConnectionID', self.__ERROR__
-            )
+            item_ret['logicalname'] = hw_item.get('NetConnectionID', self.__ERROR__)
             item_ret['serial'] = hw_item.get('MACAddress', self.__ERROR__)
-            item_ret['pnpdeviceid'] = hw_item.get(
-                'PNPDeviceID', self.__ERROR__
-            )
-            item_ret['configuration']['autonegotiation'] = hw_item.get(
-                'Autosense', self.__DESC__
-            )
-            item_ret['configuration']['speed'] = hw_item.get(
-                'Speed', self.__ERROR__
-            )
-            item_ret['capabilities']['autonegotiation'] = hw_item.get(
-                'Autosense', self.__DESC__
-            )
+            item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret['configuration']['autonegotiation'] = hw_item.get('Autosense', self.__DESC__)
+            item_ret['configuration']['speed'] = hw_item.get('Speed', self.__ERROR__)
+            item_ret['capabilities']['autonegotiation'] = hw_item.get('Autosense', self.__DESC__)
 
             ret.append(item_ret)
 
