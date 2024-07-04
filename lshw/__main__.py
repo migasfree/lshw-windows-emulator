@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ AVAILABLE_CLASSES = {
     "bios": ['Firmware', 2],
     "processor": ['Processor', 3],
     "memory": ['PhysicalMemory', 4],
-    "pci": ['BusPci', 5],
+    "pci": ['Pci', 5],
     "ide": ['Ide', 6],
     "disk": ['PhysicalDisk', 7],
     "partition": ['PartitionDisk', 8],
@@ -145,7 +145,7 @@ def main(argv=None):
                 try:
                     hw_class = HardwareClass.factory(_class)()
                     formatted_data = hw_class.format_data(children=False)
-                except:
+                except Exception:
                     return _exit_manager(y[1], _class)
 
         if not _class:
@@ -157,7 +157,7 @@ def main(argv=None):
         try:
             hw_class = HardwareClass.factory('ComputerSystem')()
             formatted_data = hw_class.format_data(children=True)
-        except:
+        except Exception:
             return _exit_manager(16, 'system')
 
     if args.json:
