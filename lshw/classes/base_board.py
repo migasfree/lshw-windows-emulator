@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ from .hardware_class import HardwareClass
 from .firmware import Firmware
 from .processor import Processor
 from .physical_memory import PhysicalMemory
-from .bus_pci import BusPci
+from .pci import Pci
 
 
 @HardwareClass.register('BaseBoard')
@@ -80,7 +80,7 @@ class BaseBoard(HardwareClass):
             self.formatted_data['children'] = [
                 Firmware().format_data(),
                 PhysicalMemory().format_data(),
-                BusPci().format_data(children=True)
+                Pci().format_data(children=True)
             ]
             for item in Processor().format_data():
                 self.formatted_data['children'].append(item)
