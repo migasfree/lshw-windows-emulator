@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -107,7 +107,7 @@ class Ide(HardwareClass):
             # for ide in self.wmi_system.Win32_IDEController(self.properties_to_get, PNPDeviceID=element):
             for ide in self.wmi_system.query(wql):
                 primary_controller = {
-                    'id': 'ide:{}'.format(id_cont_prim),
+                    'id': f'ide:{id_cont_prim}',
                     'class': '',
                     'claimed': True,
                     'handle': '',
@@ -203,5 +203,5 @@ class Ide(HardwareClass):
     def format_data(self, children=False):
         try:
             return self.get_hardware(children)
-        except:
+        except Exception:
             return self.formatted_data
