@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,10 +30,11 @@ from .usb import Usb
 from .sound_device import SoundDevice
 from .graphic_card import GraphicCard
 from .network_card import NetworkCard
+from .physical_disk import PhysicalDisk
 
 
-@HardwareClass.register('BusPci')
-class BusPci(HardwareClass):
+@HardwareClass.register('Pci')
+class Pci(HardwareClass):
     """
     Gets PCI bus information using WMI
     """
@@ -105,6 +106,9 @@ class BusPci(HardwareClass):
                 i += 1
 
             for element in SoundDevice().format_data():
+                pci_child.append(element)
+
+            for element in PhysicalDisk().format_data():
                 pci_child.append(element)
 
             self.formatted_data['children'] = pci_child
