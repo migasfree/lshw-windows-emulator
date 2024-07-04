@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ from .base_board import BaseBoard
 from .firmware import Firmware
 from .processor import Processor
 from .physical_memory import PhysicalMemory
-from .bus_pci import BusPci
+from .pci import Pci
 from .physical_disk import PhysicalDisk
 from .partition_disk import PartitionDisk
 from .ide import Ide
