@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ __license__ = 'GPLv3'
 # python setup.py bdist_egg
 # python setup.py build
 # python setup.py bdist_wininst
+# python setup.py bdist_wheel
 # python setup.py bdist
 # python setup.py bdist --format=msi
 
