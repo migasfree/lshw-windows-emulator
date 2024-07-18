@@ -169,10 +169,10 @@ class Ide(HardwareClass):
                                                 # CD or DVD
                                                 hw_item_set = CdRom(ide3.PNPDeviceID)
 
-                                            Disk = hw_item_set.format_data(children=True)
+                                            disk = hw_item_set.format_data(children=True)
 
                                             id_disk += 1
-                                            secondary_controller['children'].append(Disk[0])
+                                            secondary_controller['children'].append(disk[0])
 
                             primary_controller['children'].append(
                                 secondary_controller
