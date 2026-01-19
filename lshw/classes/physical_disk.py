@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 from copy import deepcopy
@@ -57,15 +52,9 @@ class PhysicalDisk(HardwareClass):
             'serial': '',
             'units': 'bytes',
             'size': 0,
-            'configuration': {
-                'ansiversion': '',
-                'signature': ''
-            },
-            'capabilities': {
-                'partitioned': '',
-                'partitioned:dos': ''
-            },
-            'children': []
+            'configuration': {'ansiversion': '', 'signature': ''},
+            'capabilities': {'partitioned': '', 'partitioned:dos': ''},
+            'children': [],
         }
 
         self.properties_to_get = [
@@ -86,17 +75,11 @@ class PhysicalDisk(HardwareClass):
         If self.dev_id exists get hardware for DeviceID
         """
         if self.dev_id == '':
-            for element in self.wmi_system.Win32_Diskdrive(
-                self.properties_to_get
-            ):
+            for element in self.wmi_system.Win32_Diskdrive(self.properties_to_get):
                 self.hardware_set.append(element)
         else:
-            wql = 'SELECT {} FROM Win32_diskdrive WHERE PNPDeviceID LIKE "%{}%"'.format(
-                ','.join(self.properties_to_get),
-                self.dev_id
-            )
-            for element in self.wmi_system.query(wql):
-                self.hardware_set.append(element)
+            wql = self.build_wql_select('Win32_diskdrive', f'PNPDeviceID LIKE "%{self.dev_id}%"')
+            self.execute_wql_query(wql)
 
         self.check_values()
 
@@ -116,9 +99,7 @@ class PhysicalDisk(HardwareClass):
             item_ret['businfo'] = f'scsi@{hw_item["Index"]}:0.0.0'
 
             if children:
-                item_ret['children'] = PartitionDisk(
-                    hw_item['DeviceID']
-                ).format_data(children)
+                item_ret['children'] = PartitionDisk(hw_item['DeviceID']).format_data(children)
 
             ret.append(item_ret)
 
