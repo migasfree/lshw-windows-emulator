@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 from copy import deepcopy
@@ -46,11 +41,7 @@ class LogicalDisk(HardwareClass):
             'logicalname': self.__ERROR__,
             'dev': '',
             'capacity': self.__ERROR__,
-            'configuration': {
-                'mount.fstype': self.__ERROR__,
-                'mount.options': '',
-                'state': 'mounted'
-            }
+            'configuration': {'mount.fstype': self.__ERROR__, 'mount.options': '', 'state': 'mounted'},
         }
 
         self.dev_id = dev_id
@@ -66,7 +57,7 @@ class LogicalDisk(HardwareClass):
             'Size',
             'FreeSpace',
             'DeviceID',
-            'DriveType'
+            'DriveType',
         ]
 
         self._update_properties_to_return()
@@ -79,17 +70,14 @@ class LogicalDisk(HardwareClass):
 
         if self.dev_id == '':
             # Gets everything
-            for element in self.wmi_system.Win32_LogicalDisk(
-                self.properties_to_get
-            ):
+            for element in self.wmi_system.Win32_LogicalDisk(self.properties_to_get):
                 self.hardware_set.append(element)
         else:
             # Gets associated partitions to a disk (DeviceID = self.dev_id)
             wql = f'SELECT DeviceID FROM Win32_diskpartition WHERE DeviceID="{self.dev_id}"'
             for element in self.wmi_system.query(wql):
                 for part in element.associators(
-                    wmi_association_class='Win32_LogicalDiskToPartition',
-                    wmi_result_class='Win32_LogicalDisk'
+                    wmi_association_class='Win32_LogicalDiskToPartition', wmi_result_class='Win32_LogicalDisk'
                 ):
                     self.hardware_set.append(part)
 
@@ -116,10 +104,7 @@ class LogicalDisk(HardwareClass):
             item_ret['capacity'] = hw_item.get('Size', self.__DESC__)
             if 'Description' in hw_item:
                 item_ret['description'] = '{}. Volume name: [{}]. Label: {}. Filesystem: {}'.format(
-                    hw_item['Description'],
-                    hw_item.get('Name', self.__DESC__),
-                    item_ret['logicalname'],
-                    file_system
+                    hw_item['Description'], hw_item.get('Name', self.__DESC__), item_ret['logicalname'], file_system
                 )
             else:
                 item_ret['description'] = self.__ERROR__
