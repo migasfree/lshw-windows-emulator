@@ -1,29 +1,72 @@
-Description
-===========
+# LsHw Windows Emulator
 
-LsHw Windows Emulator is a simplified Windows port of [Hardware Lister project](https://ezix.org/project/wiki/HardwareLiSter) based in WMI.
+[![Python 3.6+](https://img.shields.io/badge/python-3.6%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Started in 2011 by Alfonso Gómez Sánchez for Python 2.
+A Windows port of [Hardware Lister (lshw)](https://ezix.org/project/wiki/HardwareLiSter) using WMI.
 
-Resumed in 2021 by Jose Antonio Chavarría:
-* Python 3 adaptation.
-* Packaging.
+## Installation
 
+```bash
+pip install lshw
+```
 
-License
-=======
+Or from source:
 
-LsHw Windows Emulator is free software, released under GNU GPL v3 (see LICENSE file for details).
+```bash
+git clone https://github.com/migasfree/lshw-windows-emulator.git
+cd lshw-windows-emulator
+pip install .
+```
 
+## Usage
 
-Authors
-=======
+```bash
+# All hardware info
+lshw
 
-See AUTHORS file.
+# JSON output
+lshw --json
 
+# Specific class
+lshw -c network
 
-Requirements
-============
+# List available classes
+lshw -c list
+```
 
-* Windows 10
-* Python >= 3.6 (see requirements.txt file)
+### Available Classes
+
+`system` `baseboard` `bios` `processor` `memory` `pci` `ide` `disk` `partition` `volume` `usb` `usbdevices` `cdrom` `video` `network` `sound`
+
+### Python API
+
+```python
+from lshw.classes import HardwareClass
+
+system = HardwareClass.factory('ComputerSystem')()
+data = system.format_data(children=True)
+```
+
+## Requirements
+
+- Windows 10+
+- Python >= 3.6
+
+## Development
+
+See [ONBOARDING.md](ONBOARDING.md) for developer documentation.
+
+## License
+
+[GNU GPL v3](LICENSE)
+
+## Authors
+
+See [AUTHORS](AUTHORS) file.
+
+## Links
+
+- [GitHub](https://github.com/migasfree/lshw-windows-emulator)
+- [Issues](https://github.com/migasfree/lshw-windows-emulator/issues)
+- [migasfree](https://migasfree.org)
