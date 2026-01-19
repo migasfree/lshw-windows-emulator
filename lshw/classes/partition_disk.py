@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 from copy import deepcopy
@@ -59,15 +54,15 @@ class PartitionDisk(HardwareClass):
                 'mount.fstype': 'fat',
                 'mount.options': '',
                 'mounted': '',
-                'state': 'mounted'
+                'state': 'mounted',
             },
             'capabilities': {
                 'primary': self.__ERROR__,
                 'extended': self.__ERROR__,
                 'bootable': self.__ERROR__,
-                'extended_attributes': ''
+                'extended_attributes': '',
             },
-            'children': []
+            'children': [],
         }
 
         self.dev_id = dev_id
@@ -93,9 +88,7 @@ class PartitionDisk(HardwareClass):
         """
         if self.dev_id == '':
             # Gets everything
-            for element in self.wmi_system.Win32_Diskpartition(
-                self.properties_to_get
-            ):
+            for element in self.wmi_system.Win32_Diskpartition(self.properties_to_get):
                 self.hardware_set.append(element)
         else:
             # Gets associated partitions to a disk (DeviceID = self.dev_id)
@@ -120,15 +113,16 @@ class PartitionDisk(HardwareClass):
 
             primary = 'No primary partition'
             extended = 'Extended partition'
-            if 'PrimaryPartition' in hw_item \
-                    and hw_item['PrimaryPartition'] is True:
+            if 'PrimaryPartition' in hw_item and hw_item['PrimaryPartition'] is True:
                 primary = 'Primary partition'
                 extended = 'No extended partition'
 
             description = hw_item.get('Description', self.__ERROR__)
-            if hw_item['Description'].lower() == 'unknown' \
-                    and hw_item['Bootable'] is True \
-                    and hw_item['BootPartition'] is True:
+            if (
+                hw_item['Description'].lower() == 'unknown'
+                and hw_item['Bootable'] is True
+                and hw_item['BootPartition'] is True
+            ):
                 description = 'Primary. Bootable. Boot partition. FAT32'
 
             item_ret = deepcopy(self.formatted_data)
@@ -144,9 +138,7 @@ class PartitionDisk(HardwareClass):
             item_ret['capabilities']['bootable'] = bootable
 
             if children:
-                item_ret['children'] = LogicalDisk(
-                    hw_item['DeviceID']
-                ).format_data(children)
+                item_ret['children'] = LogicalDisk(hw_item['DeviceID']).format_data(children)
 
             ret.append(item_ret)
 
