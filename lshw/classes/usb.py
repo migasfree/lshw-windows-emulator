@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 from copy import deepcopy
@@ -52,23 +47,12 @@ class Usb(HardwareClass):
             'width': 0,
             'clock': 0,
             'pnpdeviceid': self.__ERROR__,
-            'configuration': {
-                'driver': '',
-                'latency': ''
-            },
+            'configuration': {'driver': '', 'latency': ''},
             'children': [],
-            'capabilities': {
-                'uhci': '',
-                'bus_master': ''
-            }
+            'capabilities': {'uhci': '', 'bus_master': ''},
         }
 
-        self.properties_to_get = [
-            'PNPDeviceID',
-            'DeviceID',
-            'Description',
-            'Manufacturer'
-        ]
+        self.properties_to_get = ['PNPDeviceID', 'DeviceID', 'Description', 'Manufacturer']
 
         self._update_properties_to_return()
 
@@ -81,14 +65,10 @@ class Usb(HardwareClass):
 
             item_ret['description'] = hw_item.get('Description', self.__ERROR__)
             item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret['pnpdeviceid'] = hw_item.get(
-                'PNPDeviceID', self.__ERROR__
-            )
+            item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
 
             if children and 'PNPDeviceID' in hw_item:
-                item_ret['children'] = UsbDevice(
-                    [hw_item['PNPDeviceID']]
-                ).format_data(children)
+                item_ret['children'] = UsbDevice([hw_item['PNPDeviceID']]).format_data(children)
 
             ret.append(item_ret)
 
