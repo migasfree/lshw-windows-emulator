@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,21 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 from copy import deepcopy
 
+from .graphic_card import GraphicCard
 from .hardware_class import HardwareClass
 from .ide import Ide
-from .usb import Usb
-from .sound_device import SoundDevice
-from .graphic_card import GraphicCard
 from .network_card import NetworkCard
 from .physical_disk import PhysicalDisk
+from .sound_device import SoundDevice
+from .usb import Usb
 
 
 @HardwareClass.register('Pci')
@@ -57,7 +52,7 @@ class Pci(HardwareClass):
             'version': '',
             'width': 0,
             'clock': 0,
-            'children': []
+            'children': [],
         }
 
         self.properties_to_get = [
@@ -99,11 +94,9 @@ class Pci(HardwareClass):
             for element in GraphicCard().format_data():
                 pci_child.append(element)
 
-            i = 0
-            for element in Usb().format_data(children):
+            for i, element in enumerate(Usb().format_data(children)):
                 element['id'] = f'usb:{i}'
                 pci_child.append(element)
-                i += 1
 
             for element in SoundDevice().format_data():
                 pci_child.append(element)
