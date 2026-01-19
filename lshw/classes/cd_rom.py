@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 from copy import deepcopy
@@ -53,10 +48,7 @@ class CdRom(HardwareClass):
             'PNPDeviceID': self.__ERROR__,
             'dev': '',
             'version': '',
-            'configuration': {
-                'ansiversion': '',
-                'status': self.__ERROR__
-            },
+            'configuration': {'ansiversion': '', 'status': self.__ERROR__},
             'capabilities': {
                 'removable': '',
                 'audio': '',
@@ -64,8 +56,8 @@ class CdRom(HardwareClass):
                 'cd-rw': '',
                 'dvd': '',
                 'dvd-r': '',
-                'dvd-ram': ''
-            }
+                'dvd-ram': '',
+            },
         }
 
         self.properties_to_get = [
@@ -80,7 +72,7 @@ class CdRom(HardwareClass):
             'SCSIPort',
             'Description',
             'MediaLoaded',
-            'Drive'
+            'Drive',
         ]
 
         self._update_properties_to_return()
@@ -93,17 +85,11 @@ class CdRom(HardwareClass):
 
         # Win32_CDROMDrive
         if self.dev_id == '':
-            for element in self.wmi_system.Win32_cdromdrive(
-                self.properties_to_get
-            ):
+            for element in self.wmi_system.Win32_cdromdrive(self.properties_to_get):
                 self.hardware_set.append(element)
         else:
-            wql = 'SELECT {} FROM Win32_cdromdrive WHERE PNPDeviceID LIKE "%{}%"'.format(
-                ','.join(self.properties_to_get),
-                self.dev_id
-            )
-            for element in self.wmi_system.query(wql):
-                self.hardware_set.append(element)
+            wql = self.build_wql_select('Win32_cdromdrive', f'PNPDeviceID LIKE "%{self.dev_id}%"')
+            self.execute_wql_query(wql)
 
         self.check_values()
 
