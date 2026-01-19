@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,17 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from .hardware_class import HardwareClass
 from .firmware import Firmware
-from .processor import Processor
-from .physical_memory import PhysicalMemory
+from .hardware_class import HardwareClass
 from .pci import Pci
+from .physical_memory import PhysicalMemory
+from .processor import Processor
 
 
 @HardwareClass.register('BaseBoard')
@@ -41,24 +36,19 @@ class BaseBoard(HardwareClass):
         self.wmi_method = 'Win32_baseboard'
 
         self.formatted_data = {
-          'id': 'core',
-          'class': 'bus',
-          'claimed': True,
-          'handle': '',
-          'description': 'Motherboard',
-          'product': self.__ERROR__,
-          'vendor': self.__ERROR__,
-          'physid': '0',
-          'serial': self.__ERROR__,
-          'children': []
+            'id': 'core',
+            'class': 'bus',
+            'claimed': True,
+            'handle': '',
+            'description': 'Motherboard',
+            'product': self.__ERROR__,
+            'vendor': self.__ERROR__,
+            'physid': '0',
+            'serial': self.__ERROR__,
+            'children': [],
         }
 
-        self.properties_to_get = [
-            'Model',
-            'SerialNumber',
-            'Manufacturer',
-            'Product'
-        ]
+        self.properties_to_get = ['Model', 'SerialNumber', 'Manufacturer', 'Product']
 
         self._update_properties_to_return()
 
@@ -66,21 +56,15 @@ class BaseBoard(HardwareClass):
         self.get_hardware()
 
         for hw_item in self.hardware_set_to_return:
-            self.formatted_data['product'] = hw_item.get(
-                'Product', self.__ERROR__
-            )
-            self.formatted_data['vendor'] = hw_item.get(
-                'Manufacturer', self.__ERROR__
-            )
-            self.formatted_data['serial'] = hw_item.get(
-                'SerialNumber', self.__ERROR__
-            )
+            self.formatted_data['product'] = hw_item.get('Product', self.__ERROR__)
+            self.formatted_data['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
+            self.formatted_data['serial'] = hw_item.get('SerialNumber', self.__ERROR__)
 
         if children:
             self.formatted_data['children'] = [
                 Firmware().format_data(),
                 PhysicalMemory().format_data(),
-                Pci().format_data(children=True)
+                Pci().format_data(children=True),
             ]
             for item in Processor().format_data():
                 self.formatted_data['children'].append(item)
