@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 from copy import deepcopy
@@ -53,17 +48,8 @@ class SoundDevice(HardwareClass):
             'clock': 0,
             'pnpdeviceid': self.__ERROR__,
             'deviceid': self.__ERROR__,
-            'configuration': {
-                'driver': '',
-                'latency': ''
-            },
-            'capabilities': {
-                'pm': '',
-                'msi': '',
-                'pciexpress': '',
-                'bus_master': '',
-                'cap_list': ''
-            }
+            'configuration': {'driver': '', 'latency': ''},
+            'capabilities': {'pm': '', 'msi': '', 'pciexpress': '', 'bus_master': '', 'cap_list': ''},
         }
 
         self.properties_to_get = [
@@ -82,9 +68,7 @@ class SoundDevice(HardwareClass):
             item_ret = deepcopy(self.formatted_data)
 
             item_ret['product'] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret['pnpdeviceid'] = hw_item.get(
-                'PNPDeviceID', self.__ERROR__
-            )
+            item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
             item_ret['deviceid'] = hw_item.get('DeviceID', self.__ERROR__)
 
             ret.append(item_ret)
