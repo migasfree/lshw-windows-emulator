@@ -3,11 +3,17 @@ Thanks for downloading LsHw Windows Emulator.
 To install it, make sure you have these programs installed:
 
     * Python >= 3.6
+    * pip
 
-Then run these commands from the command prompt:
+To install from source:
 
+    $ pip install .
+
+To create a distribution package:
+
+    $ pip install build
     $ cd bin
     $ ./create-package.bat
-    # <install package>
+    # Packages will be created in dist/ directory
 
 And enjoy!
