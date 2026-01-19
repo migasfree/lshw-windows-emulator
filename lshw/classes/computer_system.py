@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,14 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from .hardware_class import HardwareClass
 from .base_board import BaseBoard
+from .hardware_class import HardwareClass
 
 
 @HardwareClass.register('ComputerSystem')
@@ -54,17 +49,11 @@ class ComputerSystem(HardwareClass):
                 'cpus': self.__ERROR__,
                 'family': '',
                 'sku': '',
-                'uuid': self.__ERROR__
-            }
+                'uuid': self.__ERROR__,
+            },
         }
 
-        self.properties_to_get = [
-            'Model',
-            'Name',
-            'Description',
-            'Manufacturer',
-            'NumberOfProcessors'
-        ]
+        self.properties_to_get = ['Model', 'Name', 'Description', 'Manufacturer', 'NumberOfProcessors']
 
         self._update_properties_to_return()
 
@@ -96,24 +85,22 @@ class ComputerSystem(HardwareClass):
             'Peripheral Chassis',
             'Storage Chassis',
             'Rack Mount Unit',
-            'Sealed-Case PC'
+            'Sealed-Case PC',
         ]
 
         for hw_item in self.wmi_system.Win32_SystemEnclosure(['ChassisTypes']):
-            if type(getattr(hw_item, 'ChassisTypes')).__name__ == 'NoneType':
+            if type(hw_item.ChassisTypes).__name__ == 'NoneType':
                 _chassis = self.__DESC__
             else:
-                if int(getattr(hw_item, 'ChassisTypes')[0]) in range(1, len(chassis_types) + 1):
+                if int(hw_item.ChassisTypes[0]) in range(1, len(chassis_types) + 1):
                     _chassis = chassis_types[hw_item.ChassisTypes[0] - 1]
 
         return _chassis
 
     def get_computer_uuid_serialnumber(self):
-        for hw_item in self.wmi_system.Win32_Computersystemproduct(
-            ['UUID', 'IdentifyingNumber']
-        ):
-            uuid = hw_item.UUID if getattr(hw_item, 'UUID') else self.__DESC__
-            serial = hw_item.IdentifyingNumber if getattr(hw_item, 'IdentifyingNumber') else self.__DESC__
+        for hw_item in self.wmi_system.Win32_Computersystemproduct(['UUID', 'IdentifyingNumber']):
+            uuid = hw_item.UUID if hw_item.UUID else self.__DESC__
+            serial = hw_item.IdentifyingNumber if hw_item.IdentifyingNumber else self.__DESC__
 
         return [uuid, serial]
 
@@ -125,26 +112,15 @@ class ComputerSystem(HardwareClass):
 
         for hw_item in self.hardware_set_to_return:
             self.formatted_data['id'] = hw_item.get('Name', self.__ERROR__)
-            self.formatted_data['description'] = '{}, {}'.format(
-                hw_item.get('Description', self.__ERROR__),
-                chassis
-            )
-            self.formatted_data['product'] = hw_item.get(
-                'Model', self.__ERROR__
-            )
-            self.formatted_data['vendor'] = hw_item.get(
-                'Manufacturer', self.__ERROR__
-            )
+            self.formatted_data['description'] = '{}, {}'.format(hw_item.get('Description', self.__ERROR__), chassis)
+            self.formatted_data['product'] = hw_item.get('Model', self.__ERROR__)
+            self.formatted_data['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
             self.formatted_data['serial'] = serial
             self.formatted_data['configuration']['chassis'] = chassis
-            self.formatted_data['configuration']['cpus'] = hw_item.get(
-                'NumberOfProcessors', self.__ERROR__
-            )
+            self.formatted_data['configuration']['cpus'] = hw_item.get('NumberOfProcessors', self.__ERROR__)
             self.formatted_data['configuration']['uuid'] = uuid
 
         if children:
-            self.formatted_data['children'] = [
-                BaseBoard().format_data(children)
-            ]
+            self.formatted_data['children'] = [BaseBoard().format_data(children)]
 
         return self.formatted_data
