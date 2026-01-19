@@ -51,6 +51,9 @@ AVAILABLE_CLASSES = {
 }
 
 
+EXIT_USAGE = 1
+
+
 def _exit_manager(exit_code, exit_element='', error_detail=None):
     """
     Exit management
@@ -153,7 +156,7 @@ def main(argv=None):
         if not _class:
             # parser.print_help()
             _usage_examples()
-            return -1  # FIXME
+            return EXIT_USAGE
     else:
         # get full computer information
         try:
