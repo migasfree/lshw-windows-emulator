@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,7 +16,7 @@
 
 __author__ = [
     'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
+    'Alfonso Gómez Sánchez <agomez@zaragoza.es>',
 ]
 __license__ = 'GPLv3'
 
@@ -33,10 +31,10 @@ class UsbDevice(HardwareClass):
     Gets plugged usb devices information using WMI
     """
 
-    def __init__(self, dev_id=[]):
+    def __init__(self, dev_id=None):
         super().__init__()
 
-        self.dev_id = dev_id
+        self.dev_id = dev_id if dev_id is not None else []
 
         self.formatted_data = {
             'id': '',
@@ -52,7 +50,7 @@ class UsbDevice(HardwareClass):
             'PNPDeviceID': self.__ERROR__,
             'Parent_PNPDeviceID': self.__ERROR__,
             'DeviceID': self.__ERROR__,
-            'children': []
+            'children': [],
         }
 
         self.properties_to_get = [
@@ -77,7 +75,7 @@ class UsbDevice(HardwareClass):
             'Dispositivo compuesto USB',
             'Dispositivo de interfaz humana USB',
             'Dispositivo de almacenamiento masivo USB',
-            'USB 2.0 Root Hub'
+            'USB 2.0 Root Hub',
         ]
 
         usb_controller_device = {}
@@ -86,15 +84,13 @@ class UsbDevice(HardwareClass):
         usb_controller_device_list = []
         usb_controller_device_primary = []
 
-        for usb_assoc in self.wmi_system.Win32_USBControllerdevice(
-            ['Antecedent', 'Dependent']
-        ):
-            usb_controller_device['ant_value'] = usb_assoc.antecedent.split('=')[1].replace(
-                '"', ''
-            ).replace('\\\\', '\\')
-            usb_controller_device['dep_value'] = usb_assoc.dependent.split('=')[1].replace(
-                '"', ''
-            ).replace('\\\\', '\\')
+        for usb_assoc in self.wmi_system.Win32_USBControllerdevice(['Antecedent', 'Dependent']):
+            usb_controller_device['ant_value'] = (
+                usb_assoc.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+            )
+            usb_controller_device['dep_value'] = (
+                usb_assoc.dependent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+            )
 
             # only get USB controllers (without duplicates)
             usb_controller_device_list.append(usb_controller_device['ant_value'])
@@ -108,14 +104,11 @@ class UsbDevice(HardwareClass):
         if len(self.dev_id) != 0:
             usb_controller_device_primary = self.dev_id
 
-        fields = ','.join(self.properties_to_get)
+        fields = self.build_wql_fields()
         for usb_ele in usb_controller_device_primary:
             for element in usb_controller_device_set:
                 if element['ant_value'] == usb_ele:
-                    wql = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(
-                        fields,
-                        element['dep_value']
-                    )
+                    wql = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(fields, element['dep_value'])
                     for hw_item in self.wmi_system.query(wql):
                         if hw_item.Caption not in device_excluded:
                             for prop in self.properties_to_return:
@@ -127,9 +120,7 @@ class UsbDevice(HardwareClass):
                                 else:
                                     self.properties_to_return['Parent_PNPDeviceID'] = element['ant_value']
 
-                            self.hardware_set_to_return.append(
-                                self.properties_to_return.copy()
-                            )
+                            self.hardware_set_to_return.append(self.properties_to_return.copy())
 
     def format_data(self, children=False):
         self.get_hardware()
@@ -158,16 +149,10 @@ class UsbDevice(HardwareClass):
 
             item_ret['id'] = usb_id_device
             item_ret['class'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['description'] = hw_item.get(
-                'Description', self.__ERROR__
-            )
+            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
             item_ret['vendor'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['PNPDeviceID'] = hw_item.get(
-                'PNPDeviceID', self.__ERROR__
-            )
-            item_ret['Parent_PNPDeviceID'] = hw_item.get(
-                'Parent_PNPDeviceID', self.__ERROR__
-            )
+            item_ret['PNPDeviceID'] = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret['Parent_PNPDeviceID'] = hw_item.get('Parent_PNPDeviceID', self.__ERROR__)
             item_ret['DeviceID'] = hw_item.get('DeviceID', self.__ERROR__)
 
             ret.append(item_ret)
