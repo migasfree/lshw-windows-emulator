@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021-2022 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,14 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
 import platform
-
 from copy import deepcopy
 
 from .hardware_class import HardwareClass
@@ -56,7 +50,7 @@ class NetworkCard(HardwareClass):
             'capacity': 0,
             'width': 0,
             'clock': 0,
-            'pnpdeviceid':  self.__ERROR__,
+            'pnpdeviceid': self.__ERROR__,
             'configuration': {
                 'autonegotiation': self.__ERROR__,
                 'broadcast': '',
@@ -69,7 +63,7 @@ class NetworkCard(HardwareClass):
                 'link': '',
                 'multicast': '',
                 'port': '',
-                'speed': self.__ERROR__
+                'speed': self.__ERROR__,
             },
             'capabilities': {
                 'pm': '',
@@ -87,8 +81,8 @@ class NetworkCard(HardwareClass):
                 '100bt-fd': '',
                 '1000bt': '',
                 '1000bt-fd': '',
-                'autonegotiation': self.__ERROR__
-            }
+                'autonegotiation': self.__ERROR__,
+            },
         }
 
         self.properties_to_get = [
@@ -102,22 +96,19 @@ class NetworkCard(HardwareClass):
             'Manufacturer',
             'NetConnectionID',
             'Description',
-            'PNPDeviceID'
+            'PNPDeviceID',
         ]
 
         self._update_properties_to_return()
 
     def get_hardware(self):
-        fields = ','.join(self.properties_to_get)
-
-        wql = f'SELECT {fields} FROM Win32_NetworkAdapter WHERE (NOT PNPDeviceID LIKE "%ROOT%")'
-        # wql is diferent in 10.0.18362 compilations and later
+        where_clause = '(NOT PNPDeviceID LIKE "%ROOT%")'
+        # wql is different in 10.0.18362 builds and later
         if platform.release() == '10' and platform.version() >= '10.0.18362':
-            wql = f'SELECT {fields} FROM Win32_NetworkAdapter WHERE (PhysicalAdapter=True)'
+            where_clause = '(PhysicalAdapter=True)'
 
-        for element in self.wmi_system.query(wql):
-            self.hardware_set.append(element)
-
+        wql = self.build_wql_select('Win32_NetworkAdapter', where_clause)
+        self.execute_wql_query(wql)
         self.check_values()
 
     def format_data(self, children=False):
