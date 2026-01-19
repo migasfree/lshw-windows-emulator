@@ -1,0 +1,55 @@
+from unittest.mock import MagicMock
+
+from lshw.classes.physical_memory import PhysicalMemory
+
+
+def test_physical_memory_format_data(mock_wmi_connection):
+    """Test PhysicalMemory WMI data formatting."""
+    # Setup mock data for one memory stick
+    mock_mem = MagicMock()
+    mock_mem.Tag = 'Physical Memory 0'
+    mock_mem.DeviceLocator = 'DIMM 1'
+    mock_mem.Capacity = 8589934592
+    mock_mem.Speed = 2400
+    mock_mem.MemoryType = 24  # DDR3 (example value)
+    mock_mem.DataWidth = 64
+
+    mock_wmi_connection.Win32_physicalMemory.return_value = [mock_mem]
+
+    mem = PhysicalMemory()
+    result = mem.format_data()
+
+    # format_data for default memory returns a dict with children
+    # This structure is slightly different from Processor/Disk which return list
+    # PhysicalMemory returns dict ("memory container") with children ("banks")
+    assert isinstance(result, dict)
+    assert result['id'] == 'memory:0'
+    assert result['class'] == 'memory'
+
+    children = result['children']
+    assert len(children) == 1
+
+    bank = children[0]
+    assert bank['id'] == 'bank:0'  # Derived from "Tag"
+    assert bank['description'] == 'Physical Memory 0'
+    assert bank['size'] == 8589934592
+    assert bank['product'] == 24
+    assert bank['clock'] == 2400
+
+
+def test_physical_memory_handles_missing_tag(mock_wmi_connection):
+    """Test handling when 'Tag' property is missing."""
+    mock_mem = MagicMock()
+    mock_mem.DeviceLocator = 'DIMM 1'
+    # Tag is missing
+    del mock_mem.Tag
+
+    mock_wmi_connection.Win32_physicalMemory.return_value = [mock_mem]
+
+    mem = PhysicalMemory()
+    result = mem.format_data()
+
+    bank = result['children'][0]
+    # Should use default ID if Tag is missing logic works, or fallback
+    assert bank['id'] == 'bank:n'  # Derived from last char of "Unknown" fallback
+    assert bank['description'] == 'Unknown'
