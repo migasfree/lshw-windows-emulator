@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright (c) 2021-2024 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2021-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 # Copyright (c) 2011-2021 Alfonso Gómez Sánchez <agomez@zaragoza.es>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,15 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = [
-    'Jose Antonio Chavarría <jachavar@gmail.com>',
-    'Alfonso Gómez Sánchez <agomez@zaragoza.es>'
-]
+__author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+from .cd_rom import CdRom
 from .hardware_class import HardwareClass
 from .physical_disk import PhysicalDisk
-from .cd_rom import CdRom
 
 
 @HardwareClass.register('Ide')
@@ -51,16 +46,10 @@ class Ide(HardwareClass):
             'width': 0,
             'clock': 0,
             'pnpdeviceid': self.__ERROR__,
-            'children': []
+            'children': [],
         }
 
-        self.properties_to_get = [
-            'Manufacturer',
-            'Caption',
-            'Description',
-            'DeviceID',
-            'PNPDeviceID'
-        ]
+        self.properties_to_get = ['Manufacturer', 'Caption', 'Description', 'DeviceID', 'PNPDeviceID']
 
         self._update_properties_to_return()
 
@@ -69,20 +58,18 @@ class Ide(HardwareClass):
         ide_controller_device_set = []
 
         ide_controller_device_primary = []
-        for ide_assoc in self.wmi_system.Win32_IDEControllerdevice(
-            ['Antecedent', 'Dependent']
-        ):
+        for ide_assoc in self.wmi_system.Win32_IDEControllerdevice(['Antecedent', 'Dependent']):
             ide_controller_device['ant_pref'] = ide_assoc.antecedent.split('=')[0].split(':')[0]
             ide_controller_device['ant_class'] = ide_assoc.antecedent.split('=')[0].split(':')[1]
-            ide_controller_device['ant_value'] = ide_assoc.antecedent.split('=')[1].replace(
-                '"', ''
-            ).replace('\\\\', '\\')
+            ide_controller_device['ant_value'] = (
+                ide_assoc.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+            )
 
             ide_controller_device['dep_pref'] = ide_assoc.dependent.split('=')[0].split(':')[0]
             ide_controller_device['dep_class'] = ide_assoc.dependent.split('=')[0].split(':')[1]
-            ide_controller_device['dep_value'] = ide_assoc.dependent.split('=')[1].replace(
-                '"', ''
-            ).replace('\\\\', '\\')
+            ide_controller_device['dep_value'] = (
+                ide_assoc.dependent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+            )
 
             # get only primary IDE controllers (without duplicates)
             exist = False
@@ -92,16 +79,14 @@ class Ide(HardwareClass):
                         exist = True
 
                 if exist is False:
-                    ide_controller_device_primary.append(
-                        ide_controller_device['ant_value']
-                    )
+                    ide_controller_device_primary.append(ide_controller_device['ant_value'])
 
             ide_controller_device_set.append(ide_controller_device.copy())
 
         ret = []
         id_disk = 0
         id_cont_prim = 0
-        fields = ','.join(self.properties_to_get)
+        fields = self.build_wql_fields()
         for element in ide_controller_device_primary:
             wql = f'SELECT {fields} FROM Win32_IDEController WHERE PNPDeviceID="{element}"'
             # for ide in self.wmi_system.Win32_IDEController(self.properties_to_get, PNPDeviceID=element):
@@ -121,7 +106,7 @@ class Ide(HardwareClass):
                     'width': 0,
                     'clock': 0,
                     'pnpdeviceid': ide.PNPDeviceID,
-                    'children': []
+                    'children': [],
                 }
                 id_cont_prim += 1
 
@@ -131,12 +116,11 @@ class Ide(HardwareClass):
                     if element2['ant_value'] == ide.PNPDeviceID:
                         # first, search secondary controllers
                         wql2 = 'SELECT {} FROM Win32_IDEController WHERE PNPDeviceID="{}"'.format(
-                            fields,
-                            element2['dep_value']
+                            fields, element2['dep_value']
                         )
                         for ide2 in self.wmi_system.query(wql2):
                             secondary_controller = {
-                                'id': 'channel:{}'.format(ide2.PNPDeviceID[-1]),
+                                'id': f'channel:{ide2.PNPDeviceID[-1]}',
                                 'class': '',
                                 'claimed': True,
                                 'handle': '',
@@ -150,7 +134,7 @@ class Ide(HardwareClass):
                                 'width': 0,
                                 'clock': 0,
                                 'pnpdeviceid': ide2.PNPDeviceID,
-                                'children': []
+                                'children': [],
                             }
 
                             id_cont_sec += 1
@@ -159,8 +143,7 @@ class Ide(HardwareClass):
                                 for element3 in ide_controller_device_set:
                                     if element3['ant_value'] == ide2.PNPDeviceID:
                                         wql3 = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(
-                                            fields,
-                                            element3['dep_value']
+                                            fields, element3['dep_value']
                                         )
                                         for ide3 in self.wmi_system.query(wql3):
                                             if len(ide3.associators(wmi_result_class='Win32_DiskDrive')) != 0:
@@ -174,14 +157,11 @@ class Ide(HardwareClass):
                                             id_disk += 1
                                             secondary_controller['children'].append(disk[0])
 
-                            primary_controller['children'].append(
-                                secondary_controller
-                            )
+                            primary_controller['children'].append(secondary_controller)
 
                         if children:
                             wql4 = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(
-                                fields,
-                                element2['dep_value']
+                                fields, element2['dep_value']
                             )
                             for ide4 in self.wmi_system.query(wql4):
                                 if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
