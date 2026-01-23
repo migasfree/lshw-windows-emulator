@@ -22,7 +22,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('Processor')
+@HardwareClass.register('Processor', parent='BaseBoard')
 class Processor(HardwareClass):
     """
     Gets processor/CPU information using WMI
