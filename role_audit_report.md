@@ -108,11 +108,11 @@ graph TD
 
 #### ⚠️ Concerns
 
-| ID     | Severity | Finding                 | Location          | Recommendation                                          |
-| ------ | -------- | ----------------------- | ----------------- | ------------------------------------------------------- |
-| DO-001 | Medium   | Build artifacts in repo | `build/`, `dist/` | Remove binary artifacts from Git; add to .gitignore     |
-| DO-002 | Low      | No pre-commit hooks     | Project root      | ✅ Resolved: Ruff pre-commit hooks added                            |
-| DO-003 | Info     | dev-dependencies        | `pyproject.toml`  | ✅ Resolved: build added to dev; CI workflows synchronized         |
+| ID     | Severity | Finding                 | Location          | Recommendation                                             |
+| ------ | -------- | ----------------------- | ----------------- | ---------------------------------------------------------- |
+| DO-001 | Medium   | Build artifacts in repo | `build/`, `dist/` | Remove binary artifacts from Git; add to .gitignore        |
+| DO-002 | Low      | No pre-commit hooks     | Project root      | ✅ Resolved: Ruff pre-commit hooks added                   |
+| DO-003 | Info     | dev-dependencies        | `pyproject.toml`  | ✅ Resolved: build added to dev; CI workflows synchronized |
 
 ### 3.2 Recommendations Summary
 
@@ -178,10 +178,10 @@ graph LR
 
 #### ⚠️ Concerns
 
-| ID     | Severity | Finding              | Location        | Recommendation                                       |
-| ------ | -------- | -------------------- | --------------- | ---------------------------------------------------- |
-| SA-001 | Medium   | Return Type Mismatch | `format_data()` | Standardize results to always return a list of items |
-| SA-002 | Low      | Error Isolation      | `__main__.py`   | Improve handling of partial failures in WMI queries  |
+| ID     | Severity | Finding              | Location        | Recommendation                                              |
+| ------ | -------- | -------------------- | --------------- | ----------------------------------------------------------- |
+| SA-001 | Medium   | Return Type Mismatch | `format_data()` | Standardize results to always return a list of items        |
+| SA-002 | Low      | Error Isolation      | `__main__.py`   | ✅ Resolved: Localized error handling in hardware discovery |
 
 ### 6.2 Recommendations Summary
 
@@ -234,12 +234,13 @@ _No critical issues identified._
 
 ### Low (P3)
 
-| ID      | Category | Recommendation                                                 |
-| ------- | -------- | -------------------------------------------------------------- |
-| PY-002  | Python   | Move from raw dictionaries to Dataclasses for hardware schemas |
-| SEC-001 | Security | ✅ Resolved: Use allowlist for WMI entities in queries         |
-| DO-002  | DevOps   | ✅ Resolved: Add ruff pre-commit hooks                                      |
-| TW-001  | Docs     | Expand JSON output examples in README                          |
+| ID      | Category | Recommendation                                                   |
+| ------- | -------- | ---------------------------------------------------------------- |
+| PY-002  | Python   | Move from raw dictionaries to Dataclasses for hardware schemas   |
+| SEC-001 | Security | ✅ Resolved: Use allowlist for WMI entities in queries           |
+| DO-002  | DevOps   | ✅ Resolved: Add ruff pre-commit hooks                           |
+| SA-002  | Python   | ✅ Resolved: Improve handling of partial failures in WMI queries |
+| TW-001  | Docs     | Expand JSON output examples in README                            |
 
 ---
 
