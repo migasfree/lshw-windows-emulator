@@ -64,8 +64,8 @@ classDiagram
 
 ## Data Flow
 
-1.  **CLI Entry Point** (`__main__.py`): Parses arguments and requests a specific hardware class (or 'ComputerSystem' for full output).
-2.  **Factory**: Instantiates the requested class (e.g., `NetworkCard`).
-3.  **Data Retrieval**: The instance connects to WMI, executes the relevant WQL query, and standardizes handling of missing properties.
-4.  **Formatting**: The `format_data()` method processes the raw WMI results into a standard Python dictionary or list of dictionaries.
-5.  **Output**: The result is printed to stdout as JSON or pretty-printed text.
+1. **CLI Entry Point** (`__main__.py`): Parses arguments and requests a specific hardware class (or 'ComputerSystem' for full output).
+2. **Factory**: Instantiates the requested class (e.g., `NetworkCard`).
+3. **Data Retrieval**: The instance connects to WMI, executes the relevant WQL query, and standardizes handling of missing properties.
+4. **Formatting**: The `format_data()` method processes the raw WMI results into a standard Python dictionary or list of dictionaries.
+5. **Output**: The result is printed to stdout as JSON or pretty-printed text.
