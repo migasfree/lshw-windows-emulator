@@ -17,14 +17,10 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from .firmware import Firmware
 from .hardware_class import HardwareClass
-from .pci import Pci
-from .physical_memory import PhysicalMemory
-from .processor import Processor
 
 
-@HardwareClass.register('BaseBoard')
+@HardwareClass.register('BaseBoard', parent='ComputerSystem')
 class BaseBoard(HardwareClass):
     """
     Gets Base Board information using WMI
@@ -61,12 +57,11 @@ class BaseBoard(HardwareClass):
             self.formatted_data['serial'] = hw_item.get('SerialNumber', self.__ERROR__)
 
         if children:
-            self.formatted_data['children'] = [
-                Firmware().format_data(),
-                PhysicalMemory().format_data(),
-                Pci().format_data(children=True),
-            ]
-            for item in Processor().format_data():
-                self.formatted_data['children'].append(item)
+            for child_class in self.get_children(self._entity_):
+                res = child_class().format_data(children)
+                if isinstance(res, list):
+                    self.formatted_data['children'].extend(res)
+                else:
+                    self.formatted_data['children'].append(res)
 
         return self.formatted_data
