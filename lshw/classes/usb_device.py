@@ -25,7 +25,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('UsbDevice')
+@HardwareClass.register('UsbDevice', parent='Usb')
 class UsbDevice(HardwareClass):
     """
     Gets plugged usb devices information using WMI
