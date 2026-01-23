@@ -22,7 +22,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('GraphicCard')
+@HardwareClass.register('GraphicCard', parent='Pci')
 class GraphicCard(HardwareClass):
     """
     Gets graphic card information using WMI
