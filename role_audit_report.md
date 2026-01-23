@@ -111,7 +111,7 @@ graph TD
 | ID     | Severity | Finding                 | Location          | Recommendation                                          |
 | ------ | -------- | ----------------------- | ----------------- | ------------------------------------------------------- |
 | DO-001 | Medium   | Build artifacts in repo | `build/`, `dist/` | Remove binary artifacts from Git; add to .gitignore     |
-| DO-002 | Low      | No pre-commit hooks     | Project root      | Add ruff pre-commit hooks                               |
+| DO-002 | Low      | No pre-commit hooks     | Project root      | ✅ Resolved: Ruff pre-commit hooks added                            |
 | DO-003 | Info     | dev-dependencies        | `pyproject.toml`  | Ensure CI environment matches dev-optional dependencies |
 
 ### 3.2 Recommendations Summary
@@ -238,7 +238,7 @@ _No critical issues identified._
 | ------- | -------- | -------------------------------------------------------------- |
 | PY-002  | Python   | Move from raw dictionaries to Dataclasses for hardware schemas |
 | SEC-001 | Security | ✅ Resolved: Use allowlist for WMI entities in queries         |
-| DO-002  | DevOps   | Add ruff pre-commit hooks                                      |
+| DO-002  | DevOps   | ✅ Resolved: Add ruff pre-commit hooks                                      |
 | TW-001  | Docs     | Expand JSON output examples in README                          |
 
 ---
