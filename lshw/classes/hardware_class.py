@@ -40,6 +40,36 @@ class WMIConnection:
 
 
 class HardwareClass(ABC):
+    _WMI_ENTITY_ALLOWLIST = frozenset(
+        {
+            'Win32_baseboard',
+            'Win32_bios',
+            'Win32_Bus',
+            'Win32_cdromdrive',
+            'Win32_CDROMDrive',
+            'Win32_computersystem',
+            'Win32_Computersystemproduct',
+            'Win32_diskdrive',
+            'Win32_Diskdrive',
+            'Win32_DiskDrive',
+            'Win32_DiskDriveToDiskPartition',
+            'Win32_diskpartition',
+            'Win32_Diskpartition',
+            'Win32_IDEController',
+            'Win32_IDEControllerdevice',
+            'Win32_LogicalDisk',
+            'Win32_LogicalDiskToPartition',
+            'Win32_NetworkAdapter',
+            'Win32_physicalMemory',
+            'Win32_PNPEntity',
+            'Win32_processor',
+            'Win32_SoundDevice',
+            'Win32_SystemEnclosure',
+            'Win32_USBController',
+            'Win32_USBControllerdevice',
+            'Win32_videoController',
+        }
+    )
     """
     Base class for hardware information retrieval via WMI.
 
@@ -62,16 +92,32 @@ class HardwareClass(ABC):
     # http://stackoverflow.com/questions/3786762/dynamic-base-class-and-factories
     _entity_ = None
     _entities_ = {}  # noqa: RUF012
+    _children_ = {}  # noqa: RUF012
 
     @classmethod
     def factory(cls, entity):
         return cls._entities_[entity]
 
     @classmethod
-    def register(cls, entity):
+    def get_children(cls, entity):
+        """
+        Get the list of registered children classes for a given entity.
+        """
+        return [cls._entities_[child_name] for child_name in cls._children_.get(entity, [])]
+
+    @classmethod
+    def register(cls, entity, parent=None):
         def decorator(subclass):
             cls._entities_[entity] = subclass
             subclass._entity_ = entity
+
+            if parent:
+                parents = [parent] if isinstance(parent, str) else parent
+                for p in parents:
+                    if p not in cls._children_:
+                        cls._children_[p] = []
+                    if entity not in cls._children_[p]:
+                        cls._children_[p].append(entity)
 
             return subclass
 
@@ -89,6 +135,20 @@ class HardwareClass(ABC):
         self.hardware_set = []
         self.hardware_set_to_return = []
 
+    def _validate_entity(self, entity):
+        """
+        Validate that the WMI entity is in the allowlist.
+
+        Args:
+            entity: WMI table/class name or method name.
+
+        Raises:
+            ValueError: If the entity is not in the allowlist.
+        """
+        if entity not in self._WMI_ENTITY_ALLOWLIST:
+            logger.error(f'Security Alert: Unauthorized WMI entity access attempted: {entity}')
+            raise ValueError(f'Unauthorized WMI entity: {entity}')
+
     def build_wql_fields(self):
         """Build comma-separated list of fields for WQL SELECT statement."""
         return ','.join(self.properties_to_get)
@@ -104,6 +164,7 @@ class HardwareClass(ABC):
         Returns:
             Complete WQL SELECT statement
         """
+        self._validate_entity(table)
         fields = self.build_wql_fields()
         wql = f'SELECT {fields} FROM {table}'
         if where_clause:
@@ -136,6 +197,7 @@ class HardwareClass(ABC):
 
     def get_hardware(self):
         if self.wmi_method:
+            self._validate_entity(self.wmi_method)
             for element in getattr(self.wmi_system, self.wmi_method)(self.properties_to_get):
                 self.hardware_set.append(element)
 
