@@ -22,7 +22,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('SoundDevice')
+@HardwareClass.register('SoundDevice', parent='Pci')
 class SoundDevice(HardwareClass):
     """
     Gets USB ports information using WMI
