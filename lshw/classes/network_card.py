@@ -23,7 +23,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('NetworkCard')
+@HardwareClass.register('NetworkCard', parent='Pci')
 class NetworkCard(HardwareClass):
     """
     Gets network card information using WMI
