@@ -22,7 +22,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('PhysicalMemory')
+@HardwareClass.register('PhysicalMemory', parent='BaseBoard')
 class PhysicalMemory(HardwareClass):
     """
     Gets physical memory information using WMI
