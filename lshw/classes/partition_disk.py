@@ -20,10 +20,9 @@ __license__ = 'GPLv3'
 from copy import deepcopy
 
 from .hardware_class import HardwareClass
-from .logical_disk import LogicalDisk
 
 
-@HardwareClass.register('PartitionDisk')
+@HardwareClass.register('PartitionDisk', parent='PhysicalDisk')
 class PartitionDisk(HardwareClass):
     """
     Gets partition disk information using WMI
@@ -138,7 +137,7 @@ class PartitionDisk(HardwareClass):
             item_ret['capabilities']['bootable'] = bootable
 
             if children:
-                item_ret['children'] = LogicalDisk(hw_item['DeviceID']).format_data(children)
+                item_ret['children'] = self.factory('LogicalDisk')(hw_item['DeviceID']).format_data(children)
 
             ret.append(item_ret)
 
