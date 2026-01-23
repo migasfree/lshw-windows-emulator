@@ -17,7 +17,6 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from .base_board import BaseBoard
 from .hardware_class import HardwareClass
 
 
@@ -121,6 +120,11 @@ class ComputerSystem(HardwareClass):
             self.formatted_data['configuration']['uuid'] = uuid
 
         if children:
-            self.formatted_data['children'] = [BaseBoard().format_data(children)]
+            for child_class in self.get_children(self._entity_):
+                res = child_class().format_data(children)
+                if isinstance(res, list):
+                    self.formatted_data['children'].extend(res)
+                else:
+                    self.formatted_data['children'].append(res)
 
         return self.formatted_data
