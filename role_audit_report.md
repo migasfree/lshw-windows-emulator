@@ -112,7 +112,7 @@ graph TD
 | ------ | -------- | ----------------------- | ----------------- | ------------------------------------------------------- |
 | DO-001 | Medium   | Build artifacts in repo | `build/`, `dist/` | Remove binary artifacts from Git; add to .gitignore     |
 | DO-002 | Low      | No pre-commit hooks     | Project root      | ✅ Resolved: Ruff pre-commit hooks added                            |
-| DO-003 | Info     | dev-dependencies        | `pyproject.toml`  | Ensure CI environment matches dev-optional dependencies |
+| DO-003 | Info     | dev-dependencies        | `pyproject.toml`  | ✅ Resolved: build added to dev; CI workflows synchronized         |
 
 ### 3.2 Recommendations Summary
 
