@@ -17,7 +17,11 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
+
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('BaseBoard', parent='ComputerSystem')
@@ -58,10 +62,13 @@ class BaseBoard(HardwareClass):
 
         if children:
             for child_class in self.get_children(self._entity_):
-                res = child_class().format_data(children)
-                if isinstance(res, list):
-                    self.formatted_data['children'].extend(res)
-                else:
-                    self.formatted_data['children'].append(res)
+                try:
+                    res = child_class().format_data(children)
+                    if isinstance(res, list):
+                        self.formatted_data['children'].extend(res)
+                    else:
+                        self.formatted_data['children'].append(res)
+                except Exception as e:
+                    logger.warning(f'Could not get children {child_class.__name__} for BaseBoard: {e}')
 
         return self.formatted_data

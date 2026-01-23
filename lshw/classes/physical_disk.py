@@ -17,9 +17,12 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
 from copy import deepcopy
 
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('PhysicalDisk', parent=['Pci', 'Ide'])
@@ -98,7 +101,10 @@ class PhysicalDisk(HardwareClass):
             item_ret['businfo'] = f'scsi@{hw_item["Index"]}:0.0.0'
 
             if children:
-                item_ret['children'] = self.factory('PartitionDisk')(hw_item['DeviceID']).format_data(children)
+                try:
+                    item_ret['children'] = self.factory('PartitionDisk')(hw_item['DeviceID']).format_data(children)
+                except Exception as e:
+                    logger.warning(f'Could not get children for PhysicalDisk {hw_item["DeviceID"]}: {e}')
 
             ret.append(item_ret)
 

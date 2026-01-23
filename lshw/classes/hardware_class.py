@@ -198,8 +198,12 @@ class HardwareClass(ABC):
     def get_hardware(self):
         if self.wmi_method:
             self._validate_entity(self.wmi_method)
-            for element in getattr(self.wmi_system, self.wmi_method)(self.properties_to_get):
-                self.hardware_set.append(element)
+            try:
+                for element in getattr(self.wmi_system, self.wmi_method)(self.properties_to_get):
+                    self.hardware_set.append(element)
+            except (wmi.x_wmi, AttributeError) as e:
+                logger.error(f'Error getting hardware info for {self._entity_}: {e}')
+                return
 
             self.check_values()
         else:

@@ -17,7 +17,11 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
+
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('Ide', parent='Pci')
@@ -150,10 +154,15 @@ class Ide(HardwareClass):
                                                 # CD or DVD
                                                 hw_item_set = self.factory('CdRom')(ide3.PNPDeviceID)
 
-                                            disk = hw_item_set.format_data(children=True)
+                                            try:
+                                                disk = hw_item_set.format_data(children=True)
 
-                                            id_disk += 1
-                                            secondary_controller['children'].append(disk[0])
+                                                id_disk += 1
+                                                secondary_controller['children'].append(disk[0])
+                                            except Exception as e:
+                                                logger.warning(
+                                                    f'Could not get children for secondary controller in Ide: {e}'
+                                                )
 
                             primary_controller['children'].append(secondary_controller)
 
@@ -162,17 +171,17 @@ class Ide(HardwareClass):
                                 fields, element2['dep_value']
                             )
                             for ide4 in self.wmi_system.query(wql4):
-                                if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
-                                    disk = self.factory('PhysicalDisk')(ide4.PNPDeviceID).format_data(children=True)
-                                    id_disk += 1
-                                    primary_controller['children'].append(disk[0])
-                                elif len(ide4.associators(wmi_result_class='Win32_CDROMDrive')) != 0:
-                                    disk = self.factory('CdRom')(ide4.PNPDeviceID).format_data(children=True)
-                                    id_disk += 1
-                                    primary_controller['children'].append(disk[0])
-                                else:
-                                    # only add disks and cdrom drives
-                                    pass
+                                try:
+                                    if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
+                                        disk = self.factory('PhysicalDisk')(ide4.PNPDeviceID).format_data(children=True)
+                                        id_disk += 1
+                                        primary_controller['children'].append(disk[0])
+                                    elif len(ide4.associators(wmi_result_class='Win32_CDROMDrive')) != 0:
+                                        disk = self.factory('CdRom')(ide4.PNPDeviceID).format_data(children=True)
+                                        id_disk += 1
+                                        primary_controller['children'].append(disk[0])
+                                except Exception as e:
+                                    logger.warning(f'Could not get children for primary controller in Ide: {e}')
 
                 ret.append(primary_controller)
 

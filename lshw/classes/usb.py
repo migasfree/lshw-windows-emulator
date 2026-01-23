@@ -17,9 +17,12 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
 from copy import deepcopy
 
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('Usb', parent='Pci')
@@ -67,7 +70,12 @@ class Usb(HardwareClass):
             item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
 
             if children and 'PNPDeviceID' in hw_item:
-                item_ret['children'] = self.factory('UsbDevice')(dev_id=[hw_item['PNPDeviceID']]).format_data(children)
+                try:
+                    item_ret['children'] = self.factory('UsbDevice')(dev_id=[hw_item['PNPDeviceID']]).format_data(
+                        children
+                    )
+                except Exception as e:
+                    logger.warning(f'Could not get children for Usb {hw_item["PNPDeviceID"]}: {e}')
 
             ret.append(item_ret)
 

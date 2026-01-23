@@ -17,9 +17,12 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
 from copy import deepcopy
 
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('Pci', parent='BaseBoard')
@@ -80,17 +83,20 @@ class Pci(HardwareClass):
 
         if children:
             for child_class in self.get_children(self._entity_):
-                # Handle Usb specifically if needed for ID formatting
-                if child_class.__name__ == 'Usb':
-                    for i, element in enumerate(child_class().format_data(children)):
-                        element['id'] = f'usb:{i}'
-                        pci_child.append(element)
-                else:
-                    res = child_class().format_data(children)
-                    if isinstance(res, list):
-                        pci_child.extend(res)
+                try:
+                    # Handle Usb specifically if needed for ID formatting
+                    if child_class.__name__ == 'Usb':
+                        for i, element in enumerate(child_class().format_data(children)):
+                            element['id'] = f'usb:{i}'
+                            pci_child.append(element)
                     else:
-                        pci_child.append(res)
+                        res = child_class().format_data(children)
+                        if isinstance(res, list):
+                            pci_child.extend(res)
+                        else:
+                            pci_child.append(res)
+                except Exception as e:
+                    logger.warning(f'Could not get children {child_class.__name__} for Pci: {e}')
 
             self.formatted_data['children'] = pci_child
 
