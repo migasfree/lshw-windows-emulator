@@ -107,3 +107,27 @@ def test_get_hardware_unauthorized_method(mock_wmi_connection):
     hw.wmi_method = 'UnauthorizedMethod'
     with pytest.raises(ValueError, match='Unauthorized WMI entity: UnauthorizedMethod'):
         hw.get_hardware()
+
+
+def test_baseboard_error_isolation(mocker):
+    # Mock BaseBoard to return one item, and Pci to raise an exception
+    from lshw.classes.base_board import BaseBoard
+    from lshw.classes.firmware import Firmware
+    from lshw.classes.pci import Pci
+
+    # Mock Pci and Firmware format_data (class-level patching is fine for methods)
+    mocker.patch.object(Pci, 'format_data', side_effect=Exception('Pci failure'))
+    mocker.patch.object(Firmware, 'format_data', return_value={'id': 'bios:0'})
+
+    bb = BaseBoard()
+    # Mock get_hardware instance method to do nothing
+    mocker.patch.object(bb, 'get_hardware', return_value=None)
+    # Manually setting the data that format_data uses
+    bb.hardware_set_to_return = [{'SerialNumber': 'BOARD1'}]
+
+    data = bb.format_data(children=True)
+
+    # Verify that the board data is there, even if Pci failed
+    assert data['serial'] == 'BOARD1'
+    # Verify bios is there (one of the successful children)
+    assert any(child['id'] == 'bios:0' for child in data['children'])
