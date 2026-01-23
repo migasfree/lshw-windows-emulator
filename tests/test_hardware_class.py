@@ -38,16 +38,16 @@ def test_build_wql_select_simple(mock_wmi_connection):
     """Test WQL SELECT statement construction."""
     hw = ConcreteHardware()
     hw.properties_to_get = ['Name', 'Status']
-    wql = hw.build_wql_select(table='Win32_TestService')
-    assert wql == 'SELECT Name,Status FROM Win32_TestService'
+    wql = hw.build_wql_select(table='Win32_NetworkAdapter')
+    assert wql == 'SELECT Name,Status FROM Win32_NetworkAdapter'
 
 
 def test_build_wql_select_with_where(mock_wmi_connection):
     """Test WQL SELECT statement with WHERE clause."""
     hw = ConcreteHardware()
     hw.properties_to_get = ['Name']
-    wql = hw.build_wql_select(table='Win32_Service', where_clause="State='Running'")
-    assert wql == "SELECT Name FROM Win32_Service WHERE State='Running'"
+    wql = hw.build_wql_select(table='Win32_NetworkAdapter', where_clause="State='Running'")
+    assert wql == "SELECT Name FROM Win32_NetworkAdapter WHERE State='Running'"
 
 
 def test_execute_wql_query(mock_wmi_connection):
@@ -86,3 +86,24 @@ def test_check_values_handles_missing_attributes(mock_wmi_connection):
     result = hw.hardware_set_to_return[0]
     assert result['ExistingProp'] == 'Value'
     assert result['MissingProp'] == HardwareClass.__DESC__  # Should be default 'Unknown'
+
+
+def test_validate_entity_authorized(mock_wmi_connection):
+    """Test that authorized entities do not raise error."""
+    hw = ConcreteHardware()
+    hw._validate_entity('Win32_NetworkAdapter')  # Should not raise
+
+
+def test_validate_entity_unauthorized(mock_wmi_connection):
+    """Test that unauthorized entities raise ValueError."""
+    hw = ConcreteHardware()
+    with pytest.raises(ValueError, match='Unauthorized WMI entity: Win32_Invalid'):
+        hw._validate_entity('Win32_Invalid')
+
+
+def test_get_hardware_unauthorized_method(mock_wmi_connection):
+    """Test that get_hardware raises ValueError for unauthorized wmi_method."""
+    hw = ConcreteHardware()
+    hw.wmi_method = 'UnauthorizedMethod'
+    with pytest.raises(ValueError, match='Unauthorized WMI entity: UnauthorizedMethod'):
+        hw.get_hardware()
