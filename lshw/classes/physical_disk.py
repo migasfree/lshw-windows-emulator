@@ -20,10 +20,9 @@ __license__ = 'GPLv3'
 from copy import deepcopy
 
 from .hardware_class import HardwareClass
-from .partition_disk import PartitionDisk
 
 
-@HardwareClass.register('PhysicalDisk')
+@HardwareClass.register('PhysicalDisk', parent=['Pci', 'Ide'])
 class PhysicalDisk(HardwareClass):
     """
     Gets physical disk information using WMI
@@ -99,7 +98,7 @@ class PhysicalDisk(HardwareClass):
             item_ret['businfo'] = f'scsi@{hw_item["Index"]}:0.0.0'
 
             if children:
-                item_ret['children'] = PartitionDisk(hw_item['DeviceID']).format_data(children)
+                item_ret['children'] = self.factory('PartitionDisk')(hw_item['DeviceID']).format_data(children)
 
             ret.append(item_ret)
 
