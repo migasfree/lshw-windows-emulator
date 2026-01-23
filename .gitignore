@@ -1,0 +1,5 @@
+/build/
+/dist/
+/lshw.egg-info/
+/lshw/__pycache__/*.pyc
+*.pyc
