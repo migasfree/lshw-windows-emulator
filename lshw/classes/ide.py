@@ -17,12 +17,10 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from .cd_rom import CdRom
 from .hardware_class import HardwareClass
-from .physical_disk import PhysicalDisk
 
 
-@HardwareClass.register('Ide')
+@HardwareClass.register('Ide', parent='Pci')
 class Ide(HardwareClass):
     """
     Gets the relationship between IDE controllers
@@ -147,10 +145,10 @@ class Ide(HardwareClass):
                                         )
                                         for ide3 in self.wmi_system.query(wql3):
                                             if len(ide3.associators(wmi_result_class='Win32_DiskDrive')) != 0:
-                                                hw_item_set = PhysicalDisk(ide3.PNPDeviceID)
+                                                hw_item_set = self.factory('PhysicalDisk')(ide3.PNPDeviceID)
                                             else:
                                                 # CD or DVD
-                                                hw_item_set = CdRom(ide3.PNPDeviceID)
+                                                hw_item_set = self.factory('CdRom')(ide3.PNPDeviceID)
 
                                             disk = hw_item_set.format_data(children=True)
 
@@ -165,11 +163,11 @@ class Ide(HardwareClass):
                             )
                             for ide4 in self.wmi_system.query(wql4):
                                 if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
-                                    disk = PhysicalDisk(ide4.PNPDeviceID).format_data(children=True)
+                                    disk = self.factory('PhysicalDisk')(ide4.PNPDeviceID).format_data(children=True)
                                     id_disk += 1
                                     primary_controller['children'].append(disk[0])
                                 elif len(ide4.associators(wmi_result_class='Win32_CDROMDrive')) != 0:
-                                    disk = CdRom(ide4.PNPDeviceID).format_data(children=True)
+                                    disk = self.factory('CdRom')(ide4.PNPDeviceID).format_data(children=True)
                                     id_disk += 1
                                     primary_controller['children'].append(disk[0])
                                 else:
