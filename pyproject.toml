@@ -20,8 +20,8 @@ readme = "README.md"
 keywords = ["hardware", "windows", "lshw"]
 requires-python = ">=3.6"
 dependencies = [
-    "psutil",
-    "wmi",
+    "psutil>=6.0.0",
+    "WMI>=1.5.1",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -61,6 +61,7 @@ dev = [
     "ruff>=0.1.0",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
+    "pip-audit>=2.7.0",
 ]
 
 [tool.ruff]
