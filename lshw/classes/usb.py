@@ -20,10 +20,9 @@ __license__ = 'GPLv3'
 from copy import deepcopy
 
 from .hardware_class import HardwareClass
-from .usb_device import UsbDevice
 
 
-@HardwareClass.register('Usb')
+@HardwareClass.register('Usb', parent='Pci')
 class Usb(HardwareClass):
     """
     Gets USB ports information using WMI
@@ -68,7 +67,7 @@ class Usb(HardwareClass):
             item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
 
             if children and 'PNPDeviceID' in hw_item:
-                item_ret['children'] = UsbDevice([hw_item['PNPDeviceID']]).format_data(children)
+                item_ret['children'] = self.factory('UsbDevice')(dev_id=[hw_item['PNPDeviceID']]).format_data(children)
 
             ret.append(item_ret)
 
