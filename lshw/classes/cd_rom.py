@@ -22,7 +22,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('CdRom')
+@HardwareClass.register('CdRom', parent='Ide')
 class CdRom(HardwareClass):
     """
     Gets CDROM/DVDROM information using WMI
