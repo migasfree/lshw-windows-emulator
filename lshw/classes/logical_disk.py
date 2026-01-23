@@ -22,7 +22,7 @@ from copy import deepcopy
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('LogicalDisk')
+@HardwareClass.register('LogicalDisk', parent='PartitionDisk')
 class LogicalDisk(HardwareClass):
     """
     Gets logical disk information using WMI
