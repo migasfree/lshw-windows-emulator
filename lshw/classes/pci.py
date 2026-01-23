@@ -19,16 +19,10 @@ __license__ = 'GPLv3'
 
 from copy import deepcopy
 
-from .graphic_card import GraphicCard
 from .hardware_class import HardwareClass
-from .ide import Ide
-from .network_card import NetworkCard
-from .physical_disk import PhysicalDisk
-from .sound_device import SoundDevice
-from .usb import Usb
 
 
-@HardwareClass.register('Pci')
+@HardwareClass.register('Pci', parent='BaseBoard')
 class Pci(HardwareClass):
     """
     Gets PCI bus information using WMI
@@ -85,24 +79,18 @@ class Pci(HardwareClass):
             pci_child.append(child)
 
         if children:
-            for element in Ide().format_data(children):
-                pci_child.append(element)
-
-            for element in NetworkCard().format_data():
-                pci_child.append(element)
-
-            for element in GraphicCard().format_data():
-                pci_child.append(element)
-
-            for i, element in enumerate(Usb().format_data(children)):
-                element['id'] = f'usb:{i}'
-                pci_child.append(element)
-
-            for element in SoundDevice().format_data():
-                pci_child.append(element)
-
-            for element in PhysicalDisk().format_data():
-                pci_child.append(element)
+            for child_class in self.get_children(self._entity_):
+                # Handle Usb specifically if needed for ID formatting
+                if child_class.__name__ == 'Usb':
+                    for i, element in enumerate(child_class().format_data(children)):
+                        element['id'] = f'usb:{i}'
+                        pci_child.append(element)
+                else:
+                    res = child_class().format_data(children)
+                    if isinstance(res, list):
+                        pci_child.extend(res)
+                    else:
+                        pci_child.append(res)
 
             self.formatted_data['children'] = pci_child
 
