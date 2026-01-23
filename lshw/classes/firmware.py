@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 from .hardware_class import HardwareClass
 
 
-@HardwareClass.register('Firmware')
+@HardwareClass.register('Firmware', parent='BaseBoard')
 class Firmware(HardwareClass):
     """
     Gets Firmware/BIOS information using WMI
