@@ -21,7 +21,7 @@ keywords = ["hardware", "windows", "lshw"]
 requires-python = ">=3.6"
 dependencies = [
     "psutil>=6.0.0",
-    "WMI>=1.5.1",
+    "WMI>=1.5.1; sys_platform == 'win32'",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
