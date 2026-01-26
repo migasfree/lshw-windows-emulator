@@ -17,40 +17,18 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from .base_board import BaseBoard
-from .cd_rom import CdRom
-from .computer_system import ComputerSystem
-from .firmware import Firmware
-from .graphic_card import GraphicCard
-from .hardware_class import HardwareClass
-from .ide import Ide
-from .logical_disk import LogicalDisk
-from .network_card import NetworkCard
-from .partition_disk import PartitionDisk
-from .pci import Pci
-from .physical_disk import PhysicalDisk
-from .physical_memory import PhysicalMemory
-from .processor import Processor
-from .sound_device import SoundDevice
-from .usb import Usb
-from .usb_device import UsbDevice
+import importlib
+import pkgutil
+from pathlib import Path
 
-__all__ = [
-    'BaseBoard',
-    'CdRom',
-    'ComputerSystem',
-    'Firmware',
-    'GraphicCard',
-    'HardwareClass',
-    'Ide',
-    'LogicalDisk',
-    'NetworkCard',
-    'PartitionDisk',
-    'Pci',
-    'PhysicalDisk',
-    'PhysicalMemory',
-    'Processor',
-    'SoundDevice',
-    'Usb',
-    'UsbDevice',
-]
+# Explicitly export the base class
+from .hardware_class import HardwareClass
+
+__all__ = ['HardwareClass']
+
+# Dynamically import all modules in this package -> triggers @HardwareClass.register
+package_dir = Path(__file__).resolve().parent
+for _, module_name, _ in pkgutil.iter_modules([str(package_dir)]):
+    if module_name == 'hardware_class':
+        continue
+    importlib.import_module(f'.{module_name}', package=__name__)
