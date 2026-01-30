@@ -17,8 +17,7 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from copy import deepcopy
-
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 
@@ -33,23 +32,30 @@ class SoundDevice(HardwareClass):
 
         self.wmi_method = 'Win32_SoundDevice'
 
-        self.formatted_data = {
-            'id': 'multimedia',
-            'class': 'multimedia',
-            'claimed': True,
-            'handle': '',
-            'description': 'Audio device',
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'businfo': '',
-            'version': '',
-            'width': 0,
-            'clock': 0,
-            'pnpdeviceid': self.__ERROR__,
-            'deviceid': self.__ERROR__,
-            'configuration': {'driver': '', 'latency': ''},
-            'capabilities': {'pm': '', 'msi': '', 'pciexpress': '', 'bus_master': '', 'cap_list': ''},
+        self.hardware = Hardware(
+            id='multimedia',
+            class_='multimedia',
+            claimed=True,
+            handle='',
+            description='Audio device',
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.version = ''
+        self.hardware.width = 0
+        self.hardware.clock = 0
+        self.hardware.pnpdeviceid = self.__ERROR__
+        self.hardware.deviceid = self.__ERROR__
+        self.hardware.configuration = {'driver': '', 'latency': ''}
+        self.hardware.capabilities = {
+            'pm': '',
+            'msi': '',
+            'pciexpress': '',
+            'bus_master': '',
+            'cap_list': '',
         }
 
         self.properties_to_get = [
@@ -65,11 +71,31 @@ class SoundDevice(HardwareClass):
 
         ret = []
         for hw_item in self.hardware_set_to_return:
-            item_ret = deepcopy(self.formatted_data)
-
-            item_ret['product'] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret['deviceid'] = hw_item.get('DeviceID', self.__ERROR__)
+            item_ret = Hardware(
+                id='multimedia',
+                class_='multimedia',
+                claimed=True,
+                handle='',
+                description='Audio device',
+                product=hw_item.get('Manufacturer', self.__ERROR__),
+                vendor=self.__ERROR__,
+                physid='',
+                serial='',
+            )
+            item_ret.businfo = ''
+            item_ret.version = ''
+            item_ret.width = 0
+            item_ret.clock = 0
+            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
+            item_ret.configuration = {'driver': '', 'latency': ''}
+            item_ret.capabilities = {
+                'pm': '',
+                'msi': '',
+                'pciexpress': '',
+                'bus_master': '',
+                'cap_list': '',
+            }
 
             ret.append(item_ret)
 

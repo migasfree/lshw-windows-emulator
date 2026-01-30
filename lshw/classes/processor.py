@@ -17,8 +17,7 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from copy import deepcopy
-
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 
@@ -33,24 +32,24 @@ class Processor(HardwareClass):
 
         self.wmi_method = 'Win32_processor'
 
-        self.formatted_data = {
-            'id': self.__ERROR__,
-            'class': 'processor',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'businfo': 'cpu@',
-            'version': '',
-            'serial': '',
-            'slot': self.__ERROR__,
-            'units': 'Hz',
-            'size': 0,
-            'width': self.__ERROR__,
-            'clock': self.__ERROR__,
-        }
+        self.hardware = Hardware(
+            id=self.__ERROR__,
+            class_='processor',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = 'cpu@'
+        self.hardware.version = ''
+        self.hardware.slot = self.__ERROR__
+        self.hardware.units = 'Hz'
+        self.hardware.size = 0
+        self.hardware.width = self.__ERROR__
+        self.hardware.clock = self.__ERROR__
 
         self.properties_to_get = [
             'Manufacturer',
@@ -68,15 +67,24 @@ class Processor(HardwareClass):
 
         ret = []
         for cpu_id, hw_item in enumerate(self.hardware_set_to_return):
-            item_ret = deepcopy(self.formatted_data)
-
-            item_ret['id'] = f'cpu:{cpu_id}'
-            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['product'] = hw_item.get('Name', self.__ERROR__)
-            item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret['slot'] = hw_item.get('SocketDesignation', self.__ERROR__)
-            item_ret['width'] = hw_item.get('DataWidth', self.__ERROR__)
-            item_ret['clock'] = hw_item.get('MaxClockSpeed', self.__ERROR__)
+            item_ret = Hardware(
+                id=f'cpu:{cpu_id}',
+                class_='processor',
+                claimed=True,
+                handle='',
+                description=hw_item.get('Description', self.__ERROR__),
+                product=hw_item.get('Name', self.__ERROR__),
+                vendor=hw_item.get('Manufacturer', self.__ERROR__),
+                physid='',
+                serial='',
+            )
+            item_ret.businfo = 'cpu@'
+            item_ret.version = ''
+            item_ret.slot = hw_item.get('SocketDesignation', self.__ERROR__)
+            item_ret.units = 'Hz'
+            item_ret.size = 0
+            item_ret.width = hw_item.get('DataWidth', self.__ERROR__)
+            item_ret.clock = hw_item.get('MaxClockSpeed', self.__ERROR__)
 
             ret.append(item_ret)
 

@@ -19,6 +19,7 @@ __license__ = 'GPLv3'
 
 import logging
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
@@ -35,25 +36,25 @@ class ComputerSystem(HardwareClass):
 
         self.wmi_method = 'Win32_computersystem'
 
-        self.formatted_data = {
-            'id': self.__ERROR__,
-            'class': 'system',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'serial': self.__ERROR__,
-            'width': 0,
-            'children': [],
-            'configuration': {
-                'boot': '',
-                'chassis': self.__ERROR__,
-                'cpus': self.__ERROR__,
-                'family': '',
-                'sku': '',
-                'uuid': self.__ERROR__,
-            },
+        self.hardware = Hardware(
+            id=self.__ERROR__,
+            class_='system',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            serial=self.__ERROR__,
+        )
+        # Extend base hardware with specific fields
+        self.hardware.width = 0
+        self.hardware.configuration = {
+            'boot': '',
+            'chassis': self.__ERROR__,
+            'cpus': self.__ERROR__,
+            'family': '',
+            'sku': '',
+            'uuid': self.__ERROR__,
         }
 
         self.properties_to_get = ['Model', 'Name', 'Description', 'Manufacturer', 'NumberOfProcessors']
@@ -114,24 +115,24 @@ class ComputerSystem(HardwareClass):
         uuid, serial = self.get_computer_uuid_serialnumber()
 
         for hw_item in self.hardware_set_to_return:
-            self.formatted_data['id'] = hw_item.get('Name', self.__ERROR__)
-            self.formatted_data['description'] = '{}, {}'.format(hw_item.get('Description', self.__ERROR__), chassis)
-            self.formatted_data['product'] = hw_item.get('Model', self.__ERROR__)
-            self.formatted_data['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            self.formatted_data['serial'] = serial
-            self.formatted_data['configuration']['chassis'] = chassis
-            self.formatted_data['configuration']['cpus'] = hw_item.get('NumberOfProcessors', self.__ERROR__)
-            self.formatted_data['configuration']['uuid'] = uuid
+            self.hardware.id = hw_item.get('Name', self.__ERROR__)
+            self.hardware.description = '{}, {}'.format(hw_item.get('Description', self.__ERROR__), chassis)
+            self.hardware.product = hw_item.get('Model', self.__ERROR__)
+            self.hardware.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+            self.hardware.serial = serial
+            self.hardware.configuration['chassis'] = chassis
+            self.hardware.configuration['cpus'] = hw_item.get('NumberOfProcessors', self.__ERROR__)
+            self.hardware.configuration['uuid'] = uuid
 
         if children:
             for child_class in self.get_children(self._entity_):
                 try:
                     res = child_class().format_data(children)
                     if isinstance(res, list):
-                        self.formatted_data['children'].extend(res)
+                        self.hardware.children.extend(res)
                     else:
-                        self.formatted_data['children'].append(res)
+                        self.hardware.children.append(res)
                 except Exception as e:
                     logger.warning(f'Could not get children {child_class.__name__} for ComputerSystem: {e}')
 
-        return self.formatted_data
+        return self.hardware

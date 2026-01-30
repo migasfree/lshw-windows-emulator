@@ -18,8 +18,8 @@ __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez S�
 __license__ = 'GPLv3'
 
 import logging
-from copy import deepcopy
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
@@ -36,21 +36,20 @@ class Pci(HardwareClass):
 
         self.wmi_method = 'Win32_Bus'
 
-        self.formatted_data = {
-            'id': 'pci',
-            'class': 'bridge',
-            'claimed': True,
-            'handle': '',
-            'description': 'Host bridge',
-            'product': '',
-            'vendor': '',
-            'physid': '',
-            'businfo': '',
-            'version': '',
-            'width': 0,
-            'clock': 0,
-            'children': [],
-        }
+        self.hardware = Hardware(
+            id='pci',
+            class_='bridge',
+            claimed=True,
+            handle='',
+            description='Host bridge',
+            product='',
+            vendor='',
+            physid='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.version = ''
+        self.hardware.width = 0
+        self.hardware.clock = 0
 
         self.properties_to_get = [
             'Caption',
@@ -74,10 +73,20 @@ class Pci(HardwareClass):
                 elif hw_item['DeviceID'][0:3].lower() == 'pnp':
                     id_bus = f'pnp:{hw_item["DeviceID"][-1]}'
 
-            child = deepcopy(self.formatted_data)
-            child['id'] = id_bus
-            child['description'] = hw_item.get('DeviceID', 'Host bridge')
-            child['product'] = hw_item.get('Caption', '')
+            child = Hardware(
+                id=id_bus,
+                class_='bridge',
+                claimed=True,
+                handle='',
+                description=hw_item.get('DeviceID', 'Host bridge'),
+                product=hw_item.get('Caption', ''),
+                vendor='',
+                physid='',
+            )
+            child.businfo = ''
+            child.version = ''
+            child.width = 0
+            child.clock = 0
 
             pci_child.append(child)
 
@@ -86,8 +95,9 @@ class Pci(HardwareClass):
                 try:
                     # Handle Usb specifically if needed for ID formatting
                     if child_class.__name__ == 'Usb':
+                        # child_class().format_data(children) returns List[Hardware]
                         for i, element in enumerate(child_class().format_data(children)):
-                            element['id'] = f'usb:{i}'
+                            element.id = f'usb:{i}'
                             pci_child.append(element)
                     else:
                         res = child_class().format_data(children)
@@ -98,6 +108,6 @@ class Pci(HardwareClass):
                 except Exception as e:
                     logger.warning(f'Could not get children {child_class.__name__} for Pci: {e}')
 
-            self.formatted_data['children'] = pci_child
+            self.hardware.children = pci_child
 
-        return self.formatted_data
+        return self.hardware

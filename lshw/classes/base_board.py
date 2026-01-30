@@ -19,6 +19,7 @@ __license__ = 'GPLv3'
 
 import logging
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
@@ -35,18 +36,17 @@ class BaseBoard(HardwareClass):
 
         self.wmi_method = 'Win32_baseboard'
 
-        self.formatted_data = {
-            'id': 'core',
-            'class': 'bus',
-            'claimed': True,
-            'handle': '',
-            'description': 'Motherboard',
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '0',
-            'serial': self.__ERROR__,
-            'children': [],
-        }
+        self.hardware = Hardware(
+            id='core',
+            class_='bus',
+            claimed=True,
+            handle='',
+            description='Motherboard',
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            physid='0',
+            serial=self.__ERROR__,
+        )
 
         self.properties_to_get = ['Model', 'SerialNumber', 'Manufacturer', 'Product']
 
@@ -56,19 +56,19 @@ class BaseBoard(HardwareClass):
         self.get_hardware()
 
         for hw_item in self.hardware_set_to_return:
-            self.formatted_data['product'] = hw_item.get('Product', self.__ERROR__)
-            self.formatted_data['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            self.formatted_data['serial'] = hw_item.get('SerialNumber', self.__ERROR__)
+            self.hardware.product = hw_item.get('Product', self.__ERROR__)
+            self.hardware.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+            self.hardware.serial = hw_item.get('SerialNumber', self.__ERROR__)
 
         if children:
             for child_class in self.get_children(self._entity_):
                 try:
                     res = child_class().format_data(children)
                     if isinstance(res, list):
-                        self.formatted_data['children'].extend(res)
+                        self.hardware.children.extend(res)
                     else:
-                        self.formatted_data['children'].append(res)
+                        self.hardware.children.append(res)
                 except Exception as e:
                     logger.warning(f'Could not get children {child_class.__name__} for BaseBoard: {e}')
 
-        return self.formatted_data
+        return self.hardware

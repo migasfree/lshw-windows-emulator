@@ -18,8 +18,8 @@ __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez S�
 __license__ = 'GPLv3'
 
 import logging
-from copy import deepcopy
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
@@ -36,28 +36,27 @@ class PhysicalDisk(HardwareClass):
 
         self.dev_id = dev_id
 
-        self.formatted_data = {
-            'id': 'disk',
-            'class': 'disk',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'deviceid': self.__ERROR__,
-            'pnpdeviceid': self.__ERROR__,
-            'businfo': self.__ERROR__,
-            'logicalname': '',
-            'dev': '',
-            'version': '',
-            'serial': '',
-            'units': 'bytes',
-            'size': 0,
-            'configuration': {'ansiversion': '', 'signature': ''},
-            'capabilities': {'partitioned': '', 'partitioned:dos': ''},
-            'children': [],
-        }
+        self.hardware = Hardware(
+            id='disk',
+            class_='disk',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.deviceid = self.__ERROR__
+        self.hardware.pnpdeviceid = self.__ERROR__
+        self.hardware.businfo = self.__ERROR__
+        self.hardware.logicalname = ''
+        self.hardware.dev = ''
+        self.hardware.version = ''
+        self.hardware.units = 'bytes'
+        self.hardware.size = 0
+        self.hardware.configuration = {'ansiversion': '', 'signature': ''}
+        self.hardware.capabilities = {'partitioned': '', 'partitioned:dos': ''}
 
         self.properties_to_get = [
             'Caption',
@@ -90,19 +89,32 @@ class PhysicalDisk(HardwareClass):
 
         ret = []
         for hw_item in self.hardware_set_to_return:
-            item_ret = deepcopy(self.formatted_data)
-
-            item_ret['description'] = hw_item['Description']
-            item_ret['product'] = hw_item['Caption']
-            item_ret['vendor'] = hw_item['Manufacturer']
-            item_ret['deviceid'] = hw_item['DeviceID']
-            item_ret['pnpdeviceid'] = hw_item['PNPDeviceID']
-            item_ret['size'] = int(hw_item['Size'])
-            item_ret['businfo'] = f'scsi@{hw_item["Index"]}:0.0.0'
+            item_ret = Hardware(
+                id='disk',
+                class_='disk',
+                claimed=True,
+                handle='',
+                description=hw_item['Description'],
+                product=hw_item['Caption'],
+                vendor=hw_item['Manufacturer'],
+                physid='',
+                serial='',
+            )
+            item_ret.deviceid = hw_item['DeviceID']
+            item_ret.pnpdeviceid = hw_item['PNPDeviceID']
+            item_ret.businfo = f'scsi@{hw_item["Index"]}:0.0.0'
+            item_ret.logicalname = ''
+            item_ret.dev = ''
+            item_ret.version = ''
+            item_ret.units = 'bytes'
+            item_ret.size = int(hw_item['Size'])
+            item_ret.configuration = {'ansiversion': '', 'signature': ''}
+            item_ret.capabilities = {'partitioned': '', 'partitioned:dos': ''}
 
             if children:
                 try:
-                    item_ret['children'] = self.factory('PartitionDisk')(hw_item['DeviceID']).format_data(children)
+                    # PartitionDisk returns List[Hardware]
+                    item_ret.children = self.factory('PartitionDisk')(hw_item['DeviceID']).format_data(children)
                 except Exception as e:
                     logger.warning(f'Could not get children for PhysicalDisk {hw_item["DeviceID"]}: {e}')
 

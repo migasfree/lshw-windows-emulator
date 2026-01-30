@@ -17,8 +17,7 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from copy import deepcopy
-
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 
@@ -33,22 +32,30 @@ class GraphicCard(HardwareClass):
 
         self.wmi_method = 'Win32_videoController'
 
-        self.formatted_data = {
-            'id': 'display',
-            'class': 'display',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'businfo': '',
-            'version': '',
-            'width': 0,
-            'clock': 0,
-            'pnpdeviceid': self.__ERROR__,
-            'configuration': {'driver': '', 'latency': ''},
-            'capabilities': {'msi': '', 'pm': '', 'vga': '', 'bus_master': '', 'cap_list': '', 'rom': ''},
+        self.hardware = Hardware(
+            id='display',
+            class_='display',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.version = ''
+        self.hardware.width = 0
+        self.hardware.clock = 0
+        self.hardware.pnpdeviceid = self.__ERROR__
+        self.hardware.configuration = {'driver': '', 'latency': ''}
+        self.hardware.capabilities = {
+            'msi': '',
+            'pm': '',
+            'vga': '',
+            'bus_master': '',
+            'cap_list': '',
+            'rom': '',
         }
 
         self.properties_to_get = [
@@ -66,12 +73,31 @@ class GraphicCard(HardwareClass):
 
         ret = []
         for hw_item in self.hardware_set_to_return:
-            item_ret = deepcopy(self.formatted_data)
-
-            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['product'] = hw_item.get('VideoProcessor', self.__ERROR__)
-            item_ret['vendor'] = hw_item.get('AdapterCompatibility', self.__ERROR__)
-            item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret = Hardware(
+                id='display',
+                class_='display',
+                claimed=True,
+                handle='',
+                description=hw_item.get('Description', self.__ERROR__),
+                product=hw_item.get('VideoProcessor', self.__ERROR__),
+                vendor=hw_item.get('AdapterCompatibility', self.__ERROR__),
+                physid='',
+                serial='',
+            )
+            item_ret.businfo = ''
+            item_ret.version = ''
+            item_ret.width = 0
+            item_ret.clock = 0
+            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret.configuration = {'driver': '', 'latency': ''}
+            item_ret.capabilities = {
+                'msi': '',
+                'pm': '',
+                'vga': '',
+                'bus_master': '',
+                'cap_list': '',
+                'rom': '',
+            }
 
             ret.append(item_ret)
 

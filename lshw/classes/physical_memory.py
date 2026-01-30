@@ -17,8 +17,8 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from copy import deepcopy
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 
@@ -33,33 +33,15 @@ class PhysicalMemory(HardwareClass):
 
         self.wmi_method = 'Win32_physicalMemory'
 
-        self.formatted_data = {
-            'id': 'memory:0',
-            'class': 'memory',
-            'claimed': True,
-            'handle': '',
-            'description': 'System Memory',
-            'physid': '',
-            'slot': '',
-            'children': [],
-        }
-
-        self.formatted_data_default = {
-            'id': self.__ERROR__,
-            'class': 'memory',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'product': self.__ERROR__,
-            'vendor': '',
-            'physid': '',
-            'serial': '',
-            'slot': self.__ERROR__,
-            'units': 'bytes',
-            'size': self.__ERROR__,
-            'width': self.__ERROR__,
-            'clock': self.__ERROR__,
-        }
+        self.hardware = Hardware(
+            id='memory:0',
+            class_='memory',
+            claimed=True,
+            handle='',
+            description='System Memory',
+            physid='',
+        )
+        self.hardware.slot = ''
 
         self.properties_to_get = [
             'Tag',
@@ -75,22 +57,34 @@ class PhysicalMemory(HardwareClass):
     def format_data(self, children=False):
         self.get_hardware()
 
-        ret = []
         for hw_item in self.hardware_set_to_return:
-            item_ret = deepcopy(self.formatted_data_default)
+            bank = Hardware(
+                id=self.__ERROR__,
+                class_='memory',
+                claimed=True,
+                handle='',
+                description=self.__ERROR__,
+                product=self.__ERROR__,
+                vendor='',
+                physid='',
+                serial='',
+            )
+            bank.slot = self.__ERROR__
+            bank.units = 'bytes'
+            bank.size = self.__ERROR__
+            bank.width = self.__ERROR__
+            bank.clock = self.__ERROR__
 
             if 'Tag' in hw_item:
-                item_ret['id'] = f'bank:{hw_item["Tag"][-1]}'
+                bank.id = f'bank:{hw_item["Tag"][-1]}'
 
-            item_ret['description'] = hw_item.get('Tag', self.__ERROR__)
-            item_ret['product'] = hw_item.get('MemoryType', self.__ERROR__)
-            item_ret['slot'] = hw_item.get('DeviceLocator', self.__ERROR__)
-            item_ret['size'] = hw_item.get('Capacity', 0)
-            item_ret['width'] = hw_item.get('DataWidth', 0)
-            item_ret['clock'] = hw_item.get('Speed', 0)
+            bank.description = hw_item.get('Tag', self.__ERROR__)
+            bank.product = hw_item.get('MemoryType', self.__ERROR__)
+            bank.slot = hw_item.get('DeviceLocator', self.__ERROR__)
+            bank.size = hw_item.get('Capacity', 0)
+            bank.width = hw_item.get('DataWidth', 0)
+            bank.clock = hw_item.get('Speed', 0)
 
-            ret.append(item_ret)
+            self.hardware.children.append(bank)
 
-        self.formatted_data['children'] = ret
-
-        return self.formatted_data
+        return self.hardware

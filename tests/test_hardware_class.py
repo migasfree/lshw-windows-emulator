@@ -113,11 +113,13 @@ def test_baseboard_error_isolation(mocker):
     # Mock BaseBoard to return one item, and Pci to raise an exception
     from lshw.classes.base_board import BaseBoard
     from lshw.classes.firmware import Firmware
-    from lshw.classes.pci import Pci
 
     # Mock Pci and Firmware format_data (class-level patching is fine for methods)
+    from lshw.classes.hardware import Hardware
+    from lshw.classes.pci import Pci
+
     mocker.patch.object(Pci, 'format_data', side_effect=Exception('Pci failure'))
-    mocker.patch.object(Firmware, 'format_data', return_value={'id': 'bios:0'})
+    mocker.patch.object(Firmware, 'format_data', return_value=Hardware(id='bios:0'))
 
     bb = BaseBoard()
     # Mock get_hardware instance method to do nothing
@@ -128,6 +130,6 @@ def test_baseboard_error_isolation(mocker):
     data = bb.format_data(children=True)
 
     # Verify that the board data is there, even if Pci failed
-    assert data['serial'] == 'BOARD1'
+    assert data.serial == 'BOARD1'
     # Verify bios is there (one of the successful children)
-    assert any(child['id'] == 'bios:0' for child in data['children'])
+    assert any(child.id == 'bios:0' for child in data.children)

@@ -18,8 +18,8 @@ __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez S�
 __license__ = 'GPLv3'
 
 import logging
-from copy import deepcopy
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
@@ -36,23 +36,24 @@ class Usb(HardwareClass):
 
         self.wmi_method = 'Win32_USBController'
 
-        self.formatted_data = {
-            'id': '',
-            'class': 'bus',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'businfo': '',
-            'version': '',
-            'width': 0,
-            'clock': 0,
-            'pnpdeviceid': self.__ERROR__,
-            'configuration': {'driver': '', 'latency': ''},
-            'children': [],
-            'capabilities': {'uhci': '', 'bus_master': ''},
-        }
+        self.hardware = Hardware(
+            id='',
+            class_='bus',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product='',
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.version = ''
+        self.hardware.width = 0
+        self.hardware.clock = 0
+        self.hardware.pnpdeviceid = self.__ERROR__
+        self.hardware.configuration = {'driver': '', 'latency': ''}
+        self.hardware.capabilities = {'uhci': '', 'bus_master': ''}
 
         self.properties_to_get = ['PNPDeviceID', 'DeviceID', 'Description', 'Manufacturer']
 
@@ -63,17 +64,29 @@ class Usb(HardwareClass):
 
         ret = []
         for hw_item in self.hardware_set_to_return:
-            item_ret = deepcopy(self.formatted_data)
-
-            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret['pnpdeviceid'] = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret = Hardware(
+                id='',
+                class_='bus',
+                claimed=True,
+                handle='',
+                description=hw_item.get('Description', self.__ERROR__),
+                product='',
+                vendor=hw_item.get('Manufacturer', self.__ERROR__),
+                physid='',
+                serial='',
+            )
+            item_ret.businfo = ''
+            item_ret.version = ''
+            item_ret.width = 0
+            item_ret.clock = 0
+            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret.configuration = {'driver': '', 'latency': ''}
+            item_ret.capabilities = {'uhci': '', 'bus_master': ''}
 
             if children and 'PNPDeviceID' in hw_item:
                 try:
-                    item_ret['children'] = self.factory('UsbDevice')(dev_id=[hw_item['PNPDeviceID']]).format_data(
-                        children
-                    )
+                    # UsbDevice returns List[Hardware]
+                    item_ret.children = self.factory('UsbDevice')(dev_id=[hw_item['PNPDeviceID']]).format_data(children)
                 except Exception as e:
                     logger.warning(f'Could not get children for Usb {hw_item["PNPDeviceID"]}: {e}')
 

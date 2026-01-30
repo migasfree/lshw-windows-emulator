@@ -52,16 +52,16 @@ def test_processor_format_data(mock_wmi_connection):
     assert len(result) == 2
 
     # Check CPU 1
-    assert result[0]['id'] == 'cpu:0'
-    assert result[0]['vendor'] == 'Intel'
-    assert result[0]['product'] == 'Intel Core i7'
-    assert result[0]['slot'] == 'CPU 1'
-    assert result[0]['width'] == 64
-    assert result[0]['clock'] == 3200
+    assert result[0].id == 'cpu:0'
+    assert result[0].vendor == 'Intel'
+    assert result[0].product == 'Intel Core i7'
+    assert result[0].slot == 'CPU 1'
+    assert result[0].width == 64
+    assert result[0].clock == 3200
 
     # Check CPU 2
-    assert result[1]['id'] == 'cpu:1'
-    assert result[1]['slot'] == 'CPU 2'
+    assert result[1].id == 'cpu:1'
+    assert result[1].slot == 'CPU 2'
 
 
 def test_processor_handles_missing_data(mock_wmi_connection):
@@ -77,5 +77,5 @@ def test_processor_handles_missing_data(mock_wmi_connection):
     result = cpu.format_data()
 
     assert len(result) == 1
-    assert result[0]['product'] == 'Generic CPU'
-    assert result[0]['vendor'] == 'Unknown'  # Default error value
+    assert result[0].product == 'Generic CPU'
+    assert result[0].vendor == 'Unknown'  # Default error value

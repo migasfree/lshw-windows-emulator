@@ -17,8 +17,7 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
-from copy import deepcopy
-
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 
@@ -33,31 +32,32 @@ class CdRom(HardwareClass):
 
         self.dev_id = dev_id
 
-        self.formatted_data = {
-            'id': 'cdrom',
-            'class': 'disk',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'businfo': '',
-            'logicalname': self.__ERROR__,
-            'DeviceID': self.__ERROR__,
-            'PNPDeviceID': self.__ERROR__,
-            'dev': '',
-            'version': '',
-            'configuration': {'ansiversion': '', 'status': self.__ERROR__},
-            'capabilities': {
-                'removable': '',
-                'audio': '',
-                'cd-r': '',
-                'cd-rw': '',
-                'dvd': '',
-                'dvd-r': '',
-                'dvd-ram': '',
-            },
+        self.hardware = Hardware(
+            id='cdrom',
+            class_='disk',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.logicalname = self.__ERROR__
+        self.hardware.deviceid = self.__ERROR__
+        self.hardware.pnpdeviceid = self.__ERROR__
+        self.hardware.dev = ''
+        self.hardware.version = ''
+        self.hardware.configuration = {'ansiversion': '', 'status': self.__ERROR__}
+        self.hardware.capabilities = {
+            'removable': '',
+            'audio': '',
+            'cd-r': '',
+            'cd-rw': '',
+            'dvd': '',
+            'dvd-r': '',
+            'dvd-ram': '',
         }
 
         self.properties_to_get = [
@@ -102,14 +102,33 @@ class CdRom(HardwareClass):
             if 'MediaLoaded' in hw_item and hw_item['MediaLoaded'] is True:
                 media_loaded = 'loaded disc'
 
-            item_ret = deepcopy(self.formatted_data)
-            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['product'] = hw_item.get('Name', self.__ERROR__)
-            item_ret['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            item_ret['logicalname'] = hw_item.get('Drive', self.__ERROR__)
-            item_ret['DeviceID'] = hw_item.get('DeviceID', self.__ERROR__)
-            item_ret['PNPDeviceID'] = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret['configuration']['status'] = media_loaded
+            item_ret = Hardware(
+                id='cdrom',
+                class_='disk',
+                claimed=True,
+                handle='',
+                description=hw_item.get('Description', self.__ERROR__),
+                product=hw_item.get('Name', self.__ERROR__),
+                vendor=hw_item.get('Manufacturer', self.__ERROR__),
+                physid='',
+                serial='',
+            )
+            item_ret.businfo = ''
+            item_ret.logicalname = hw_item.get('Drive', self.__ERROR__)
+            item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
+            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret.dev = ''
+            item_ret.version = ''
+            item_ret.configuration = {'ansiversion': '', 'status': media_loaded}
+            item_ret.capabilities = {
+                'removable': '',
+                'audio': '',
+                'cd-r': '',
+                'cd-rw': '',
+                'dvd': '',
+                'dvd-r': '',
+                'dvd-ram': '',
+            }
 
             ret.append(item_ret)
 

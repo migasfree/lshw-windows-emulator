@@ -22,6 +22,7 @@ requires-python = ">=3.6"
 dependencies = [
     "psutil>=6.0.0",
     "WMI>=1.5.1; sys_platform == 'win32'",
+    "dataclasses; python_version < '3.7'",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

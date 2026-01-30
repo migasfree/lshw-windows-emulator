@@ -20,8 +20,7 @@ __author__ = [
 ]
 __license__ = 'GPLv3'
 
-from copy import deepcopy
-
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 
@@ -36,22 +35,23 @@ class UsbDevice(HardwareClass):
 
         self.dev_id = dev_id if dev_id is not None else []
 
-        self.formatted_data = {
-            'id': '',
-            'class': self.__ERROR__,
-            'claimed': True,
-            'description': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'businfo': '',
-            'dev': '',
-            'version': '',
-            'serial': '',
-            'PNPDeviceID': self.__ERROR__,
-            'Parent_PNPDeviceID': self.__ERROR__,
-            'DeviceID': self.__ERROR__,
-            'children': [],
-        }
+        self.hardware = Hardware(
+            id='',
+            class_=self.__ERROR__,
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product='',
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.dev = ''
+        self.hardware.version = ''
+        self.hardware.pnpdeviceid = self.__ERROR__
+        self.hardware.parent_pnpdeviceid = self.__ERROR__
+        self.hardware.deviceid = self.__ERROR__
 
         self.properties_to_get = [
             'Caption',
@@ -145,15 +145,23 @@ class UsbDevice(HardwareClass):
                 if hw_item['Description'] == 'Volumen genérico':
                     usb_id_device = 'usb_vol'
 
-            item_ret = deepcopy(self.formatted_data)
-
-            item_ret['id'] = usb_id_device
-            item_ret['class'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['description'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['vendor'] = hw_item.get('Description', self.__ERROR__)
-            item_ret['PNPDeviceID'] = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret['Parent_PNPDeviceID'] = hw_item.get('Parent_PNPDeviceID', self.__ERROR__)
-            item_ret['DeviceID'] = hw_item.get('DeviceID', self.__ERROR__)
+            item_ret = Hardware(
+                id=usb_id_device,
+                class_=hw_item.get('Description', self.__ERROR__),
+                claimed=True,
+                handle='',
+                description=hw_item.get('Description', self.__ERROR__),
+                product='',
+                vendor=hw_item.get('Description', self.__ERROR__),
+                physid='',
+                serial='',
+            )
+            item_ret.businfo = ''
+            item_ret.dev = ''
+            item_ret.version = ''
+            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+            item_ret.parent_pnpdeviceid = hw_item.get('Parent_PNPDeviceID', self.__ERROR__)
+            item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
 
             ret.append(item_ret)
 

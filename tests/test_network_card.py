@@ -52,8 +52,8 @@ def test_network_card_format_data(mock_wmi_connection):
     assert len(result) == 1
     nic = result[0]
 
-    assert nic['product'] == 'Intel Ethernet'
-    assert nic['logicalname'] == 'Ethernet'
-    assert nic['serial'] == '00:11:22:33:44:55'
-    assert nic['configuration']['speed'] == 1000000000
-    assert nic['configuration']['autonegotiation'] is True
+    assert nic.product == 'Intel Ethernet'
+    assert nic.logicalname == 'Ethernet'
+    assert nic.serial == '00:11:22:33:44:55'
+    assert nic.configuration['speed'] == 1000000000
+    assert nic.configuration['autonegotiation'] is True

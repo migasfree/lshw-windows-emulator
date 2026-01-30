@@ -19,6 +19,7 @@ __license__ = 'GPLv3'
 
 import logging
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
@@ -33,23 +34,23 @@ class Ide(HardwareClass):
     def __init__(self):
         super().__init__()
 
-        self.formatted_data = {
-            'id': 'ide:0',
-            'class': '',
-            'claimed': True,
-            'handle': '',
-            'description': self.__ERROR__,
-            'product': self.__ERROR__,
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'businfo': '',
-            'logicalname': '',
-            'version': '',
-            'width': 0,
-            'clock': 0,
-            'pnpdeviceid': self.__ERROR__,
-            'children': [],
-        }
+        self.hardware = Hardware(
+            id='ide:0',
+            class_='',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product=self.__ERROR__,
+            vendor=self.__ERROR__,
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.logicalname = ''
+        self.hardware.version = ''
+        self.hardware.width = 0
+        self.hardware.clock = 0
+        self.hardware.pnpdeviceid = self.__ERROR__
 
         self.properties_to_get = ['Manufacturer', 'Caption', 'Description', 'DeviceID', 'PNPDeviceID']
 
@@ -93,23 +94,24 @@ class Ide(HardwareClass):
             wql = f'SELECT {fields} FROM Win32_IDEController WHERE PNPDeviceID="{element}"'
             # for ide in self.wmi_system.Win32_IDEController(self.properties_to_get, PNPDeviceID=element):
             for ide in self.wmi_system.query(wql):
-                primary_controller = {
-                    'id': f'ide:{id_cont_prim}',
-                    'class': '',
-                    'claimed': True,
-                    'handle': '',
-                    'description': ide.Description,
-                    'product': ide.Caption,
-                    'vendor': ide.Manufacturer,
-                    'physid': '',
-                    'businfo': '',
-                    'logicalname': '',
-                    'version': '',
-                    'width': 0,
-                    'clock': 0,
-                    'pnpdeviceid': ide.PNPDeviceID,
-                    'children': [],
-                }
+                primary_controller = Hardware(
+                    id=f'ide:{id_cont_prim}',
+                    class_='',
+                    claimed=True,
+                    handle='',
+                    description=ide.Description,
+                    product=ide.Caption,
+                    vendor=ide.Manufacturer,
+                    physid='',
+                    serial='',
+                )
+                primary_controller.businfo = ''
+                primary_controller.logicalname = ''
+                primary_controller.version = ''
+                primary_controller.width = 0
+                primary_controller.clock = 0
+                primary_controller.pnpdeviceid = ide.PNPDeviceID
+
                 id_cont_prim += 1
 
                 id_cont_sec = 0
@@ -121,23 +123,23 @@ class Ide(HardwareClass):
                             fields, element2['dep_value']
                         )
                         for ide2 in self.wmi_system.query(wql2):
-                            secondary_controller = {
-                                'id': f'channel:{ide2.PNPDeviceID[-1]}',
-                                'class': '',
-                                'claimed': True,
-                                'handle': '',
-                                'description': ide2.Description,
-                                'product': ide2.Caption,
-                                'vendor': ide2.Manufacturer,
-                                'physid': '',
-                                'businfo': '',
-                                'logicalname': '',
-                                'version': '',
-                                'width': 0,
-                                'clock': 0,
-                                'pnpdeviceid': ide2.PNPDeviceID,
-                                'children': [],
-                            }
+                            secondary_controller = Hardware(
+                                id=f'channel:{ide2.PNPDeviceID[-1]}',
+                                class_='',
+                                claimed=True,
+                                handle='',
+                                description=ide2.Description,
+                                product=ide2.Caption,
+                                vendor=ide2.Manufacturer,
+                                physid='',
+                                serial='',
+                            )
+                            secondary_controller.businfo = ''
+                            secondary_controller.logicalname = ''
+                            secondary_controller.version = ''
+                            secondary_controller.width = 0
+                            secondary_controller.clock = 0
+                            secondary_controller.pnpdeviceid = ide2.PNPDeviceID
 
                             id_cont_sec += 1
 
@@ -155,16 +157,17 @@ class Ide(HardwareClass):
                                                 hw_item_set = self.factory('CdRom')(ide3.PNPDeviceID)
 
                                             try:
+                                                # returns List[Hardware]
                                                 disk = hw_item_set.format_data(children=True)
 
                                                 id_disk += 1
-                                                secondary_controller['children'].append(disk[0])
+                                                secondary_controller.children.append(disk[0])
                                             except Exception as e:
                                                 logger.warning(
                                                     f'Could not get children for secondary controller in Ide: {e}'
                                                 )
 
-                            primary_controller['children'].append(secondary_controller)
+                            primary_controller.children.append(secondary_controller)
 
                         if children:
                             wql4 = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(
@@ -175,11 +178,11 @@ class Ide(HardwareClass):
                                     if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
                                         disk = self.factory('PhysicalDisk')(ide4.PNPDeviceID).format_data(children=True)
                                         id_disk += 1
-                                        primary_controller['children'].append(disk[0])
+                                        primary_controller.children.append(disk[0])
                                     elif len(ide4.associators(wmi_result_class='Win32_CDROMDrive')) != 0:
                                         disk = self.factory('CdRom')(ide4.PNPDeviceID).format_data(children=True)
                                         id_disk += 1
-                                        primary_controller['children'].append(disk[0])
+                                        primary_controller.children.append(disk[0])
                                 except Exception as e:
                                     logger.warning(f'Could not get children for primary controller in Ide: {e}')
 
@@ -191,4 +194,4 @@ class Ide(HardwareClass):
         try:
             return self.get_hardware(children)
         except Exception:
-            return self.formatted_data
+            return []

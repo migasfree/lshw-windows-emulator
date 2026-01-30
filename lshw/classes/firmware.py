@@ -17,6 +17,7 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 
@@ -31,20 +32,20 @@ class Firmware(HardwareClass):
 
         self.wmi_method = 'Win32_bios'
 
-        self.formatted_data = {
-            'id': 'firmware',
-            'class': 'memory',
-            'claimed': True,
-            'description': 'BIOS',
-            'vendor': self.__ERROR__,
-            'physid': '',
-            'version': self.__ERROR__,
-            'date': self.__ERROR__,
-            'serial': self.__ERROR__,
-            'units': '',
-            'size': 0,
-            'capacity': 0,
-        }
+        self.hardware = Hardware(
+            id='firmware',
+            class_='memory',
+            claimed=True,
+            description='BIOS',
+            vendor=self.__ERROR__,
+            physid='',
+            serial=self.__ERROR__,
+        )
+        self.hardware.version = self.__ERROR__
+        self.hardware.date = self.__ERROR__
+        self.hardware.units = ''
+        self.hardware.size = 0
+        self.hardware.capacity = 0
 
         self.properties_to_get = ['Manufacturer', 'BIOSVersion', 'ReleaseDate', 'SerialNumber']
 
@@ -54,10 +55,10 @@ class Firmware(HardwareClass):
         self.get_hardware()
 
         for hw_item in self.hardware_set_to_return:
-            self.formatted_data['vendor'] = hw_item.get('Manufacturer', self.__ERROR__)
-            self.formatted_data['date'] = hw_item.get('ReleaseDate', self.__ERROR__)
-            self.formatted_data['serial'] = hw_item.get('SerialNumber', self.__ERROR__)
+            self.hardware.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+            self.hardware.date = hw_item.get('ReleaseDate', self.__ERROR__)
+            self.hardware.serial = hw_item.get('SerialNumber', self.__ERROR__)
             if 'BIOSVersion' in hw_item:
-                self.formatted_data['version'] = hw_item['BIOSVersion'][0]
+                self.hardware.version = hw_item['BIOSVersion'][0]
 
-        return self.formatted_data
+        return self.hardware

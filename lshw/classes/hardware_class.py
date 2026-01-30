@@ -19,8 +19,11 @@ __license__ = 'GPLv3'
 
 import logging
 from abc import ABC, abstractmethod
+from typing import List, Union
 
 import wmi
+
+from .hardware import Hardware
 
 logger = logging.getLogger(__name__)
 
@@ -77,13 +80,13 @@ class HardwareClass(ABC):
     subclasses that query Windows Management Instrumentation (WMI).
 
     Return Type Convention for format_data():
-        - Singleton components (unique in system) return dict:
+        - Singleton components (unique in system) return Hardware:
           ComputerSystem, BaseBoard, Firmware, PhysicalMemory, Pci
-        - Multi-instance components (can have multiple) return list[dict]:
+        - Multi-instance components (can have multiple) return List[Hardware]:
           Processor, NetworkCard, PhysicalDisk, GraphicCard, SoundDevice, etc.
 
     Subclasses must implement:
-        - format_data(children: bool = False) -> dict | list[dict]
+        - format_data(children: bool = False) -> Hardware | List[Hardware]
     """
 
     __DESC__ = 'Unknown'
@@ -127,7 +130,7 @@ class HardwareClass(ABC):
         self.wmi_system = WMIConnection.get_instance()
         self.wmi_method = None
 
-        self.formatted_data = {}
+        self.hardware: Union[Hardware, List[Hardware], None] = None
 
         self.properties_to_get = []
         self.properties_to_return = {}
@@ -218,7 +221,7 @@ class HardwareClass(ABC):
             children: If True, include child hardware components in output.
 
         Returns:
-            dict: For singleton components (one per system).
-            list[dict]: For multi-instance components (can have multiple).
+            Hardware: For singleton components (one per system).
+            List[Hardware]: For multi-instance components (can have multiple).
         """
         pass

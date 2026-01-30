@@ -18,8 +18,8 @@ __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez S�
 __license__ = 'GPLv3'
 
 import logging
-from copy import deepcopy
 
+from .hardware import Hardware
 from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
@@ -34,37 +34,38 @@ class PartitionDisk(HardwareClass):
     def __init__(self, dev_id=''):
         super().__init__()
 
-        self.formatted_data = {
-            'id': self.__ERROR__,
-            'class': 'volume',
-            'claimed': True,
-            'description': self.__ERROR__,
-            'vendor': 'Windows',
-            'physid': '',
-            'businfo': '',
-            'logicalname': '',
-            'dev': '',
-            'version': '',
-            'serial': '',
-            'size': 0,
-            'capacity': 0,
-            'PNPDeviceID': self.__ERROR__,
-            'DeviceID': self.__ERROR__,
-            'configuration': {
-                'filesystem': 'fat',
-                'modified': '',
-                'mount.fstype': 'fat',
-                'mount.options': '',
-                'mounted': '',
-                'state': 'mounted',
-            },
-            'capabilities': {
-                'primary': self.__ERROR__,
-                'extended': self.__ERROR__,
-                'bootable': self.__ERROR__,
-                'extended_attributes': '',
-            },
-            'children': [],
+        self.hardware = Hardware(
+            id=self.__ERROR__,
+            class_='volume',
+            claimed=True,
+            handle='',
+            description=self.__ERROR__,
+            product='',
+            vendor='Windows',
+            physid='',
+            serial='',
+        )
+        self.hardware.businfo = ''
+        self.hardware.logicalname = ''
+        self.hardware.dev = ''
+        self.hardware.version = ''
+        self.hardware.size = 0
+        self.hardware.capacity = 0
+        self.hardware.pnpdeviceid = self.__ERROR__
+        self.hardware.deviceid = self.__ERROR__
+        self.hardware.configuration = {
+            'filesystem': 'fat',
+            'modified': '',
+            'mount.fstype': 'fat',
+            'mount.options': '',
+            'mounted': '',
+            'state': 'mounted',
+        }
+        self.hardware.capabilities = {
+            'primary': self.__ERROR__,
+            'extended': self.__ERROR__,
+            'bootable': self.__ERROR__,
+            'extended_attributes': '',
         }
 
         self.dev_id = dev_id
@@ -127,21 +128,44 @@ class PartitionDisk(HardwareClass):
             ):
                 description = 'Primary. Bootable. Boot partition. FAT32'
 
-            item_ret = deepcopy(self.formatted_data)
-
-            item_ret['id'] = f'volume:{hw_item["Index"]}'
-            item_ret['size'] = hw_item['Size']
-            item_ret['capacity'] = int(hw_item['Size'])
-            item_ret['PNPDeviceID'] = hw_item['PNPDeviceID']
-            item_ret['DeviceID'] = hw_item['DeviceID']
-            item_ret['description'] = description
-            item_ret['capabilities']['primary'] = primary
-            item_ret['capabilities']['extended'] = extended
-            item_ret['capabilities']['bootable'] = bootable
+            item_ret = Hardware(
+                id=f'volume:{hw_item["Index"]}',
+                class_='volume',
+                claimed=True,
+                handle='',
+                description=description,
+                product='',
+                vendor='Windows',
+                physid='',
+                serial='',
+            )
+            item_ret.size = hw_item['Size']
+            item_ret.capacity = int(hw_item['Size'])
+            item_ret.pnpdeviceid = hw_item['PNPDeviceID']
+            item_ret.deviceid = hw_item['DeviceID']
+            item_ret.businfo = ''
+            item_ret.logicalname = ''
+            item_ret.dev = ''
+            item_ret.version = ''
+            item_ret.configuration = {
+                'filesystem': 'fat',
+                'modified': '',
+                'mount.fstype': 'fat',
+                'mount.options': '',
+                'mounted': '',
+                'state': 'mounted',
+            }
+            item_ret.capabilities = {
+                'primary': primary,
+                'extended': extended,
+                'bootable': bootable,
+                'extended_attributes': '',
+            }
 
             if children:
                 try:
-                    item_ret['children'] = self.factory('LogicalDisk')(hw_item['DeviceID']).format_data(children)
+                    # LogicalDisk returns List[Hardware]
+                    item_ret.children = self.factory('LogicalDisk')(hw_item['DeviceID']).format_data(children)
                 except Exception as e:
                     logger.warning(f'Could not get children for PartitionDisk {hw_item["DeviceID"]}: {e}')
 

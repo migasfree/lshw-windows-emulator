@@ -19,22 +19,23 @@ def test_physical_memory_format_data(mock_wmi_connection):
     mem = PhysicalMemory()
     result = mem.format_data()
 
-    # format_data for default memory returns a dict with children
-    # This structure is slightly different from Processor/Disk which return list
-    # PhysicalMemory returns dict ("memory container") with children ("banks")
-    assert isinstance(result, dict)
-    assert result['id'] == 'memory:0'
-    assert result['class'] == 'memory'
+    # format_data for default memory returns a Hardware object (memory container)
+    # with children (banks)
+    from lshw.classes.hardware import Hardware
 
-    children = result['children']
+    assert isinstance(result, Hardware)
+    assert result.id == 'memory:0'
+    assert result.class_ == 'memory'
+
+    children = result.children
     assert len(children) == 1
 
     bank = children[0]
-    assert bank['id'] == 'bank:0'  # Derived from "Tag"
-    assert bank['description'] == 'Physical Memory 0'
-    assert bank['size'] == 8589934592
-    assert bank['product'] == 24
-    assert bank['clock'] == 2400
+    assert bank.id == 'bank:0'  # Derived from "Tag"
+    assert bank.description == 'Physical Memory 0'
+    assert bank.size == 8589934592
+    assert bank.product == 24
+    assert bank.clock == 2400
 
 
 def test_physical_memory_handles_missing_tag(mock_wmi_connection):
@@ -49,7 +50,7 @@ def test_physical_memory_handles_missing_tag(mock_wmi_connection):
     mem = PhysicalMemory()
     result = mem.format_data()
 
-    bank = result['children'][0]
+    bank = result.children[0]
     # Should use default ID if Tag is missing logic works, or fallback
-    assert bank['id'] == 'bank:n'  # Derived from last char of "Unknown" fallback
-    assert bank['description'] == 'Unknown'
+    assert bank.id == 'bank:n'  # Derived from last char of "Unknown" fallback
+    assert bank.description == 'Unknown'
