@@ -17,7 +17,7 @@ def test_json_output_serialization(capsys):
 
     # Mock HardwareClass factory and instance
     # We need to patch where main imports HardwareClass, or patch the class itself if it was already imported
-    with patch('lshw.__main__.HardwareClass') as MockHardwareClass:
+    with patch('lshw.__main__.HardwareClass') as mock_hardware_class:
         # User requests full system info by default
         mock_instance = MagicMock()
 
@@ -28,7 +28,7 @@ def test_json_output_serialization(capsys):
         mock_instance.format_data.return_value = [hw]
 
         # Setup the factory to return a class that returns our mock instance
-        MockHardwareClass.factory.return_value = MagicMock(return_value=mock_instance)
+        mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         # Run main
         exit_code = main(test_argv)
@@ -60,7 +60,7 @@ def test_standard_output_generation(capsys):
     # Mock argv (no arguments)
     test_argv = []
 
-    with patch('lshw.__main__.HardwareClass') as MockHardwareClass:
+    with patch('lshw.__main__.HardwareClass') as mock_hardware_class:
         # User requests full system info by default
         mock_instance = MagicMock()
 
@@ -72,7 +72,7 @@ def test_standard_output_generation(capsys):
         mock_instance.format_data.return_value = [hw]
 
         # Setup the factory
-        MockHardwareClass.factory.return_value = MagicMock(return_value=mock_instance)
+        mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         # Run main
         exit_code = main(test_argv)
