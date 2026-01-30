@@ -25,7 +25,7 @@ from .hardware_class import HardwareClass
 logger = logging.getLogger(__name__)
 
 
-@HardwareClass.register('PhysicalDisk', parent=['Pci', 'Ide'])
+@HardwareClass.register('PhysicalDisk', parent=['Ide'])
 class PhysicalDisk(HardwareClass):
     """
     Gets physical disk information using WMI
@@ -107,7 +107,13 @@ class PhysicalDisk(HardwareClass):
             item_ret.dev = ''
             item_ret.version = ''
             item_ret.units = 'bytes'
-            item_ret.size = int(hw_item['Size'])
+            try:
+                raw_size = int(hw_item['Size'])
+                logger.info(f'Disk {hw_item["DeviceID"]} raw size from WMI: {raw_size}')
+                item_ret.size = raw_size
+            except (ValueError, TypeError, KeyError) as e:
+                logger.warning(f'Could not parse size for disk {hw_item["DeviceID"]}: {e}')
+                item_ret.size = 0
             item_ret.configuration = {'ansiversion': '', 'signature': ''}
             item_ret.capabilities = {'partitioned': '', 'partitioned:dos': ''}
 

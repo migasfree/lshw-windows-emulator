@@ -160,8 +160,9 @@ class Ide(HardwareClass):
                                                 # returns List[Hardware]
                                                 disk = hw_item_set.format_data(children=True)
 
-                                                id_disk += 1
-                                                secondary_controller.children.append(disk[0])
+                                                if disk:
+                                                    id_disk += 1
+                                                    secondary_controller.children.append(disk[0])
                                             except Exception as e:
                                                 logger.warning(
                                                     f'Could not get children for secondary controller in Ide: {e}'
@@ -177,12 +178,14 @@ class Ide(HardwareClass):
                                 try:
                                     if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
                                         disk = self.factory('PhysicalDisk')(ide4.PNPDeviceID).format_data(children=True)
-                                        id_disk += 1
-                                        primary_controller.children.append(disk[0])
+                                        if disk:
+                                            id_disk += 1
+                                            primary_controller.children.append(disk[0])
                                     elif len(ide4.associators(wmi_result_class='Win32_CDROMDrive')) != 0:
                                         disk = self.factory('CdRom')(ide4.PNPDeviceID).format_data(children=True)
-                                        id_disk += 1
-                                        primary_controller.children.append(disk[0])
+                                        if disk:
+                                            id_disk += 1
+                                            primary_controller.children.append(disk[0])
                                 except Exception as e:
                                     logger.warning(f'Could not get children for primary controller in Ide: {e}')
 
