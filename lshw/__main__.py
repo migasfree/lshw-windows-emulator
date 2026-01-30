@@ -118,14 +118,14 @@ def parse_args(argv):
 def pretty(d, indent=0):
     if isinstance(d, list):
         for i in d:
-            pretty(i, indent + 1)
+            pretty(i, indent)
 
     if isinstance(d, dict):
         for key, value in d.items():
             if isinstance(value, (dict, list)):
                 pretty(value, indent + 1)
             else:
-                print('\t' * (indent + 1) + str(key) + ': ' + str(value))
+                print('    ' * indent + str(key) + ': ' + str(value))
 
 
 def main(argv=None):
