@@ -85,6 +85,7 @@ def _usage_examples():
 
     print('\n  ' + 'Output in JSON format:')
     print(f'\t{PROGRAM} -j')
+    print(f'\t{PROGRAM} -json')
     print(f'\t{PROGRAM} --json')
 
     print('\n  ' + 'Print a specific hardware class:')
@@ -107,7 +108,11 @@ def parse_args(argv):
         help='print a specific hardware class (write "-c list" to get available classes)',
     )
 
-    return parser.parse_args()
+    # Compatibility for -json (single dash)
+    if '-json' in argv:
+        argv = ['--json' if x == '-json' else x for x in argv]
+
+    return parser.parse_args(argv)
 
 
 def pretty(d, indent=0):
