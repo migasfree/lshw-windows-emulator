@@ -11,7 +11,7 @@ class ConcreteHardware(HardwareClass):
     """
 
     def format_data(self, children=False):
-        return {'test': 'data'}
+        return [{'test': 'data'}]
 
 
 def test_hardware_class_is_abstract():
@@ -24,7 +24,10 @@ def test_concrete_hardware_instantiation(mock_wmi_connection):
     """Test proper instantiation of a concrete subclass with WMI connection."""
     hw = ConcreteHardware()
     assert hw.wmi_system == mock_wmi_connection
-    assert hw.format_data() == {'test': 'data'}
+    # format_data should return a list now, but ConcreteHardware.format_data
+    # was mocked to return dict in the test setup? No, it's defined in the file.
+    # We should update ConcreteHardware to return a list to match the new abstract contract
+    assert hw.format_data() == [{'test': 'data'}]
 
 
 def test_build_wql_fields(mock_wmi_connection):
@@ -119,7 +122,7 @@ def test_baseboard_error_isolation(mocker):
     from lshw.classes.pci import Pci
 
     mocker.patch.object(Pci, 'format_data', side_effect=Exception('Pci failure'))
-    mocker.patch.object(Firmware, 'format_data', return_value=Hardware(id='bios:0'))
+    mocker.patch.object(Firmware, 'format_data', return_value=[Hardware(id='bios:0')])
 
     bb = BaseBoard()
     # Mock get_hardware instance method to do nothing
@@ -130,6 +133,10 @@ def test_baseboard_error_isolation(mocker):
     data = bb.format_data(children=True)
 
     # Verify that the board data is there, even if Pci failed
-    assert data.serial == 'BOARD1'
+    # BaseBoard.format_data now returns a list
+    assert isinstance(data, list)
+    assert len(data) == 1
+    board = data[0]
+    assert board.serial == 'BOARD1'
     # Verify bios is there (one of the successful children)
-    assert any(child.id == 'bios:0' for child in data.children)
+    assert any(child.id == 'bios:0' for child in board.children)

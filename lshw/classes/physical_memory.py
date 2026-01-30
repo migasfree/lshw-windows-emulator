@@ -87,4 +87,4 @@ class PhysicalMemory(HardwareClass):
 
             self.hardware.children.append(bank)
 
-        return self.hardware
+        return [self.hardware]

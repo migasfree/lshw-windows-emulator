@@ -61,4 +61,4 @@ class Firmware(HardwareClass):
             if 'BIOSVersion' in hw_item:
                 self.hardware.version = hw_item['BIOSVersion'][0]
 
-        return self.hardware
+        return [self.hardware]

@@ -101,13 +101,10 @@ class Pci(HardwareClass):
                             pci_child.append(element)
                     else:
                         res = child_class().format_data(children)
-                        if isinstance(res, list):
-                            pci_child.extend(res)
-                        else:
-                            pci_child.append(res)
+                        pci_child.extend(res)
                 except Exception as e:
                     logger.warning(f'Could not get children {child_class.__name__} for Pci: {e}')
 
             self.hardware.children = pci_child
 
-        return self.hardware
+        return [self.hardware]

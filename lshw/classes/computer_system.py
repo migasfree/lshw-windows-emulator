@@ -128,11 +128,8 @@ class ComputerSystem(HardwareClass):
             for child_class in self.get_children(self._entity_):
                 try:
                     res = child_class().format_data(children)
-                    if isinstance(res, list):
-                        self.hardware.children.extend(res)
-                    else:
-                        self.hardware.children.append(res)
+                    self.hardware.children.extend(res)
                 except Exception as e:
                     logger.warning(f'Could not get children {child_class.__name__} for ComputerSystem: {e}')
 
-        return self.hardware
+        return [self.hardware]

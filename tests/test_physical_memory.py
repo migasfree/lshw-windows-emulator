@@ -19,15 +19,18 @@ def test_physical_memory_format_data(mock_wmi_connection):
     mem = PhysicalMemory()
     result = mem.format_data()
 
-    # format_data for default memory returns a Hardware object (memory container)
-    # with children (banks)
+    # format_data for default memory returns a List[Hardware]
     from lshw.classes.hardware import Hardware
 
-    assert isinstance(result, Hardware)
-    assert result.id == 'memory:0'
-    assert result.class_ == 'memory'
+    assert isinstance(result, list)
+    assert len(result) == 1
+    mem_container = result[0]
 
-    children = result.children
+    assert isinstance(mem_container, Hardware)
+    assert mem_container.id == 'memory:0'
+    assert mem_container.class_ == 'memory'
+
+    children = mem_container.children
     assert len(children) == 1
 
     bank = children[0]
@@ -50,7 +53,8 @@ def test_physical_memory_handles_missing_tag(mock_wmi_connection):
     mem = PhysicalMemory()
     result = mem.format_data()
 
-    bank = result.children[0]
+    assert isinstance(result, list)
+    bank = result[0].children[0]
     # Should use default ID if Tag is missing logic works, or fallback
     assert bank.id == 'bank:n'  # Derived from last char of "Unknown" fallback
     assert bank.description == 'Unknown'
