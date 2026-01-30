@@ -17,9 +17,12 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
 
 from .hardware import Hardware
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('PhysicalMemory', parent='BaseBoard')
@@ -86,5 +89,29 @@ class PhysicalMemory(HardwareClass):
             bank.clock = hw_item.get('Speed', 0)
 
             self.hardware.children.append(bank)
+
+        if not self.hardware_set_to_return:
+            try:
+                for item in self.wmi_system.Win32_ComputerSystem(['TotalPhysicalMemory']):
+                    bank = Hardware(
+                        id='bank:0',
+                        class_='memory',
+                        claimed=True,
+                        handle='',
+                        description='System Memory',
+                        product='System Memory',
+                        vendor='',
+                        physid='',
+                        serial='',
+                    )
+                    bank.slot = 'System Board'
+                    bank.units = 'bytes'
+                    bank.size = int(item.TotalPhysicalMemory)
+                    bank.width = 64
+                    bank.clock = 0
+
+                    self.hardware.children.append(bank)
+            except Exception as e:
+                logger.error(f'Error getting memory from Win32_ComputerSystem: {e}')
 
         return [self.hardware]

@@ -58,3 +58,33 @@ def test_physical_memory_handles_missing_tag(mock_wmi_connection):
     # Should use default ID if Tag is missing logic works, or fallback
     assert bank.id == 'bank:n'  # Derived from last char of "Unknown" fallback
     assert bank.description == 'Unknown'
+
+
+def test_physical_memory_fallback_virtualbox(mock_wmi_connection):
+    """
+    Test fallback to Win32_ComputerSystem when Win32_PhysicalMemory is empty.
+    This simulates VirtualBox behavior.
+    """
+    # Win32_PhysicalMemory returns nothing
+    mock_wmi_connection.Win32_physicalMemory.return_value = []
+
+    # Win32_ComputerSystem returns TotalPhysicalMemory
+    mock_system = MagicMock()
+    mock_system.TotalPhysicalMemory = 16 * 1024 * 1024 * 1024  # 16 GB
+    mock_wmi_connection.Win32_ComputerSystem.return_value = [mock_system]
+
+    mem = PhysicalMemory()
+    result = mem.format_data()
+
+    assert isinstance(result, list)
+    assert len(result) == 1
+    mem_container = result[0]
+
+    # Should have one child (the system memory)
+    assert len(mem_container.children) == 1
+    bank = mem_container.children[0]
+
+    assert bank.id == 'bank:0'
+    assert bank.description == 'System Memory'
+    assert bank.size == 16 * 1024 * 1024 * 1024
+    assert bank.slot == 'System Board'
