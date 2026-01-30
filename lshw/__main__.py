@@ -175,7 +175,7 @@ def main(argv=None):
             return _exit_manager(16, 'system', str(e))
 
     if args.json:
-        print(json.dumps(formatted_data, indent=2))
+        print(json.dumps([x.to_dict() for x in formatted_data], indent=2))
     else:
         pretty(formatted_data)
 
