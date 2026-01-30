@@ -177,7 +177,7 @@ def main(argv=None):
     if args.json:
         print(json.dumps([x.to_dict() for x in formatted_data], indent=2))
     else:
-        pretty(formatted_data)
+        pretty([x.to_dict() for x in formatted_data])
 
     return ALL_OK
 
