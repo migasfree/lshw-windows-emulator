@@ -1,4 +1,4 @@
-# Admin Troubleshooting Guide for lshw-windows-emulator
+# 🛠️ Admin Troubleshooting Guide
 
 This guide addresses common issues administrators may encounter when gathering hardware inventory on Windows using `lshw-windows-emulator`.
 
@@ -34,14 +34,14 @@ This guide addresses common issues administrators may encounter when gathering h
 
 **Causes:**
 
-- Minimum WMI implementation on some Windows versions (e.g., Windows Home).
+- Minimum WMI implementation (e.g., Windows Home editions).
 - Missing drivers for specific hardware components.
 - Virtual Machine environments masking physical hardware details.
 
 **Solutions:**
 
 - **Update Drivers**: Ensure all chipset and manufacturer drivers are installed. Generic Microsoft drivers may not expose full WMI data.
-- **Check Manually**: Run `wmic csproduct get name` to verify if Windows itself can see the data. If `wmic` fails, `lshw-windows-emulator` will also fail.
+- **Check Manually**: Run `wmic csproduct get name` in a terminal. If `wmic` fails, `lshw-windows-emulator` will also fail.
 
 ## 3. Firewall/Network Issues (Remote Execution)
 
@@ -79,8 +79,6 @@ This guide addresses common issues administrators may encounter when gathering h
 
 - **Install Dependencies**:
 
-  As this project uses `pyproject.toml`, install dependencies directly from the source:
-
   ```bash
   pip install .
   ```
@@ -95,10 +93,14 @@ This guide addresses common issues administrators may encounter when gathering h
 
 If you encounter an issue not listed here, please generate a debug log:
 
-```bash
+```powershell
 # Windows
 set logging_level=DEBUG
 lshw -json > inventory_debug.json
 ```
 
-Submit the `inventory_debug.json` along with the error log to the development team.
+Submit the `inventory_debug.json` alongside the error log to the development team or open a GitHub Issue.
+
+---
+> [!NOTE]
+> This guide follows the **Diátaxis How-To Quadrant**, focusing on specific goal-oriented tasks.

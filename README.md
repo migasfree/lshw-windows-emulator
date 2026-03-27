@@ -53,9 +53,19 @@ data = system.format_data(children=True)
 - Windows 10+
 - Python >= 3.6
 
-## Development
+## 📖 Documentation
 
-See [ONBOARDING.md](ONBOARDING.md) for developer documentation.
+Full documentation is available in the `docs/` directory and can be built using [MkDocs](https://www.mkdocs.org/):
+
+- **[Installation Guide](docs/index.md#installation)**: Quick start and requirements.
+- **[Architecture Deep-Dive](docs/explanation/architecture.md)**: Understanding the core design and WMI mapping.
+- **[Developer Guide](docs/how-to/contributing.md)**: How to set up development environment and submit PRs.
+- **[Adding Hardware Support](docs/how-to/adding-hardware-classes.md)**: Step-by-step guide for new hardware classes.
+- **[Troubleshooting](docs/how-to/troubleshooting.md)**: Common issues with WMI and Windows permissions.
+
+## 🛠️ Development
+
+Run `mkdocs serve` to view the live documentation site.
 
 ## License
 

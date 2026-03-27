@@ -1,0 +1,44 @@
+site_name: LsHw Windows Emulator
+site_url: https://github.com/migasfree/lshw-windows-emulator
+repo_url: https://github.com/migasfree/lshw-windows-emulator
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: brown
+    accent: orange
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_mermaid
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Welcome: index.md
+  - 🛠️ How-To Guides:
+    - Adding Hardware Classes: how-to/adding-hardware-classes.md
+    - Contributing: how-to/contributing.md
+    - Troubleshooting: how-to/troubleshooting.md
+  - 💡 Explanation:
+    - Architecture: explanation/architecture.md
+  - 📋 Reference:
+    - Coming soon...: reference/cli.md
