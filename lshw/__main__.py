@@ -22,7 +22,10 @@ import json
 import logging
 import sys
 
-import wmi
+if sys.platform == 'win32':
+    import wmi
+else:
+    from .classes.hardware_class import wmi  # use the stub
 
 from .classes import HardwareClass
 

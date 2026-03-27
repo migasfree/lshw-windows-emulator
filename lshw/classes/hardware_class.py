@@ -18,10 +18,21 @@ __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez S�
 __license__ = 'GPLv3'
 
 import logging
+import sys
 from abc import ABC, abstractmethod
 from typing import List
 
-import wmi
+if sys.platform == 'win32':
+    import wmi
+elif 'wmi' in sys.modules:
+    wmi = sys.modules['wmi']
+else:
+    import types
+
+    wmi = types.ModuleType('wmi')
+    wmi.WMI = None
+    wmi.x_wmi = type('x_wmi', (Exception,), {})
+    wmi.x_access_denied = type('x_access_denied', (Exception,), {})
 
 from .hardware import Hardware
 
@@ -37,6 +48,8 @@ class WMIConnection:
 
     @classmethod
     def get_instance(cls):
+        if wmi.WMI is None:
+            raise RuntimeError('WMI is only available on Windows systems')
         if cls._instance is None:
             cls._instance = wmi.WMI()
         return cls._instance

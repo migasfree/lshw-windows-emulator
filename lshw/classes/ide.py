@@ -196,5 +196,6 @@ class Ide(HardwareClass):
     def format_data(self, children=False):
         try:
             return self.get_hardware(children)
-        except Exception:
+        except Exception as e:
+            logger.error(f'Critical error getting IDE hardware data: {e}')
             return []

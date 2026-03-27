@@ -4,9 +4,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-# Create a mock wmi module
+# Create a mock wmi module with proper exception classes
 mock_wmi = types.ModuleType('wmi')
 mock_wmi.WMI = MagicMock()
+mock_wmi.x_wmi = type('x_wmi', (Exception,), {})
+mock_wmi.x_access_denied = type('x_access_denied', (Exception,), {})
 sys.modules['wmi'] = mock_wmi
 
 # Now import hardware classes which depend on wmi
