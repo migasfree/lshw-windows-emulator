@@ -5,63 +5,32 @@
 
 A Windows port of [Hardware Lister (lshw)](https://ezix.org/project/wiki/HardwareLiSter) using WMI.
 
-## Installation
+## 🚀 Quick Start
 
 ```bash
-pip install lshw
-```
-
-Or from source:
-
-```bash
+# Clone the repository
 git clone https://github.com/migasfree/lshw-windows-emulator.git
 cd lshw-windows-emulator
-pip install .
-```
 
-## Usage
+# Install it locally
+pip install -e .
 
-```bash
-# All hardware info
+# Run a full scan
 lshw
-
-# JSON output
-lshw --json
-
-# Specific class
-lshw -c network
-
-# List available classes
-lshw -c list
 ```
 
-### Available Classes
-
-`system` `baseboard` `bios` `processor` `memory` `pci` `ide` `disk` `partition` `volume` `usb` `usbdevices` `cdrom` `video` `network` `sound`
-
-### Python API
-
-```python
-from lshw.classes import HardwareClass
-
-system = HardwareClass.factory('ComputerSystem')()
-data = system.format_data(children=True)
-```
-
-## Requirements
-
-- Windows 10+
-- Python >= 3.6
+For detailed installation options and usage, see the [Quick Start Guide](docs/index.md#🚀-quick-start).
 
 ## 📖 Documentation
 
-Full documentation is available in the `docs/` directory and can be built using [MkDocs](https://www.mkdocs.org/):
+The full documentation is structured according to the **Diátaxis framework** and is available in the `docs/` directory.
 
-- **[Installation Guide](docs/index.md#installation)**: Quick start and requirements.
-- **[Architecture Deep-Dive](docs/explanation/architecture.md)**: Understanding the core design and WMI mapping.
-- **[Developer Guide](docs/how-to/contributing.md)**: How to set up development environment and submit PRs.
-- **[Adding Hardware Support](docs/how-to/adding-hardware-classes.md)**: Step-by-step guide for new hardware classes.
-- **[Troubleshooting](docs/how-to/troubleshooting.md)**: Common issues with WMI and Windows permissions.
+- **[Installation Guide](docs/index.md#🚀-quick-start)**: Prerequisites and installation options.
+- **[CLI Reference](docs/reference/cli.md)**: Full command list and hardware classes.
+- **[Python API](docs/how-to/using-the-python-api.md)**: Guide on using the library programmatically.
+- **[WMI Mapping](docs/reference/wmi-mapping.md)**: Techincal reference on WMI source classes.
+- **[Architecture Deep-Dive](docs/explanation/architecture.md)**: Internal design and concepts.
+- **[Troubleshooting](docs/how-to/troubleshooting.md)**: Fix common WMI and permission issues.
 
 ## 🛠️ Development
 

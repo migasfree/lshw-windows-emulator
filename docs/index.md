@@ -41,7 +41,7 @@ Explore the documentation through its four **Diátaxis quadrants**:
 | Quadrant | Focus | Explore |
 | :--- | :--- | :--- |
 | **📘 Tutorials** | Learning-oriented help for beginners. | [Quick Start](#-quick-start) |
-| **🛠️ How-to Guides** | Goal-oriented steps for specific tasks. | [Add Hardware Classes](how-to/adding-hardware-classes.md) |
+| **🛠️ How-to Guides** | Goal-oriented steps for specific tasks. | [Add Hardware Classes](how-to/adding-hardware-classes.md), [Python API](how-to/using-the-python-api.md) |
 | **📋 Reference** | Technical descriptions (CLI, WMI Mapping). | [CLI Usage](reference/cli.md), [WMI Mapping](reference/wmi-mapping.md) |
 | **💡 Explanation** | Understanding-oriented background & concepts. | [Architecture](explanation/architecture.md) |
 

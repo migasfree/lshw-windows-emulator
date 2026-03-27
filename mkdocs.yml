@@ -38,6 +38,7 @@ nav:
     - Adding Hardware Classes: how-to/adding-hardware-classes.md
     - Contributing: how-to/contributing.md
     - Troubleshooting: how-to/troubleshooting.md
+    - Using Python API: how-to/using-the-python-api.md
   - 💡 Explanation:
     - Architecture: explanation/architecture.md
   - 📋 Reference:
