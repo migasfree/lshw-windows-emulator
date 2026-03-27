@@ -41,4 +41,5 @@ nav:
   - 💡 Explanation:
     - Architecture: explanation/architecture.md
   - 📋 Reference:
-    - Coming soon...: reference/cli.md
+    - Command Line Interface: reference/cli.md
+    - WMI Mapping: reference/wmi-mapping.md

@@ -42,7 +42,7 @@ Explore the documentation through its four **Diátaxis quadrants**:
 | :--- | :--- | :--- |
 | **📘 Tutorials** | Learning-oriented help for beginners. | [Quick Start](#-quick-start) |
 | **🛠️ How-to Guides** | Goal-oriented steps for specific tasks. | [Add Hardware Classes](how-to/adding-hardware-classes.md) |
-| **📋 Reference** | Technical descriptions (CLI, WMI Mapping). | [Coming soon...] |
+| **📋 Reference** | Technical descriptions (CLI, WMI Mapping). | [CLI Usage](reference/cli.md), [WMI Mapping](reference/wmi-mapping.md) |
 | **💡 Explanation** | Understanding-oriented background & concepts. | [Architecture](explanation/architecture.md) |
 
 ---
