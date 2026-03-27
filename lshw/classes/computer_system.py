@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass
+from .hardware_class import HardwareClass, wmi
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ class ComputerSystem(HardwareClass):
         ]
 
         for hw_item in self.wmi_system.Win32_SystemEnclosure(['ChassisTypes']):
-            if type(hw_item.ChassisTypes).__name__ == 'NoneType':
+            if hw_item.ChassisTypes is None:
                 _chassis = self.__DESC__
             else:
                 if int(hw_item.ChassisTypes[0]) in range(1, len(chassis_types) + 1):
@@ -129,7 +129,7 @@ class ComputerSystem(HardwareClass):
                 try:
                     res = child_class().format_data(children)
                     self.hardware.children.extend(res)
-                except Exception as e:
+                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                     logger.warning(f'Could not get children {child_class.__name__} for ComputerSystem: {e}')
 
         return [self.hardware]

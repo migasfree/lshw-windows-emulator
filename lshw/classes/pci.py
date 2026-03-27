@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass
+from .hardware_class import HardwareClass, wmi
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ class Pci(HardwareClass):
                     else:
                         res = child_class().format_data(children)
                         pci_child.extend(res)
-                except Exception as e:
+                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                     logger.warning(f'Could not get children {child_class.__name__} for Pci: {e}')
 
             self.hardware.children = pci_child

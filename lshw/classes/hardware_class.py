@@ -167,6 +167,10 @@ class HardwareClass(ABC):
         """Build comma-separated list of fields for WQL SELECT statement."""
         return ','.join(self.properties_to_get)
 
+    def _sanitize_wql_value(self, value):
+        """Remove characters that could alter WQL query semantics."""
+        return str(value).replace('"', '').replace("'", '').replace(';', '')
+
     def build_wql_select(self, table, where_clause=''):
         """
         Build a WQL SELECT statement.

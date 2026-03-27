@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass
+from .hardware_class import HardwareClass, wmi
 
 logger = logging.getLogger(__name__)
 
@@ -89,9 +89,8 @@ class Ide(HardwareClass):
         ret = []
         id_disk = 0
         id_cont_prim = 0
-        fields = self.build_wql_fields()
         for element in ide_controller_device_primary:
-            wql = f'SELECT {fields} FROM Win32_IDEController WHERE PNPDeviceID="{element}"'
+            wql = self.build_wql_select('Win32_IDEController', f'PNPDeviceID="{self._sanitize_wql_value(element)}"')
             # for ide in self.wmi_system.Win32_IDEController(self.properties_to_get, PNPDeviceID=element):
             for ide in self.wmi_system.query(wql):
                 primary_controller = Hardware(
@@ -119,9 +118,7 @@ class Ide(HardwareClass):
                 for element2 in ide_controller_device_set:
                     if element2['ant_value'] == ide.PNPDeviceID:
                         # first, search secondary controllers
-                        wql2 = 'SELECT {} FROM Win32_IDEController WHERE PNPDeviceID="{}"'.format(
-                            fields, element2['dep_value']
-                        )
+                        wql2 = self.build_wql_select('Win32_IDEController', f'PNPDeviceID="{self._sanitize_wql_value(element2["dep_value"])}"')
                         for ide2 in self.wmi_system.query(wql2):
                             secondary_controller = Hardware(
                                 id=f'channel:{ide2.PNPDeviceID[-1]}',
@@ -146,9 +143,7 @@ class Ide(HardwareClass):
                             if children:
                                 for element3 in ide_controller_device_set:
                                     if element3['ant_value'] == ide2.PNPDeviceID:
-                                        wql3 = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(
-                                            fields, element3['dep_value']
-                                        )
+                                        wql3 = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(element3["dep_value"])}"')
                                         for ide3 in self.wmi_system.query(wql3):
                                             if len(ide3.associators(wmi_result_class='Win32_DiskDrive')) != 0:
                                                 hw_item_set = self.factory('PhysicalDisk')(ide3.PNPDeviceID)
@@ -163,7 +158,7 @@ class Ide(HardwareClass):
                                                 if disk:
                                                     id_disk += 1
                                                     secondary_controller.children.append(disk[0])
-                                            except Exception as e:
+                                            except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                                                 logger.warning(
                                                     f'Could not get children for secondary controller in Ide: {e}'
                                                 )
@@ -171,9 +166,7 @@ class Ide(HardwareClass):
                             primary_controller.children.append(secondary_controller)
 
                         if children:
-                            wql4 = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(
-                                fields, element2['dep_value']
-                            )
+                            wql4 = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(element2["dep_value"])}"')
                             for ide4 in self.wmi_system.query(wql4):
                                 try:
                                     if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
@@ -186,7 +179,7 @@ class Ide(HardwareClass):
                                         if disk:
                                             id_disk += 1
                                             primary_controller.children.append(disk[0])
-                                except Exception as e:
+                                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                                     logger.warning(f'Could not get children for primary controller in Ide: {e}')
 
                 ret.append(primary_controller)
@@ -196,6 +189,6 @@ class Ide(HardwareClass):
     def format_data(self, children=False):
         try:
             return self.get_hardware(children)
-        except Exception as e:
+        except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
             logger.error(f'Critical error getting IDE hardware data: {e}')
             return []

@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass
+from .hardware_class import HardwareClass, wmi
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,8 @@ class PartitionDisk(HardwareClass):
                 self.hardware_set.append(element)
         else:
             # Gets associated partitions to a disk (DeviceID = self.dev_id)
-            wql = f'SELECT DeviceID FROM Win32_diskdrive WHERE DeviceID="{self.dev_id}"'
+            self._validate_entity('Win32_diskdrive')
+            wql = f'SELECT DeviceID FROM Win32_diskdrive WHERE DeviceID="{self._sanitize_wql_value(self.dev_id)}"'
             for element in self.wmi_system.query(wql):
                 for part in element.associators('Win32_DiskDriveToDiskPartition'):
                     self.hardware_set.append(part)
@@ -166,7 +167,7 @@ class PartitionDisk(HardwareClass):
                 try:
                     # LogicalDisk returns List[Hardware]
                     item_ret.children = self.factory('LogicalDisk')(hw_item['DeviceID']).format_data(children)
-                except Exception as e:
+                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                     logger.warning(f'Could not get children for PartitionDisk {hw_item["DeviceID"]}: {e}')
 
             ret.append(item_ret)

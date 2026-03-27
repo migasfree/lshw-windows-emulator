@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass
+from .hardware_class import HardwareClass, wmi
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class Usb(HardwareClass):
                 try:
                     # UsbDevice returns List[Hardware]
                     item_ret.children = self.factory('UsbDevice')(dev_id=[hw_item['PNPDeviceID']]).format_data(children)
-                except Exception as e:
+                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                     logger.warning(f'Could not get children for Usb {hw_item["PNPDeviceID"]}: {e}')
 
             ret.append(item_ret)

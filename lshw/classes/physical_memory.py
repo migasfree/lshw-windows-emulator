@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass
+from .hardware_class import HardwareClass, wmi
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ class PhysicalMemory(HardwareClass):
                     bank.clock = 0
 
                     self.hardware.children.append(bank)
-            except Exception as e:
+            except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                 logger.error(f'Error getting memory from Win32_ComputerSystem: {e}')
 
         return [self.hardware]

@@ -104,11 +104,10 @@ class UsbDevice(HardwareClass):
         if len(self.dev_id) != 0:
             usb_controller_device_primary = self.dev_id
 
-        fields = self.build_wql_fields()
         for usb_ele in usb_controller_device_primary:
             for element in usb_controller_device_set:
                 if element['ant_value'] == usb_ele:
-                    wql = 'SELECT {} FROM Win32_PNPEntity WHERE PNPDeviceID="{}"'.format(fields, element['dep_value'])
+                    wql = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(element["dep_value"])}"')
                     for hw_item in self.wmi_system.query(wql):
                         if hw_item.Caption not in device_excluded:
                             for prop in self.properties_to_return:

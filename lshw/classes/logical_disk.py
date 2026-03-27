@@ -81,7 +81,8 @@ class LogicalDisk(HardwareClass):
                 self.hardware_set.append(element)
         else:
             # Gets associated partitions to a disk (DeviceID = self.dev_id)
-            wql = f'SELECT DeviceID FROM Win32_diskpartition WHERE DeviceID="{self.dev_id}"'
+            self._validate_entity('Win32_diskpartition')
+            wql = f'SELECT DeviceID FROM Win32_diskpartition WHERE DeviceID="{self._sanitize_wql_value(self.dev_id)}"'
             for element in self.wmi_system.query(wql):
                 for part in element.associators(
                     wmi_association_class='Win32_LogicalDiskToPartition', wmi_result_class='Win32_LogicalDisk'

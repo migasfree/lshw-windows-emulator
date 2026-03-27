@@ -121,7 +121,7 @@ def test_baseboard_error_isolation(mocker):
     from lshw.classes.hardware import Hardware
     from lshw.classes.pci import Pci
 
-    mocker.patch.object(Pci, 'format_data', side_effect=Exception('Pci failure'))
+    mocker.patch.object(Pci, 'format_data', side_effect=AttributeError('Pci failure'))
     mocker.patch.object(Firmware, 'format_data', return_value=[Hardware(id='bios:0')])
 
     bb = BaseBoard()
