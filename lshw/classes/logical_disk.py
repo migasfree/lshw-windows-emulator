@@ -91,47 +91,25 @@ class LogicalDisk(HardwareClass):
 
         self.check_values()
 
-    def format_data(self, children=False):
-        self.get_hardware()
-
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
         drive_letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            try:
-                _id = f'logicalvolume:{drive_letters.index(hw_item["DeviceID"][0])}'
-            except ValueError:
-                _id = self.__ERROR__
+        try:
+            item_ret.id = f'logicalvolume:{drive_letters.index(hw_item["DeviceID"][0])}'
+        except ValueError:
+            item_ret.id = self.__ERROR__
 
-            file_system = hw_item.get('FileSystem', self.__DESC__)
+        file_system = hw_item.get('FileSystem', self.__DESC__)
 
-            item_ret = Hardware(
-                id=_id,
-                class_='volume',
-                claimed=True,
-                handle='',
-                description=self.__ERROR__,
-                product='',
-                vendor='',
-                physid='',
-                serial='',
+        item_ret.deviceid = hw_item.get('DeviceID', self.__DESC__)
+        item_ret.logicalname = hw_item.get('VolumeName', self.__DESC__)
+        item_ret.capacity = hw_item.get('Size', self.__DESC__)
+
+        if 'Description' in hw_item:
+            item_ret.description = '{}. Volume name: [{}]. Label: {}. Filesystem: {}'.format(
+                hw_item['Description'], hw_item.get('Name', self.__DESC__), item_ret.logicalname, file_system
             )
-            item_ret.deviceid = hw_item.get('DeviceID', self.__DESC__)
-            item_ret.logicalname = hw_item.get('VolumeName', self.__DESC__)
-            item_ret.capacity = hw_item.get('Size', self.__DESC__)
-            item_ret.dev = ''
 
-            if 'Description' in hw_item:
-                item_ret.description = '{}. Volume name: [{}]. Label: {}. Filesystem: {}'.format(
-                    hw_item['Description'], hw_item.get('Name', self.__DESC__), item_ret.logicalname, file_system
-                )
+        item_ret.configuration['mount.fstype'] = file_system
 
-            item_ret.configuration = {
-                'mount.fstype': file_system,
-                'mount.options': '',
-                'state': 'mounted',
-            }
-
-            ret.append(item_ret)
-
-        return ret
+        return item_ret

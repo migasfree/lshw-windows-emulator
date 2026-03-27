@@ -84,46 +84,28 @@ class PhysicalDisk(HardwareClass):
 
         self.check_values()
 
-    def format_data(self, children=False):
-        self.get_hardware()
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.description = hw_item['Description']
+        item_ret.product = hw_item['Caption']
+        item_ret.vendor = hw_item['Manufacturer']
+        item_ret.deviceid = hw_item['DeviceID']
+        item_ret.pnpdeviceid = hw_item['PNPDeviceID']
+        item_ret.businfo = f'scsi@{hw_item["Index"]}:0.0.0'
 
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            item_ret = Hardware(
-                id='disk',
-                class_='disk',
-                claimed=True,
-                handle='',
-                description=hw_item['Description'],
-                product=hw_item['Caption'],
-                vendor=hw_item['Manufacturer'],
-                physid='',
-                serial='',
-            )
-            item_ret.deviceid = hw_item['DeviceID']
-            item_ret.pnpdeviceid = hw_item['PNPDeviceID']
-            item_ret.businfo = f'scsi@{hw_item["Index"]}:0.0.0'
-            item_ret.logicalname = ''
-            item_ret.dev = ''
-            item_ret.version = ''
-            item_ret.units = 'bytes'
+        try:
+            raw_size = int(hw_item['Size'])
+            logger.info(f'Disk {hw_item["DeviceID"]} raw size from WMI: {raw_size}')
+            item_ret.size = raw_size
+        except (ValueError, TypeError, KeyError) as e:
+            logger.warning(f'Could not parse size for disk {hw_item.get("DeviceID", "unknown")}: {e}')
+            item_ret.size = 0
+
+        return item_ret
+
+    def _fetch_children(self, hardware_list):
+        for hw_instance in hardware_list:
             try:
-                raw_size = int(hw_item['Size'])
-                logger.info(f'Disk {hw_item["DeviceID"]} raw size from WMI: {raw_size}')
-                item_ret.size = raw_size
-            except (ValueError, TypeError, KeyError) as e:
-                logger.warning(f'Could not parse size for disk {hw_item["DeviceID"]}: {e}')
-                item_ret.size = 0
-            item_ret.configuration = {'ansiversion': '', 'signature': ''}
-            item_ret.capabilities = {'partitioned': '', 'partitioned:dos': ''}
-
-            if children:
-                try:
-                    # PartitionDisk returns List[Hardware]
-                    item_ret.children = self.factory('PartitionDisk')(hw_item['DeviceID']).format_data(children)
-                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                    logger.warning(f'Could not get children for PhysicalDisk {hw_item["DeviceID"]}: {e}')
-
-            ret.append(item_ret)
-
-        return ret
+                # PartitionDisk returns List[Hardware]
+                hw_instance.children = self.factory('PartitionDisk')(hw_instance.deviceid).format_data(children=True)
+            except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
+                logger.warning(f'Could not get children for PhysicalDisk {hw_instance.deviceid}: {e}')

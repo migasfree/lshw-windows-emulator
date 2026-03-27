@@ -61,31 +61,17 @@ class Processor(HardwareClass):
         ]
 
         self._update_properties_to_return()
+        self._cpu_id = 0
 
-    def format_data(self, children=False):
-        self.get_hardware()
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.id = f'cpu:{self._cpu_id}'
+        self._cpu_id += 1
 
-        ret = []
-        for cpu_id, hw_item in enumerate(self.hardware_set_to_return):
-            item_ret = Hardware(
-                id=f'cpu:{cpu_id}',
-                class_='processor',
-                claimed=True,
-                handle='',
-                description=hw_item.get('Description', self.__ERROR__),
-                product=hw_item.get('Name', self.__ERROR__),
-                vendor=hw_item.get('Manufacturer', self.__ERROR__),
-                physid='',
-                serial='',
-            )
-            item_ret.businfo = 'cpu@'
-            item_ret.version = ''
-            item_ret.slot = hw_item.get('SocketDesignation', self.__ERROR__)
-            item_ret.units = 'Hz'
-            item_ret.size = 0
-            item_ret.width = hw_item.get('DataWidth', self.__ERROR__)
-            item_ret.clock = hw_item.get('MaxClockSpeed', self.__ERROR__)
+        item_ret.description = hw_item.get('Description', self.__ERROR__)
+        item_ret.product = hw_item.get('Name', self.__ERROR__)
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.slot = hw_item.get('SocketDesignation', self.__ERROR__)
+        item_ret.width = hw_item.get('DataWidth', self.__ERROR__)
+        item_ret.clock = hw_item.get('MaxClockSpeed', self.__ERROR__)
 
-            ret.append(item_ret)
-
-        return ret
+        return item_ret

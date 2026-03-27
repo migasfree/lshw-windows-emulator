@@ -51,14 +51,10 @@ class Firmware(HardwareClass):
 
         self._update_properties_to_return()
 
-    def format_data(self, children=False):
-        self.get_hardware()
-
-        for hw_item in self.hardware_set_to_return:
-            self.hardware.vendor = hw_item.get('Manufacturer', self.__ERROR__)
-            self.hardware.date = hw_item.get('ReleaseDate', self.__ERROR__)
-            self.hardware.serial = hw_item.get('SerialNumber', self.__ERROR__)
-            if 'BIOSVersion' in hw_item:
-                self.hardware.version = hw_item['BIOSVersion'][0]
-
-        return [self.hardware]
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.date = hw_item.get('ReleaseDate', self.__ERROR__)
+        item_ret.serial = hw_item.get('SerialNumber', self.__ERROR__)
+        if 'BIOSVersion' in hw_item:
+            item_ret.version = hw_item['BIOSVersion'][0]
+        return item_ret

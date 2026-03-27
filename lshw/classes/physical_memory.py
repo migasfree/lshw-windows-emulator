@@ -57,59 +57,48 @@ class PhysicalMemory(HardwareClass):
 
         self._update_properties_to_return()
 
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        # PhysicalMemory is a bit special: it populates children of self.hardware
+        # but the Template Method expects to return individual items.
+        # We'll adapt it to return the 'bank' as if it were the main item.
+
+        item_ret.id = f'bank:{hw_item["Tag"][-1]}' if 'Tag' in hw_item else self.__ERROR__
+        item_ret.description = hw_item.get('Tag', self.__ERROR__)
+        item_ret.product = hw_item.get('MemoryType', self.__ERROR__)
+        item_ret.slot = hw_item.get('DeviceLocator', self.__ERROR__)
+        item_ret.units = 'bytes'
+        item_ret.size = hw_item.get('Capacity', 0)
+        item_ret.width = hw_item.get('DataWidth', 0)
+        item_ret.clock = hw_item.get('Speed', 0)
+
+        return item_ret
+
     def format_data(self, children=False):
+        # Override format_data because PhysicalMemory results are
+        # actually children of a parent container 'memory:0'
         self.get_hardware()
 
-        for hw_item in self.hardware_set_to_return:
-            bank = Hardware(
-                id=self.__ERROR__,
-                class_='memory',
-                claimed=True,
-                handle='',
-                description=self.__ERROR__,
-                product=self.__ERROR__,
-                vendor='',
-                physid='',
-                serial='',
-            )
-            bank.slot = self.__ERROR__
-            bank.units = 'bytes'
-            bank.size = self.__ERROR__
-            bank.width = self.__ERROR__
-            bank.clock = self.__ERROR__
-
-            if 'Tag' in hw_item:
-                bank.id = f'bank:{hw_item["Tag"][-1]}'
-
-            bank.description = hw_item.get('Tag', self.__ERROR__)
-            bank.product = hw_item.get('MemoryType', self.__ERROR__)
-            bank.slot = hw_item.get('DeviceLocator', self.__ERROR__)
-            bank.size = hw_item.get('Capacity', 0)
-            bank.width = hw_item.get('DataWidth', 0)
-            bank.clock = hw_item.get('Speed', 0)
-
-            self.hardware.children.append(bank)
-
-        if not self.hardware_set_to_return:
+        if self.hardware_set_to_return:
+            for hw_item in self.hardware_set_to_return:
+                bank = Hardware(id='', class_='memory', claimed=True)
+                bank = self._populate_hardware(bank, hw_item)
+                self.hardware.children.append(bank)
+        else:
+            # Fallback to TotalPhysicalMemory if no banks found
             try:
                 for item in self.wmi_system.Win32_ComputerSystem(['TotalPhysicalMemory']):
                     bank = Hardware(
                         id='bank:0',
                         class_='memory',
                         claimed=True,
-                        handle='',
                         description='System Memory',
                         product='System Memory',
-                        vendor='',
-                        physid='',
-                        serial='',
+                        slot='System Board',
+                        size=int(item.TotalPhysicalMemory),
+                        width=64,
+                        clock=0,
                     )
-                    bank.slot = 'System Board'
                     bank.units = 'bytes'
-                    bank.size = int(item.TotalPhysicalMemory)
-                    bank.width = 64
-                    bank.clock = 0
-
                     self.hardware.children.append(bank)
             except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                 logger.error(f'Error getting memory from Win32_ComputerSystem: {e}')

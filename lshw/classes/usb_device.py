@@ -107,7 +107,9 @@ class UsbDevice(HardwareClass):
         for usb_ele in usb_controller_device_primary:
             for element in usb_controller_device_set:
                 if element['ant_value'] == usb_ele:
-                    wql = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(element["dep_value"])}"')
+                    wql = self.build_wql_select(
+                        'Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(element["dep_value"])}"'
+                    )
                     for hw_item in self.wmi_system.query(wql):
                         if hw_item.Caption not in device_excluded:
                             for prop in self.properties_to_return:
@@ -121,47 +123,27 @@ class UsbDevice(HardwareClass):
 
                             self.hardware_set_to_return.append(self.properties_to_return.copy())
 
-    def format_data(self, children=False):
-        self.get_hardware()
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        usb_id_device = 'usb_device'
+        desc = hw_item.get('Description', self.__ERROR__)
 
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            usb_id_device = 'usb_device'
+        if desc == 'Mouse compatible con HID':
+            usb_id_device = 'usb_mouse'
+        elif desc == 'Dispositivo de teclado HID':
+            usb_id_device = 'usb_teclado'
+        elif desc == 'SmartBoard XX44':
+            usb_id_device = 'usb_smartboard_xx44'
+        elif desc == 'Unidad de disco':
+            usb_id_device = 'usb_disk'
+        elif desc == 'Volumen genérico':
+            usb_id_device = 'usb_vol'
 
-            if 'Description' in hw_item:
-                if hw_item['Description'] == 'Mouse compatible con HID':
-                    usb_id_device = 'usb_mouse'
+        item_ret.id = usb_id_device
+        item_ret.class_ = desc
+        item_ret.description = desc
+        item_ret.vendor = desc
+        item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+        item_ret.parent_pnpdeviceid = hw_item.get('Parent_PNPDeviceID', self.__ERROR__)
+        item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
 
-                if hw_item['Description'] == 'Dispositivo de teclado HID':
-                    usb_id_device = 'usb_teclado'
-
-                if hw_item['Description'] == 'SmartBoard XX44':
-                    usb_id_device = 'usb_smartboard_xx44'
-
-                if hw_item['Description'] == 'Unidad de disco':
-                    usb_id_device = 'usb_disk'
-
-                if hw_item['Description'] == 'Volumen genérico':
-                    usb_id_device = 'usb_vol'
-
-            item_ret = Hardware(
-                id=usb_id_device,
-                class_=hw_item.get('Description', self.__ERROR__),
-                claimed=True,
-                handle='',
-                description=hw_item.get('Description', self.__ERROR__),
-                product='',
-                vendor=hw_item.get('Description', self.__ERROR__),
-                physid='',
-                serial='',
-            )
-            item_ret.businfo = ''
-            item_ret.dev = ''
-            item_ret.version = ''
-            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret.parent_pnpdeviceid = hw_item.get('Parent_PNPDeviceID', self.__ERROR__)
-            item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
-
-            ret.append(item_ret)
-
-        return ret
+        return item_ret

@@ -55,140 +55,89 @@ class Ide(HardwareClass):
         self.properties_to_get = ['Manufacturer', 'Caption', 'Description', 'DeviceID', 'PNPDeviceID']
 
         self._update_properties_to_return()
+        self._ide_results = []
 
-    def get_hardware(self, children):
-        ide_controller_device = {}
+    def get_hardware(self):
         ide_controller_device_set = []
-
         ide_controller_device_primary = []
         for ide_assoc in self.wmi_system.Win32_IDEControllerdevice(['Antecedent', 'Dependent']):
-            ide_controller_device['ant_pref'] = ide_assoc.antecedent.split('=')[0].split(':')[0]
-            ide_controller_device['ant_class'] = ide_assoc.antecedent.split('=')[0].split(':')[1]
-            ide_controller_device['ant_value'] = (
-                ide_assoc.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
-            )
+            ant_value = ide_assoc.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+            dep_value = ide_assoc.dependent.split('=')[1].replace('"', '').replace('\\\\', '\\')
 
-            ide_controller_device['dep_pref'] = ide_assoc.dependent.split('=')[0].split(':')[0]
-            ide_controller_device['dep_class'] = ide_assoc.dependent.split('=')[0].split(':')[1]
-            ide_controller_device['dep_value'] = (
-                ide_assoc.dependent.split('=')[1].replace('"', '').replace('\\\\', '\\')
-            )
+            if ant_value[0:4] == 'PCI\\' and ant_value not in ide_controller_device_primary:
+                ide_controller_device_primary.append(ant_value)
 
-            # get only primary IDE controllers (without duplicates)
-            exist = False
-            if ide_controller_device['ant_value'][0:4] == 'PCI\\':
-                for element in ide_controller_device_primary:
-                    if element == ide_controller_device['ant_value']:
-                        exist = True
+            ide_controller_device_set.append({'ant_value': ant_value, 'dep_value': dep_value})
 
-                if exist is False:
-                    ide_controller_device_primary.append(ide_controller_device['ant_value'])
-
-            ide_controller_device_set.append(ide_controller_device.copy())
-
-        ret = []
-        id_disk = 0
+        self._ide_results = []
         id_cont_prim = 0
         for element in ide_controller_device_primary:
             wql = self.build_wql_select('Win32_IDEController', f'PNPDeviceID="{self._sanitize_wql_value(element)}"')
-            # for ide in self.wmi_system.Win32_IDEController(self.properties_to_get, PNPDeviceID=element):
             for ide in self.wmi_system.query(wql):
                 primary_controller = Hardware(
                     id=f'ide:{id_cont_prim}',
                     class_='',
                     claimed=True,
-                    handle='',
                     description=ide.Description,
                     product=ide.Caption,
                     vendor=ide.Manufacturer,
-                    physid='',
-                    serial='',
                 )
-                primary_controller.businfo = ''
-                primary_controller.logicalname = ''
-                primary_controller.version = ''
-                primary_controller.width = 0
-                primary_controller.clock = 0
                 primary_controller.pnpdeviceid = ide.PNPDeviceID
-
                 id_cont_prim += 1
 
-                id_cont_sec = 0
-                id_disk = 0
-                for element2 in ide_controller_device_set:
-                    if element2['ant_value'] == ide.PNPDeviceID:
-                        # first, search secondary controllers
-                        wql2 = self.build_wql_select('Win32_IDEController', f'PNPDeviceID="{self._sanitize_wql_value(element2["dep_value"])}"')
+                for assoc in ide_controller_device_set:
+                    if assoc['ant_value'] == ide.PNPDeviceID:
+                        wql2 = self.build_wql_select(
+                            'Win32_IDEController', f'PNPDeviceID="{self._sanitize_wql_value(assoc["dep_value"])}"'
+                        )
                         for ide2 in self.wmi_system.query(wql2):
                             secondary_controller = Hardware(
                                 id=f'channel:{ide2.PNPDeviceID[-1]}',
                                 class_='',
                                 claimed=True,
-                                handle='',
                                 description=ide2.Description,
                                 product=ide2.Caption,
                                 vendor=ide2.Manufacturer,
-                                physid='',
-                                serial='',
                             )
-                            secondary_controller.businfo = ''
-                            secondary_controller.logicalname = ''
-                            secondary_controller.version = ''
-                            secondary_controller.width = 0
-                            secondary_controller.clock = 0
                             secondary_controller.pnpdeviceid = ide2.PNPDeviceID
-
-                            id_cont_sec += 1
-
-                            if children:
-                                for element3 in ide_controller_device_set:
-                                    if element3['ant_value'] == ide2.PNPDeviceID:
-                                        wql3 = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(element3["dep_value"])}"')
-                                        for ide3 in self.wmi_system.query(wql3):
-                                            if len(ide3.associators(wmi_result_class='Win32_DiskDrive')) != 0:
-                                                hw_item_set = self.factory('PhysicalDisk')(ide3.PNPDeviceID)
-                                            else:
-                                                # CD or DVD
-                                                hw_item_set = self.factory('CdRom')(ide3.PNPDeviceID)
-
-                                            try:
-                                                # returns List[Hardware]
-                                                disk = hw_item_set.format_data(children=True)
-
-                                                if disk:
-                                                    id_disk += 1
-                                                    secondary_controller.children.append(disk[0])
-                                            except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                                                logger.warning(
-                                                    f'Could not get children for secondary controller in Ide: {e}'
-                                                )
-
                             primary_controller.children.append(secondary_controller)
 
-                        if children:
-                            wql4 = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(element2["dep_value"])}"')
-                            for ide4 in self.wmi_system.query(wql4):
-                                try:
-                                    if len(ide4.associators(wmi_result_class='Win32_DiskDrive')) != 0:
-                                        disk = self.factory('PhysicalDisk')(ide4.PNPDeviceID).format_data(children=True)
-                                        if disk:
-                                            id_disk += 1
-                                            primary_controller.children.append(disk[0])
-                                    elif len(ide4.associators(wmi_result_class='Win32_CDROMDrive')) != 0:
-                                        disk = self.factory('CdRom')(ide4.PNPDeviceID).format_data(children=True)
-                                        if disk:
-                                            id_disk += 1
-                                            primary_controller.children.append(disk[0])
-                                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                                    logger.warning(f'Could not get children for primary controller in Ide: {e}')
+                self._ide_results.append(primary_controller)
 
-                ret.append(primary_controller)
-
-        return ret
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        """
+        Ide uses a custom format_data loop, but we implement this to
+        satisfy the abstract base class requirement.
+        """
+        return item_ret
 
     def format_data(self, children=False):
         try:
-            return self.get_hardware(children)
+            self.get_hardware()
+            if children:
+                for primary in self._ide_results:
+                    for element in self.wmi_system.Win32_IDEControllerdevice(['Antecedent', 'Dependent']):
+                        ant = element.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+                        dep = element.dependent.split('=')[1].replace('"', '').replace('\\\\', '\\')
+                        if ant == primary.pnpdeviceid:
+                            self._attach_ide_child(primary, dep)
+                        for secondary in primary.children:
+                            if ant == secondary.pnpdeviceid:
+                                self._attach_ide_child(secondary, dep)
+            return self._ide_results
         except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
             logger.error(f'Critical error getting IDE hardware data: {e}')
             return []
+
+    def _attach_ide_child(self, parent: Hardware, pnp_id: str):
+        wql = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(pnp_id)}"')
+        for item in self.wmi_system.query(wql):
+            try:
+                if len(item.associators(wmi_result_class='Win32_DiskDrive')) != 0:
+                    disk = self.factory('PhysicalDisk')(item.PNPDeviceID).format_data(children=True)
+                else:
+                    disk = self.factory('CdRom')(item.PNPDeviceID).format_data(children=True)
+                if disk:
+                    parent.children.append(disk[0])
+            except Exception as e:
+                logger.warning(f'Could not attach child {pnp_id} to Ide component: {e}')

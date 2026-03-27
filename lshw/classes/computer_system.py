@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass, wmi
+from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
 
@@ -108,28 +108,17 @@ class ComputerSystem(HardwareClass):
 
         return [uuid, serial]
 
-    def format_data(self, children=False):
-        self.get_hardware()
-
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
         chassis = self.get_chassis()
         uuid, serial = self.get_computer_uuid_serialnumber()
 
-        for hw_item in self.hardware_set_to_return:
-            self.hardware.id = hw_item.get('Name', self.__ERROR__)
-            self.hardware.description = '{}, {}'.format(hw_item.get('Description', self.__ERROR__), chassis)
-            self.hardware.product = hw_item.get('Model', self.__ERROR__)
-            self.hardware.vendor = hw_item.get('Manufacturer', self.__ERROR__)
-            self.hardware.serial = serial
-            self.hardware.configuration['chassis'] = chassis
-            self.hardware.configuration['cpus'] = hw_item.get('NumberOfProcessors', self.__ERROR__)
-            self.hardware.configuration['uuid'] = uuid
+        item_ret.id = hw_item.get('Name', self.__ERROR__)
+        item_ret.description = '{}, {}'.format(hw_item.get('Description', self.__ERROR__), chassis)
+        item_ret.product = hw_item.get('Model', self.__ERROR__)
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.serial = serial
+        item_ret.configuration['chassis'] = chassis
+        item_ret.configuration['cpus'] = hw_item.get('NumberOfProcessors', self.__ERROR__)
+        item_ret.configuration['uuid'] = uuid
 
-        if children:
-            for child_class in self.get_children(self._entity_):
-                try:
-                    res = child_class().format_data(children)
-                    self.hardware.children.extend(res)
-                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                    logger.warning(f'Could not get children {child_class.__name__} for ComputerSystem: {e}')
-
-        return [self.hardware]
+        return item_ret

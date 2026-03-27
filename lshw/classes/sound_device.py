@@ -66,37 +66,8 @@ class SoundDevice(HardwareClass):
 
         self._update_properties_to_return()
 
-    def format_data(self, children=False):
-        self.get_hardware()
-
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            item_ret = Hardware(
-                id='multimedia',
-                class_='multimedia',
-                claimed=True,
-                handle='',
-                description='Audio device',
-                product=hw_item.get('Manufacturer', self.__ERROR__),
-                vendor=self.__ERROR__,
-                physid='',
-                serial='',
-            )
-            item_ret.businfo = ''
-            item_ret.version = ''
-            item_ret.width = 0
-            item_ret.clock = 0
-            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
-            item_ret.configuration = {'driver': '', 'latency': ''}
-            item_ret.capabilities = {
-                'pm': '',
-                'msi': '',
-                'pciexpress': '',
-                'bus_master': '',
-                'cap_list': '',
-            }
-
-            ret.append(item_ret)
-
-        return ret
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.product = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+        item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
+        return item_ret

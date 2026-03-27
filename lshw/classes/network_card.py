@@ -111,37 +111,16 @@ class NetworkCard(HardwareClass):
         self.execute_wql_query(wql)
         self.check_values()
 
-    def format_data(self, children=False):
-        self.get_hardware()
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.product = hw_item.get('Description', self.__ERROR__)
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.serial = hw_item.get('MACAddress', self.__ERROR__)
+        item_ret.logicalname = hw_item.get('NetConnectionID', self.__ERROR__)
+        item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
 
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            item_ret = Hardware(
-                id='network',
-                class_='network',
-                claimed=True,
-                handle='',
-                description='Ethernet interface',
-                product=hw_item.get('Description', self.__ERROR__),
-                vendor=hw_item.get('Manufacturer', self.__ERROR__),
-                physid='',
-                serial=hw_item.get('MACAddress', self.__ERROR__),
-            )
-            item_ret.businfo = ''
-            item_ret.logicalname = hw_item.get('NetConnectionID', self.__ERROR__)
-            item_ret.version = ''
-            item_ret.units = 'bit/s'
-            item_ret.size = 0
-            item_ret.capacity = 0
-            item_ret.width = 0
-            item_ret.clock = 0
-            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret.configuration = self.hardware.configuration.copy()
-            item_ret.configuration['autonegotiation'] = hw_item.get('Autosense', self.__DESC__)
-            item_ret.configuration['speed'] = hw_item.get('Speed', self.__ERROR__)
-            item_ret.capabilities = self.hardware.capabilities.copy()
-            item_ret.capabilities['autonegotiation'] = hw_item.get('Autosense', self.__DESC__)
+        item_ret.configuration['autonegotiation'] = hw_item.get('Autosense', self.__DESC__)
+        item_ret.configuration['speed'] = hw_item.get('Speed', self.__ERROR__)
 
-            ret.append(item_ret)
+        item_ret.capabilities['autonegotiation'] = hw_item.get('Autosense', self.__DESC__)
 
-        return ret
+        return item_ret

@@ -59,37 +59,18 @@ class Usb(HardwareClass):
 
         self._update_properties_to_return()
 
-    def format_data(self, children=False):
-        self.get_hardware()
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.description = hw_item.get('Description', self.__ERROR__)
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+        return item_ret
 
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            item_ret = Hardware(
-                id='',
-                class_='bus',
-                claimed=True,
-                handle='',
-                description=hw_item.get('Description', self.__ERROR__),
-                product='',
-                vendor=hw_item.get('Manufacturer', self.__ERROR__),
-                physid='',
-                serial='',
-            )
-            item_ret.businfo = ''
-            item_ret.version = ''
-            item_ret.width = 0
-            item_ret.clock = 0
-            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret.configuration = {'driver': '', 'latency': ''}
-            item_ret.capabilities = {'uhci': '', 'bus_master': ''}
-
-            if children and 'PNPDeviceID' in hw_item:
-                try:
-                    # UsbDevice returns List[Hardware]
-                    item_ret.children = self.factory('UsbDevice')(dev_id=[hw_item['PNPDeviceID']]).format_data(children)
-                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                    logger.warning(f'Could not get children for Usb {hw_item["PNPDeviceID"]}: {e}')
-
-            ret.append(item_ret)
-
-        return ret
+    def _fetch_children(self, hardware_list):
+        for hw_instance in hardware_list:
+            try:
+                # UsbDevice returns List[Hardware]
+                hw_instance.children = self.factory('UsbDevice')(dev_id=[hw_instance.pnpdeviceid]).format_data(
+                    children=True
+                )
+            except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
+                logger.warning(f'Could not get children for Usb {hw_instance.pnpdeviceid}: {e}')

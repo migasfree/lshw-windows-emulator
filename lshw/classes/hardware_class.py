@@ -227,10 +227,9 @@ class HardwareClass(ABC):
         else:
             raise NotImplementedError
 
-    @abstractmethod
     def format_data(self, children=False):
         """
-        Format hardware data for output.
+        Format hardware data for output using Template Method pattern.
 
         Args:
             children: If True, include child hardware components in output.
@@ -238,4 +237,36 @@ class HardwareClass(ABC):
         Returns:
             List[Hardware]: A list of hardware components.
         """
-        pass
+        import copy
+
+        self.get_hardware()
+
+        ret = []
+        for hw_item in self.hardware_set_to_return:
+            item_ret = copy.deepcopy(self.hardware)
+            item_ret = self._populate_hardware(item_ret, hw_item)
+            if item_ret is not None:
+                ret.append(item_ret)
+
+        if children:
+            self._fetch_children(ret)
+
+        return ret
+
+    @abstractmethod
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        """
+        Hook for subclasses to populate WMI-specific values into the hardware instance.
+        If it returns None, the item is discarded (e.g., filtered out).
+        """
+        return item_ret
+
+    def _fetch_children(self, hardware_list: List[Hardware]):
+        """Default children fetching logic using get_children()."""
+        for hw_instance in hardware_list:
+            for child_class in self.get_children(self._entity_):
+                try:
+                    res = child_class().format_data(children=True)
+                    hw_instance.children.extend(res)
+                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
+                    logger.warning(f'Could not get children {child_class.__name__} for {self._entity_}: {e}')

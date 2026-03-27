@@ -93,43 +93,17 @@ class CdRom(HardwareClass):
 
         self.check_values()
 
-    def format_data(self, children=False):
-        self.get_hardware()
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        media_loaded = 'no disc'
+        if 'MediaLoaded' in hw_item and hw_item['MediaLoaded'] is True:
+            media_loaded = 'loaded disc'
 
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            media_loaded = 'no disc'
-            if 'MediaLoaded' in hw_item and hw_item['MediaLoaded'] is True:
-                media_loaded = 'loaded disc'
+        item_ret.description = hw_item.get('Description', self.__ERROR__)
+        item_ret.product = hw_item.get('Name', self.__ERROR__)
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.logicalname = hw_item.get('Drive', self.__ERROR__)
+        item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
+        item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
+        item_ret.configuration['status'] = media_loaded
 
-            item_ret = Hardware(
-                id='cdrom',
-                class_='disk',
-                claimed=True,
-                handle='',
-                description=hw_item.get('Description', self.__ERROR__),
-                product=hw_item.get('Name', self.__ERROR__),
-                vendor=hw_item.get('Manufacturer', self.__ERROR__),
-                physid='',
-                serial='',
-            )
-            item_ret.businfo = ''
-            item_ret.logicalname = hw_item.get('Drive', self.__ERROR__)
-            item_ret.deviceid = hw_item.get('DeviceID', self.__ERROR__)
-            item_ret.pnpdeviceid = hw_item.get('PNPDeviceID', self.__ERROR__)
-            item_ret.dev = ''
-            item_ret.version = ''
-            item_ret.configuration = {'ansiversion': '', 'status': media_loaded}
-            item_ret.capabilities = {
-                'removable': '',
-                'audio': '',
-                'cd-r': '',
-                'cd-rw': '',
-                'dvd': '',
-                'dvd-r': '',
-                'dvd-ram': '',
-            }
-
-            ret.append(item_ret)
-
-        return ret
+        return item_ret

@@ -20,7 +20,7 @@ __license__ = 'GPLv3'
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass, wmi
+from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
 
@@ -52,20 +52,8 @@ class BaseBoard(HardwareClass):
 
         self._update_properties_to_return()
 
-    def format_data(self, children=False):
-        self.get_hardware()
-
-        for hw_item in self.hardware_set_to_return:
-            self.hardware.product = hw_item.get('Product', self.__ERROR__)
-            self.hardware.vendor = hw_item.get('Manufacturer', self.__ERROR__)
-            self.hardware.serial = hw_item.get('SerialNumber', self.__ERROR__)
-
-        if children:
-            for child_class in self.get_children(self._entity_):
-                try:
-                    res = child_class().format_data(children)
-                    self.hardware.children.extend(res)
-                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                    logger.warning(f'Could not get children {child_class.__name__} for BaseBoard: {e}')
-
-        return [self.hardware]
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.product = hw_item.get('Product', self.__ERROR__)
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+        item_ret.serial = hw_item.get('SerialNumber', self.__ERROR__)
+        return item_ret

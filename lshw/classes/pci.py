@@ -18,6 +18,7 @@ __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez S�
 __license__ = 'GPLv3'
 
 import logging
+from typing import List
 
 from .hardware import Hardware
 from .hardware_class import HardwareClass, wmi
@@ -59,52 +60,50 @@ class Pci(HardwareClass):
 
         self._update_properties_to_return()
 
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        id_bus = ''
+        device_id = hw_item.get('DeviceID', '')
+        if device_id:
+            prefix = device_id[0:3].lower()
+            if prefix in ('isa', 'pci', 'pnp'):
+                id_bus = f'{prefix}:{device_id[-1]}'
+
+        item_ret.id = id_bus
+        item_ret.description = device_id if device_id else 'Host bridge'
+        item_ret.product = hw_item.get('Caption', '')
+
+        return item_ret
+
+    def _fetch_children(self, hardware_list: List[Hardware]):
+        # Pci itself is a list of bridge children.
+        # But wait, the original Pci.format_data returns a list containing
+        # a single top-level 'pci' Hardware object with ALL bridges as children.
+        # My Template Method returns a list of items from hardware_set_to_return.
+        # I need to override format_data for Pci to keep the single container behavior.
+        pass
+
     def format_data(self, children=False):
         self.get_hardware()
 
-        pci_child = []
+        pci_bridges = []
         for hw_item in self.hardware_set_to_return:
-            id_bus = ''
-            if 'DeviceID' in hw_item:
-                if hw_item['DeviceID'][0:3].lower() == 'isa':
-                    id_bus = f'isa:{hw_item["DeviceID"][-1]}'
-                elif hw_item['DeviceID'][0:3].lower() == 'pci':
-                    id_bus = f'pci:{hw_item["DeviceID"][-1]}'
-                elif hw_item['DeviceID'][0:3].lower() == 'pnp':
-                    id_bus = f'pnp:{hw_item["DeviceID"][-1]}'
-
-            child = Hardware(
-                id=id_bus,
-                class_='bridge',
-                claimed=True,
-                handle='',
-                description=hw_item.get('DeviceID', 'Host bridge'),
-                product=hw_item.get('Caption', ''),
-                vendor='',
-                physid='',
-            )
-            child.businfo = ''
-            child.version = ''
-            child.width = 0
-            child.clock = 0
-
-            pci_child.append(child)
+            bridge = Hardware(id='', class_='bridge', claimed=True)
+            bridge = self._populate_hardware(bridge, hw_item)
+            pci_bridges.append(bridge)
 
         if children:
-            for child_class in self.get_children(self._entity_):
-                try:
-                    # Handle Usb specifically if needed for ID formatting
-                    if child_class.__name__ == 'Usb':
-                        # child_class().format_data(children) returns List[Hardware]
-                        for i, element in enumerate(child_class().format_data(children)):
-                            element.id = f'usb:{i}'
-                            pci_child.append(element)
-                    else:
-                        res = child_class().format_data(children)
-                        pci_child.extend(res)
-                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                    logger.warning(f'Could not get children {child_class.__name__} for Pci: {e}')
+            for bridge in pci_bridges:
+                for child_class in self.get_children(self._entity_):
+                    try:
+                        if child_class.__name__ == 'Usb':
+                            for i, element in enumerate(child_class().format_data(children=True)):
+                                element.id = f'usb:{i}'
+                                pci_bridges.append(element)
+                        else:
+                            bridge.children.extend(child_class().format_data(children=True))
+                    except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
+                        logger.warning(f'Could not get children {child_class.__name__} for Pci: {e}')
 
-            self.hardware.children = pci_child
+            self.hardware.children = pci_bridges
 
         return [self.hardware]

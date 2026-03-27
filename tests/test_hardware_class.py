@@ -10,6 +10,10 @@ class ConcreteHardware(HardwareClass):
     Concrete subclass for testing HardwareClass abstract base class.
     """
 
+    def _populate_hardware(self, item_ret, hw_item):
+        item_ret.product = hw_item.get('product', 'test')
+        return item_ret
+
     def format_data(self, children=False):
         return [{'test': 'data'}]
 

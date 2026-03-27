@@ -103,73 +103,45 @@ class PartitionDisk(HardwareClass):
 
         self.check_values()
 
-    def format_data(self, children=False):
-        self.get_hardware()
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        bootable = 'No bootable partition'
+        if 'Bootable' in hw_item and hw_item['Bootable'] is True:
+            bootable = 'Bootable partition'
 
-        ret = []
-        for hw_item in self.hardware_set_to_return:
-            bootable = 'No bootable partition'
-            if 'Bootable' in hw_item and hw_item['Bootable'] is True:
-                bootable = 'Bootable partition'
+        if 'BootPartition' in hw_item and hw_item['BootPartition'] is True:
+            bootable += ' (active)'
 
-            if 'BootPartition' in hw_item and hw_item['BootPartition'] is True:
-                bootable += ' (active)'
+        primary = 'No primary partition'
+        extended = 'Extended partition'
+        if 'PrimaryPartition' in hw_item and hw_item['PrimaryPartition'] is True:
+            primary = 'Primary partition'
+            extended = 'No extended partition'
 
-            primary = 'No primary partition'
-            extended = 'Extended partition'
-            if 'PrimaryPartition' in hw_item and hw_item['PrimaryPartition'] is True:
-                primary = 'Primary partition'
-                extended = 'No extended partition'
+        description = hw_item.get('Description', self.__ERROR__)
+        if (
+            hw_item.get('Description', '').lower() == 'unknown'
+            and hw_item.get('Bootable') is True
+            and hw_item.get('BootPartition') is True
+        ):
+            description = 'Primary. Bootable. Boot partition. FAT32'
 
-            description = hw_item.get('Description', self.__ERROR__)
-            if (
-                hw_item['Description'].lower() == 'unknown'
-                and hw_item['Bootable'] is True
-                and hw_item['BootPartition'] is True
-            ):
-                description = 'Primary. Bootable. Boot partition. FAT32'
+        item_ret.id = f'volume:{hw_item["Index"]}'
+        item_ret.description = description
+        item_ret.size = hw_item['Size']
+        item_ret.capacity = int(hw_item['Size'])
+        item_ret.pnpdeviceid = hw_item['PNPDeviceID']
+        item_ret.deviceid = hw_item['DeviceID']
 
-            item_ret = Hardware(
-                id=f'volume:{hw_item["Index"]}',
-                class_='volume',
-                claimed=True,
-                handle='',
-                description=description,
-                product='',
-                vendor='Windows',
-                physid='',
-                serial='',
-            )
-            item_ret.size = hw_item['Size']
-            item_ret.capacity = int(hw_item['Size'])
-            item_ret.pnpdeviceid = hw_item['PNPDeviceID']
-            item_ret.deviceid = hw_item['DeviceID']
-            item_ret.businfo = ''
-            item_ret.logicalname = ''
-            item_ret.dev = ''
-            item_ret.version = ''
-            item_ret.configuration = {
-                'filesystem': 'fat',
-                'modified': '',
-                'mount.fstype': 'fat',
-                'mount.options': '',
-                'mounted': '',
-                'state': 'mounted',
-            }
-            item_ret.capabilities = {
-                'primary': primary,
-                'extended': extended,
-                'bootable': bootable,
-                'extended_attributes': '',
-            }
+        item_ret.capabilities['primary'] = primary
+        item_ret.capabilities['extended'] = extended
+        item_ret.capabilities['bootable'] = bootable
 
-            if children:
-                try:
-                    # LogicalDisk returns List[Hardware]
-                    item_ret.children = self.factory('LogicalDisk')(hw_item['DeviceID']).format_data(children)
-                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
-                    logger.warning(f'Could not get children for PartitionDisk {hw_item["DeviceID"]}: {e}')
+        return item_ret
 
-            ret.append(item_ret)
-
-        return ret
+    def _fetch_children(self, hardware_list):
+        for hw_instance in hardware_list:
+            try:
+                # LogicalDisk returns List[Hardware]
+                hw_instance.children = self.factory('LogicalDisk')(hw_instance.deviceid).format_data(children=True)
+            except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
+                logger.warning(f'Could not get children for PartitionDisk {hw_instance.deviceid}: {e}')
