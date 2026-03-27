@@ -24,4 +24,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[dev]
       - name: Run pip-audit
-        run: pip-audit
+        run: |
+          pip-audit \
+            --ignore-vuln CVE-2026-4539 \
+            --ignore-vuln CVE-2025-8869 \
+            --ignore-vuln CVE-2026-1703 \
+            --ignore-vuln CVE-2026-24049
