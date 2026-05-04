@@ -44,3 +44,30 @@ def test_logical_disk_with_dev_id(mock_wmi_connection):
 
     assert len(result) == 1
     assert result[0].deviceid == 'D:'
+
+
+def test_logical_disk_direct_association(mock_wmi_connection):
+    mock_assoc = MagicMock()
+    mock_assoc.Antecedent = MagicMock()
+    mock_assoc.Antecedent.DeviceID = 'Disk #0, Partition #0'
+    mock_assoc.Dependent = MagicMock()
+    mock_assoc.Dependent.DeviceID = 'E:'
+
+    mock_ld = MagicMock()
+    mock_ld.Caption = 'E:'
+    mock_ld.Name = 'Volume'
+    mock_ld.Description = 'desc'
+    mock_ld.FileSystem = 'NTFS'
+    mock_ld.VolumeName = 'E:'
+    mock_ld.Size = '2000'
+    mock_ld.DeviceID = 'E:'
+
+    mock_wmi_connection.Win32_LogicalDiskToPartition.return_value = [mock_assoc]
+    mock_wmi_connection.query.return_value = [mock_ld]
+
+    ld = LogicalDisk(dev_id='Disk #0, Partition #0')
+    result = ld.format_data()
+
+    assert len(result) == 1
+    assert result[0].deviceid == 'E:'
+    assert result[0].capacity == '2000'
