@@ -1,10 +1,8 @@
-# 🛠️ How to Add a New Hardware Class
+# How to Add a New Hardware Class
 
-This guide walks you through the steps required to implement a new hardware component in `lshw-windows-emulator`.
+This guide walks through implementing a new hardware component in `lshw-windows-emulator`.
 
-## 📦 Implementation Steps
-
-Follow these steps to ensure your hardware class integrates correctly with the factory pattern and the discovery tree.
+## Implementation Steps
 
 ### 1. Create the Module
 
@@ -12,70 +10,64 @@ Create a new file in `lshw/classes/` named after your device (e.g., `lshw/classe
 
 ### 2. Implement the Class
 
-Inherit from `HardwareClass` and use the `@HardwareClass.register` decorator to link it to its parent in the hardware tree.
+Inherit from `HardwareClass` and use the `@HardwareClass.register` decorator to link it to its parent in the hardware tree. Override `_populate_hardware()` to map WMI data to `Hardware` fields.
 
 ```python
+import logging
+
+from .hardware import Hardware
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
+
 
 @HardwareClass.register('YourDevice', parent='ParentName')
 class YourDevice(HardwareClass):
-    """
-    Retrieves information about YourDevice using WMI.
-    """
 
     def __init__(self):
         super().__init__()
-        # 1. Define the WMI method to call
         self.wmi_method = 'Win32_YourWmiClass'
-        
-        # 2. List the properties you want to fetch
         self.properties_to_get = ['Caption', 'Description', 'DeviceID']
-        
-        # 3. Synchronize properties with return dictionary
         self._update_properties_to_return()
 
-    def format_data(self, children=False):
-        """
-        Standardizes the raw WMI data into the expected format.
-        """
-        # Execute the WQL query
-        self.get_hardware()
-        
-        # Return the processed data
-        return [hw_item for hw_item in self.hardware_set_to_return]
+    def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
+        item_ret.id = hw_item.get('DeviceID', self.__ERROR__)
+        item_ret.description = hw_item.get('Caption', self.__DESC__)
+        return item_ret
 ```
 
-### 3. Register the Class
+### 3. Registration (Automatic)
 
-Import your new class in `lshw/classes/__init__.py` to ensure the `@register` decorator is executed during discovery.
-
-```python
-# lshw/classes/__init__.py
-from .your_device import YourDevice
-```
+The package `__init__.py` uses `pkgutil.iter_modules()` to auto-discover all `.py` files in the `lshw/classes/` directory. The `@HardwareClass.register` decorator is triggered at import time — **no manual import registration is required**. Simply placing the file in the package is sufficient.
 
 ### 4. Enable CLI Access
 
-If you want the class to be accessible directly via the CLI, add it to the `AVAILABLE_CLASSES` list in `lshw/__main__.py`.
+Add the class to `AVAILABLE_CLASSES` in `lshw/__main__.py`:
 
 ```python
-# lshw/__main__.py
-AVAILABLE_CLASSES = [
+AVAILABLE_CLASSES = {
     ...,
-    'yourdevice',
-]
+    'yourdevice': ['YourDevice', 17],
+}
 ```
 
-## 🧪 Testing Your Implementation
+The integer is the exit code used when the class fails to retrieve data (must be unique, `2`–`15` range).
 
-Before submitting, verify your change with the built-in test suite:
+### 5. Ensure WMI Entity is Registered
 
-1. Run the CLI directly: `python -m lshw --class yourdevice --json`
-2. Add a new test file in `tests/test_your_device.py` using `pytest-mock` to simulate WMI responses.
+Verify the WMI entity your class uses is in `_WMI_ENTITY_ALLOWLIST` in `lshw/classes/hardware_class.py`. The allowlist gates all WMI access — unknown entities are rejected with a `Security Alert` log and `ValueError`. Entity names are compared case-insensitively.
 
----
-> [!TIP]
-> Always check the [WMI Class Reference](https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-provider) to identify the correct properties.
+## Testing
 
-> [!NOTE]
-> This guide follows the **Diátaxis How-To Quadrant**, focusing on specific goal-oriented steps.
+1. Add a test file at `tests/test_your_device.py` using `pytest-mock` to simulate WMI responses.
+2. The `conftest.py` mock injects a fake `wmi` module into `sys.modules`, allowing tests to run on Linux.
+3. Run: `pytest tests/test_your_device.py`
+
+## WMI Entity Security
+
+All WMI access is protected by:
+
+- **`_validate_entity(entity)`** — Case-insensitive allowlist check. Raises `ValueError` for unauthorized entities.
+- **`_sanitize_wql_value(value)`** — Strips `"`, `'`, `;` from WQL WHERE clause values to prevent injection.
+
+See [ADR 002: WMI Entity Allowlist](../adr/002-wmi-entity-allowlist.md) for the full security rationale.

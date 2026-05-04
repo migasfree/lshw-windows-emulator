@@ -15,7 +15,7 @@ Thank you for considering contributing to `lshw-windows-emulator`! We welcome co
 
 ## 🛠️ Development Workflow
 
-1. *Set up the local Environment**:
+1. **Set up the local Environment**:
 
     ```bash
     python -m venv .venv
@@ -27,20 +27,20 @@ Thank you for considering contributing to `lshw-windows-emulator`! We welcome co
     pip install -e ".[dev]"
     ```
 
-2. *Create a Branch**: Always work on a new branch for your changes.
+2. **Create a Branch**: Always work on a new branch for your changes.
 
     ```bash
-    git checkout -b features/my-new-feature
+    git checkout -b feature/my-new-feature
     ```
 
-3. *Make Changes**: Implement your feature or fix.
-4. *Run Tests**: Ensure all tests pass.
+3. **Make Changes**: Implement your feature or fix.
+4. **Run Tests**: Ensure all tests pass.
 
     ```bash
     pytest
     ```
 
-5. *Lint Your Code**: Ensure your code meets quality standards using [Ruff](https://docs.astral.sh/ruff/).
+5. **Lint Your Code**: Ensure your code meets quality standards using [Ruff](https://docs.astral.sh/ruff/).
 
     ```bash
     ruff check .
@@ -55,10 +55,10 @@ Thank you for considering contributing to `lshw-windows-emulator`! We welcome co
 
 ## 🚀 Submitting a Pull Request
 
-1. ush your branch to your fork.
-2. pen a Pull Request against the `master` branch.
-3. rovide a clear description of your changes.
-4. wait review and address any feedback.
+1. Push your branch to your fork.
+2. Open a Pull Request against the `master` branch.
+3. Provide a clear description of your changes.
+4. Await review and address any feedback.
 
 ---
 > [!NOTE]
