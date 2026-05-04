@@ -114,7 +114,8 @@ class PartitionDisk(HardwareClass):
                         return ''
                     try:
                         return getattr(ref, 'DeviceID', '')
-                    except Exception:
+                    except Exception as e:
+                        logger.debug('Error extracting DeviceID (non-critical): %s', e)
                         return ''
 
                 for assoc in self.wmi_system.Win32_DiskDriveToDiskPartition():
@@ -129,8 +130,8 @@ class PartitionDisk(HardwareClass):
                                 success = True
                     except (AttributeError, TypeError, KeyError):
                         continue
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug('Error in association-based disk-partition matching (falling back): %s', e)
 
             if not success:
                 # Fallback to the old associators method
@@ -140,10 +141,10 @@ class PartitionDisk(HardwareClass):
                     for element in self.wmi_system.query(wql):
                         for part in element.associators('Win32_DiskDriveToDiskPartition'):
                             self.hardware_set.append(part)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug('Error in associators fallback for disk-partition: %s', e)
 
-        self.check_values()
+        self.check_values()  # partition_disk
 
     def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
         bootable = 'No bootable partition'

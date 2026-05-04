@@ -58,32 +58,28 @@ class WMIConnection:
 class HardwareClass(ABC):
     _WMI_ENTITY_ALLOWLIST = frozenset(
         {
-            'Win32_baseboard',
-            'Win32_bios',
-            'Win32_Bus',
-            'Win32_cdromdrive',
-            'Win32_CDROMDrive',
-            'Win32_computersystem',
-            'Win32_Computersystemproduct',
-            'Win32_diskdrive',
-            'Win32_Diskdrive',
-            'Win32_DiskDrive',
-            'Win32_DiskDriveToDiskPartition',
-            'Win32_diskpartition',
-            'Win32_Diskpartition',
-            'Win32_IDEController',
-            'Win32_IDEControllerdevice',
-            'Win32_LogicalDisk',
-            'Win32_LogicalDiskToPartition',
-            'Win32_NetworkAdapter',
-            'Win32_physicalMemory',
-            'Win32_PNPEntity',
-            'Win32_processor',
-            'Win32_SoundDevice',
-            'Win32_SystemEnclosure',
-            'Win32_USBController',
-            'Win32_USBControllerdevice',
-            'Win32_videoController',
+            'win32_baseboard',
+            'win32_bios',
+            'win32_bus',
+            'win32_cdromdrive',
+            'win32_computersystem',
+            'win32_computersystemproduct',
+            'win32_diskdrive',
+            'win32_diskdrivetodiskpartition',
+            'win32_diskpartition',
+            'win32_idecontroller',
+            'win32_idecontrollerdevice',
+            'win32_logicaldisk',
+            'win32_logicaldisktopartition',
+            'win32_networkadapter',
+            'win32_physicalmemory',
+            'win32_pnpentity',
+            'win32_processor',
+            'win32_sounddevice',
+            'win32_systemenclosure',
+            'win32_usbcontroller',
+            'win32_usbcontrollerdevice',
+            'win32_videocontroller',
         }
     )
     """
@@ -153,13 +149,15 @@ class HardwareClass(ABC):
         """
         Validate that the WMI entity is in the allowlist.
 
+        Comparison is case-insensitive since WMI is case-insensitive.
+
         Args:
             entity: WMI table/class name or method name.
 
         Raises:
             ValueError: If the entity is not in the allowlist.
         """
-        if entity not in self._WMI_ENTITY_ALLOWLIST:
+        if entity.lower() not in self._WMI_ENTITY_ALLOWLIST:
             logger.error(f'Security Alert: Unauthorized WMI entity access attempted: {entity}')
             raise ValueError(f'Unauthorized WMI entity: {entity}')
 

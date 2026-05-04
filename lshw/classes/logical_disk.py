@@ -17,8 +17,12 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
+
 from .hardware import Hardware
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('LogicalDisk', parent='PartitionDisk')
@@ -100,7 +104,8 @@ class LogicalDisk(HardwareClass):
                         return ''
                     try:
                         return getattr(ref, 'DeviceID', '')
-                    except Exception:
+                    except Exception as e:
+                        logger.debug('Error extracting DeviceID (non-critical): %s', e)
                         return ''
 
                 for assoc in self.wmi_system.Win32_LogicalDiskToPartition():
@@ -115,8 +120,8 @@ class LogicalDisk(HardwareClass):
                                 success = True
                     except (AttributeError, TypeError, KeyError):
                         continue
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug('Error in association-based partition-volume matching (falling back): %s', e)
 
             if not success:
                 # Fallback to the old associators method
@@ -130,10 +135,10 @@ class LogicalDisk(HardwareClass):
                             wmi_association_class='Win32_LogicalDiskToPartition', wmi_result_class='Win32_LogicalDisk'
                         ):
                             self.hardware_set.append(part)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug('Error in associators fallback for logical disk: %s', e)
 
-        self.check_values()
+        self.check_values()  # logical_disk
 
     def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
         drive_letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'

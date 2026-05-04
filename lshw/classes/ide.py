@@ -120,8 +120,8 @@ class Ide(HardwareClass):
                 for d in self.wmi_system.Win32_diskdrive(['PNPDeviceID']):
                     if getattr(d, 'PNPDeviceID', None):
                         self._cached_disk_pnp_ids.add(d.PNPDeviceID.strip().replace('\\', '').lower())
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug('Error populating disk PNP device cache (non-critical): %s', e)
 
             self.get_hardware()
             if children:
@@ -153,8 +153,8 @@ class Ide(HardwareClass):
                         wql_test = f'SELECT PNPDeviceID FROM Win32_diskdrive WHERE PNPDeviceID="{self._sanitize_wql_value(item.PNPDeviceID)}"'
                         if len(self.wmi_system.query(wql_test)) != 0:
                             is_disk = True
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug('Error checking disk PNP device (non-critical): %s', e)
 
                 if is_disk:
                     disk = self.factory('PhysicalDisk')(item.PNPDeviceID).format_data(children=True)
