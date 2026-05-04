@@ -3,3 +3,5 @@
 /lshw.egg-info/
 *.pyc
 .agent/
+.coverage
+docs/governance/

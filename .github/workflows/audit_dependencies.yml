@@ -25,6 +25,11 @@ jobs:
           pip install .[dev]
       - name: Run pip-audit
         run: |
+          # CVE ignores rationale:
+          #  CVE-2026-4539: transitive dependency, no exploit path in CLI context
+          #  CVE-2025-8869: low severity, no impact on hardware enumeration
+          #  CVE-2026-1703: affects server-side only, lshw is read-only client
+          #  CVE-2026-24049: disputed CVE, not applicable to our dependency usage
           pip-audit \
             --ignore-vuln CVE-2026-4539 \
             --ignore-vuln CVE-2025-8869 \

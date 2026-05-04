@@ -56,6 +56,13 @@ version = {attr = "lshw.__version__"}
 [tool.pytest.ini_options]
 pythonpath = "."
 testpaths = ["tests"]
+addopts = [
+    "--cov=lshw",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+    "--cov-fail-under=70",
+    "--verbose",
+]
 
 [project.optional-dependencies]
 dev = [
