@@ -95,11 +95,53 @@ class PartitionDisk(HardwareClass):
                 self.hardware_set.append(element)
         else:
             # Gets associated partitions to a disk (DeviceID = self.dev_id)
-            self._validate_entity('Win32_diskdrive')
-            wql = f'SELECT DeviceID FROM Win32_diskdrive WHERE DeviceID="{self._sanitize_wql_value(self.dev_id)}"'
-            for element in self.wmi_system.query(wql):
-                for part in element.associators('Win32_DiskDriveToDiskPartition'):
-                    self.hardware_set.append(part)
+            self._validate_entity('Win32_DiskDriveToDiskPartition')
+            self._validate_entity('Win32_diskpartition')
+            success = False
+            try:
+                import re
+
+                def _extract_id(ref):
+                    if not ref:
+                        return ''
+                    if isinstance(ref, str):
+                        match = re.search(r'DeviceID\s*=\s*"([^"]+)"', ref)
+                        if match:
+                            return match.group(1)
+                        match = re.search(r"DeviceID\s*=\s*'([^']+)'", ref)
+                        if match:
+                            return match.group(1)
+                        return ''
+                    try:
+                        return getattr(ref, 'DeviceID', '')
+                    except Exception:
+                        return ''
+
+                for assoc in self.wmi_system.Win32_DiskDriveToDiskPartition():
+                    try:
+                        drive_id = _extract_id(assoc.Antecedent)
+                        if drive_id.strip().replace('\\', '').lower() == self.dev_id.strip().replace('\\', '').lower():
+                            part_id = _extract_id(assoc.Dependent)
+                            if part_id:
+                                wql = f'SELECT {self.build_wql_fields()} FROM Win32_diskpartition WHERE DeviceID="{self._sanitize_wql_value(part_id)}"'
+                                for part in self.wmi_system.query(wql):
+                                    self.hardware_set.append(part)
+                                success = True
+                    except (AttributeError, TypeError, KeyError):
+                        continue
+            except Exception:
+                pass
+
+            if not success:
+                # Fallback to the old associators method
+                self._validate_entity('Win32_diskdrive')
+                wql = f'SELECT DeviceID FROM Win32_diskdrive WHERE DeviceID="{self._sanitize_wql_value(self.dev_id)}"'
+                try:
+                    for element in self.wmi_system.query(wql):
+                        for part in element.associators('Win32_DiskDriveToDiskPartition'):
+                            self.hardware_set.append(part)
+                except Exception:
+                    pass
 
         self.check_values()
 

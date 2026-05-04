@@ -133,7 +133,23 @@ class Ide(HardwareClass):
         wql = self.build_wql_select('Win32_PNPEntity', f'PNPDeviceID="{self._sanitize_wql_value(pnp_id)}"')
         for item in self.wmi_system.query(wql):
             try:
-                if len(item.associators(wmi_result_class='Win32_DiskDrive')) != 0:
+                is_disk = False
+                try:
+                    self._validate_entity('Win32_diskdrive')
+                    wql_test = f'SELECT PNPDeviceID FROM Win32_diskdrive WHERE PNPDeviceID="{self._sanitize_wql_value(item.PNPDeviceID)}"'
+                    if len(self.wmi_system.query(wql_test)) != 0:
+                        is_disk = True
+                except Exception:
+                    pass
+
+                if not is_disk:
+                    try:
+                        if len(item.associators(wmi_result_class='Win32_DiskDrive')) != 0:
+                            is_disk = True
+                    except Exception:
+                        pass
+
+                if is_disk:
                     disk = self.factory('PhysicalDisk')(item.PNPDeviceID).format_data(children=True)
                 else:
                     disk = self.factory('CdRom')(item.PNPDeviceID).format_data(children=True)
