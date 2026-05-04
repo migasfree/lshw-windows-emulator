@@ -40,7 +40,7 @@ Explore the documentation through its four **Diátaxis quadrants**:
 
 | Quadrant | Focus | Explore |
 | :--- | :--- | :--- |
-| **📘 Tutorials** | Learning-oriented help for beginners. | [Quick Start](#-quick-start) |
+| **📘 Tutorials** | Learning-oriented help for beginners. | [First Inventory](tutorials/first-inventory.md) |
 | **🛠️ How-to Guides** | Goal-oriented steps for specific tasks. | [Add Hardware Classes](how-to/adding-hardware-classes.md), [Python API](how-to/using-the-python-api.md), [Contributing](how-to/contributing.md), [Troubleshooting](how-to/troubleshooting.md) |
 | **📋 Reference** | Technical descriptions (CLI, WMI Mapping). | [CLI Usage](reference/cli.md), [WMI Mapping](reference/wmi-mapping.md) |
 | **💡 Explanation** | Architecture, design decisions, and governance. | [Architecture](explanation/architecture.md), [ADRs](adr/README.md), [Codebase Audit](governance/audits/codebase_audit_report.md) |
