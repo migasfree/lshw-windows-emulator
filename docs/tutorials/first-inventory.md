@@ -47,7 +47,7 @@ You will see a tree of hardware components printed to the terminal, starting wit
 
 Example output fragment:
 
-```
+```txt
         product: Precision 5560
         vendor: Dell Inc.
         serial: ABC123
@@ -112,7 +112,7 @@ lshw -c memory --json
 Each hardware component in the output includes:
 
 | Field | Meaning | Example |
-|---|---|---|
+| --- | --- | --- |
 | `id` | Unique identifier within the hardware tree | `processor:0` |
 | `class` | Hardware category (system, processor, memory, disk, network, etc.) | `memory` |
 | `claimed` | Whether the OS has a driver claiming this device | `true` |
