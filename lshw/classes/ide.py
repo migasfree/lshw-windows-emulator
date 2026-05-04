@@ -119,7 +119,7 @@ class Ide(HardwareClass):
                 self._validate_entity('Win32_diskdrive')
                 for d in self.wmi_system.Win32_diskdrive(['PNPDeviceID']):
                     if getattr(d, 'PNPDeviceID', None):
-                        self._cached_disk_pnp_ids.add(d.PNPDeviceID.strip().lower())
+                        self._cached_disk_pnp_ids.add(d.PNPDeviceID.strip().replace('\\', '').lower())
             except Exception:
                 pass
 
@@ -144,7 +144,7 @@ class Ide(HardwareClass):
         for item in self.wmi_system.query(wql):
             try:
                 is_disk = False
-                if item.PNPDeviceID and item.PNPDeviceID.strip().lower() in self._cached_disk_pnp_ids:
+                if item.PNPDeviceID and item.PNPDeviceID.strip().replace('\\', '').lower() in self._cached_disk_pnp_ids:
                     is_disk = True
 
                 if not is_disk:
@@ -152,13 +152,6 @@ class Ide(HardwareClass):
                         self._validate_entity('Win32_diskdrive')
                         wql_test = f'SELECT PNPDeviceID FROM Win32_diskdrive WHERE PNPDeviceID="{self._sanitize_wql_value(item.PNPDeviceID)}"'
                         if len(self.wmi_system.query(wql_test)) != 0:
-                            is_disk = True
-                    except Exception:
-                        pass
-
-                if not is_disk:
-                    try:
-                        if len(item.associators(wmi_result_class='Win32_DiskDrive')) != 0:
                             is_disk = True
                     except Exception:
                         pass
