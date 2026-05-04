@@ -61,6 +61,7 @@ class Ide(HardwareClass):
     def get_hardware(self):
         ide_controller_device_set = []
         ide_controller_device_primary = []
+        self._validate_entity('Win32_IDEControllerdevice')
         for ide_assoc in self.wmi_system.Win32_IDEControllerdevice(['Antecedent', 'Dependent']):
             ant_value = ide_assoc.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
             dep_value = ide_assoc.dependent.split('=')[1].replace('"', '').replace('\\\\', '\\')
@@ -125,6 +126,7 @@ class Ide(HardwareClass):
 
             self.get_hardware()
             if children:
+                self._validate_entity('Win32_IDEControllerdevice')
                 for primary in self._ide_results:
                     for element in self.wmi_system.Win32_IDEControllerdevice(['Antecedent', 'Dependent']):
                         ant = element.antecedent.split('=')[1].replace('"', '').replace('\\\\', '\\')
