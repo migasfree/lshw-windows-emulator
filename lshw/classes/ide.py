@@ -56,6 +56,7 @@ class Ide(HardwareClass):
 
         self._update_properties_to_return()
         self._ide_results = []
+        self._cached_disk_pnp_ids = set()
 
     def get_hardware(self):
         ide_controller_device_set = []
@@ -113,6 +114,15 @@ class Ide(HardwareClass):
 
     def format_data(self, children=False):
         try:
+            self._cached_disk_pnp_ids = set()
+            try:
+                self._validate_entity('Win32_diskdrive')
+                for d in self.wmi_system.Win32_diskdrive(['PNPDeviceID']):
+                    if getattr(d, 'PNPDeviceID', None):
+                        self._cached_disk_pnp_ids.add(d.PNPDeviceID.strip().lower())
+            except Exception:
+                pass
+
             self.get_hardware()
             if children:
                 for primary in self._ide_results:
@@ -134,13 +144,17 @@ class Ide(HardwareClass):
         for item in self.wmi_system.query(wql):
             try:
                 is_disk = False
-                try:
-                    self._validate_entity('Win32_diskdrive')
-                    wql_test = f'SELECT PNPDeviceID FROM Win32_diskdrive WHERE PNPDeviceID="{self._sanitize_wql_value(item.PNPDeviceID)}"'
-                    if len(self.wmi_system.query(wql_test)) != 0:
-                        is_disk = True
-                except Exception:
-                    pass
+                if item.PNPDeviceID and item.PNPDeviceID.strip().lower() in self._cached_disk_pnp_ids:
+                    is_disk = True
+
+                if not is_disk:
+                    try:
+                        self._validate_entity('Win32_diskdrive')
+                        wql_test = f'SELECT PNPDeviceID FROM Win32_diskdrive WHERE PNPDeviceID="{self._sanitize_wql_value(item.PNPDeviceID)}"'
+                        if len(self.wmi_system.query(wql_test)) != 0:
+                            is_disk = True
+                    except Exception:
+                        pass
 
                 if not is_disk:
                     try:
