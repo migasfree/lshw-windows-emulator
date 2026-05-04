@@ -89,7 +89,42 @@ This guide addresses common issues administrators may encounter when gathering h
   python --version
   ```
 
-## 5. Reporting Bugs
+## 5. WMI Database Corruption
+
+**Symptoms:**
+
+- Script hangs indefinitely on queries or returns severe COM errors.
+- Any WMI command like `wmic csproduct get name` fails with an inconsistent state message.
+
+**Solutions:**
+
+- **Check WMI Repository Consistency**: Run the following in an administrative prompt:
+
+  ```powershell
+  winmgmt /verifyrepository
+  ```
+
+  If the repository is inconsistent, attempt to salvage it:
+
+  ```powershell
+  winmgmt /salvagerepository
+  ```
+
+- **Reset WMI Repository**: If salvaging fails, reset WMI to its default state:
+
+  ```powershell
+  winmgmt /resetrepository
+  ```
+
+- **Force Rebuild WMI**: In extreme scenarios where WMI is completely broken:
+
+  ```cmd
+  net stop winmgmt /y
+  rd /s /q "%windir%\System32\wbem\Repository"
+  net start winmgmt
+  ```
+
+## 6. Reporting Bugs
 
 If you encounter an issue not listed here, please generate a debug log:
 
