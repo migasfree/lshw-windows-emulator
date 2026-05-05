@@ -4,4 +4,5 @@
 *.pyc
 .agent/
 .coverage
+.venv/
 docs/governance/
