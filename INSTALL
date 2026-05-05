@@ -1,19 +1,85 @@
-Thanks for downloading LsHw Windows Emulator.
+# Installation Instructions for LsHw Windows Emulator
 
-To install it, make sure you have these programs installed:
+LsHw Windows Emulator is a simplified Windows port of the [Hardware Lister (lshw)](https://ezix.org/project/wiki/HardwareLiSter) project. It uses Windows Management Instrumentation (WMI) to gather hardware information on Windows systems.
 
-    * Python >= 3.6
-    * pip
+## 1. Prerequisites
 
-To install from source:
+Before installing, ensure you have the following:
 
-    $ pip install .
+* **Python 3.6** or higher ([python.org](https://www.python.org/))
+* **pip** (Python package installer)
+* A **virtual environment** is highly recommended (e.g., `venv`)
 
-To create a distribution package:
+## 2. Standard Installation
 
-    $ pip install build
-    $ cd bin
-    $ ./create-package.bat
-    # Packages will be created in dist/ directory
+To install LsHw Windows Emulator from source for regular usage:
 
-And enjoy!
+```bash
+pip install .
+```
+
+After installation, you can run the emulator using the `lshw` command:
+
+```bash
+lshw --json
+```
+
+## 3. Developer Installation
+
+If you plan to contribute or run tests, install with development dependencies:
+
+```bash
+pip install -e .[dev]
+```
+
+This will install additional tools like `ruff`, `pytest`, and `build`.
+
+## 4. Development Tools
+
+Once installed in developer mode, you can use the following commands:
+
+* **Run Tests**:
+
+    ```bash
+    pytest
+    ```
+
+* **Lint Code**:
+
+    ```bash
+    ruff check .
+    ```
+
+* **Format Code**:
+
+    ```bash
+    ruff format .
+    ```
+
+* **Check Security**:
+
+    ```bash
+    pip-audit
+    ```
+
+## 5. Packaging
+
+To create a distribution package (Source Distribution and Wheel):
+
+```bash
+python -m build
+```
+
+Packages will be created in the `dist/` directory.
+
+### Windows Installer (MSI)
+
+Creating an MSI requires `cx_Freeze`:
+
+```bash
+pip install cx_Freeze
+python setup_msi.py bdist_msi
+```
+
+---
+*Enjoy your hardware exploration!*
