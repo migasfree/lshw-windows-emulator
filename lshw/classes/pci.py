@@ -92,18 +92,23 @@ class Pci(HardwareClass):
             pci_bridges.append(bridge)
 
         if children:
+            usb_controllers = []
+            usb_fetched = False
             for bridge in pci_bridges:
                 for child_class in self.get_children(self._entity_):
                     try:
                         if child_class.__name__ == 'Usb':
-                            for i, element in enumerate(child_class().format_data(children=True)):
-                                element.id = f'usb:{i}'
-                                pci_bridges.append(element)
+                            if not usb_fetched:
+                                for i, element in enumerate(child_class().format_data(children=True)):
+                                    element.id = f'usb:{i}'
+                                    usb_controllers.append(element)
+                                usb_fetched = True
                         else:
                             bridge.children.extend(child_class().format_data(children=True))
                     except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
                         logger.warning(f'Could not get children {child_class.__name__} for Pci: {e}')
 
+            pci_bridges.extend(usb_controllers)
             self.hardware.children = pci_bridges
 
         return [self.hardware]
