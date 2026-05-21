@@ -41,6 +41,7 @@ AVAILABLE_CLASSES = {
     'processor': ['Processor', 3],
     'memory': ['PhysicalMemory', 4],
     'pci': ['Pci', 5],
+    'storage': ['Ide', 6],
     'ide': ['Ide', 6],
     'disk': ['PhysicalDisk', 7],
     'partition': ['PartitionDisk', 8],

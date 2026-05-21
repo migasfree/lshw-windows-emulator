@@ -36,7 +36,7 @@ class Ide(HardwareClass):
 
         self.hardware = Hardware(
             id='ide:0',
-            class_='',
+            class_='storage',
             claimed=True,
             handle='',
             description=self.__ERROR__,
@@ -78,7 +78,7 @@ class Ide(HardwareClass):
             for ide in self.wmi_system.query(wql):
                 primary_controller = Hardware(
                     id=f'ide:{id_cont_prim}',
-                    class_='',
+                    class_='storage',
                     claimed=True,
                     description=ide.Description,
                     product=ide.Caption,
@@ -95,7 +95,7 @@ class Ide(HardwareClass):
                         for ide2 in self.wmi_system.query(wql2):
                             secondary_controller = Hardware(
                                 id=f'channel:{ide2.PNPDeviceID[-1]}',
-                                class_='',
+                                class_='storage',
                                 claimed=True,
                                 description=ide2.Description,
                                 product=ide2.Caption,
