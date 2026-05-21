@@ -61,10 +61,13 @@ class Printer(HardwareClass):
         self._printer_id = 0
 
     def get_hardware(self):
+        # Clear hardware_set to avoid duplicates if run multiple times
+        self.hardware_set = []
+        self.hardware_set_to_return = []
+
         try:
             self._validate_entity('Win32_Printer')
-            wql = self.build_wql_select('Win32_Printer')
-            self.execute_wql_query(wql)
+            self.execute_wql_query('SELECT * FROM Win32_Printer')
         except (wmi.x_wmi, AttributeError, ValueError) as e:
             logger.debug(f'Could not query Win32_Printer: {e}')
 

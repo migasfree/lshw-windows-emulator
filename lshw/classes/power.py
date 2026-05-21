@@ -61,27 +61,28 @@ class Power(HardwareClass):
         self._power_id = 0
 
     def get_hardware(self):
+        # Clear hardware_set to avoid duplicates if run multiple times
+        self.hardware_set = []
+        self.hardware_set_to_return = []
+
         # Query Win32_Battery
         try:
             self._validate_entity('Win32_Battery')
-            wql = self.build_wql_select('Win32_Battery')
-            self.execute_wql_query(wql)
+            self.execute_wql_query('SELECT * FROM Win32_Battery')
         except (wmi.x_wmi, AttributeError, ValueError) as e:
             logger.debug(f'Could not query Win32_Battery: {e}')
 
         # Query Win32_PortableBattery
         try:
             self._validate_entity('Win32_PortableBattery')
-            wql = self.build_wql_select('Win32_PortableBattery')
-            self.execute_wql_query(wql)
+            self.execute_wql_query('SELECT * FROM Win32_PortableBattery')
         except (wmi.x_wmi, AttributeError, ValueError) as e:
             logger.debug(f'Could not query Win32_PortableBattery: {e}')
 
         # Query Win32_UninterruptiblePowerSupply
         try:
             self._validate_entity('Win32_UninterruptiblePowerSupply')
-            wql = self.build_wql_select('Win32_UninterruptiblePowerSupply')
-            self.execute_wql_query(wql)
+            self.execute_wql_query('SELECT * FROM Win32_UninterruptiblePowerSupply')
         except (wmi.x_wmi, AttributeError, ValueError) as e:
             logger.debug(f'Could not query Win32_UninterruptiblePowerSupply: {e}')
 
