@@ -130,7 +130,7 @@ The emulator applies a **hybrid data integrity policy** to distinguish between s
   - Returns `"Error getting data"` (`__ERROR__`) as field placeholders for that component to alert the administrator.
   - Logs the error at `WARNING` or `ERROR` level.
   - Continues collecting other classes (does not abort the full scan).
-  - Exits with error code 1–19 only when `--class-hw` is specified for the failing class; code 16 for a full-scan failure.
+  - Exits with POSIX-standard exit codes: `EXIT_ERROR` (1) for runtime exceptions, `EXIT_USAGE` (2) for syntax/argument errors, and `EXIT_PERMISSION` (13) for access/permission denials.
 
 ### Security Model
 

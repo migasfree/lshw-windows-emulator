@@ -33,33 +33,33 @@ logger = logging.getLogger(__name__)
 
 PROGRAM = 'lshw'
 ALL_OK = 0
+EXIT_ERROR = 1
+EXIT_USAGE = 2
+EXIT_PERMISSION = 13
 
 AVAILABLE_CLASSES = {
-    'system': ['ComputerSystem', 1],
-    'baseboard': ['BaseBoard', 2],
-    'bios': ['Firmware', 2],
-    'processor': ['Processor', 3],
-    'memory': ['PhysicalMemory', 4],
-    'pci': ['Pci', 5],
-    'storage': ['Ide', 6],
-    'ide': ['Ide', 6],
-    'disk': ['PhysicalDisk', 7],
-    'partition': ['PartitionDisk', 8],
-    'volume': ['LogicalDisk', 9],
-    'usb': ['Usb', 10],
-    'usbdevices': ['UsbDevice', 11],
-    'cdrom': ['CdRom', 12],
-    'video': ['GraphicCard', 13],
-    'network': ['NetworkCard', 14],
-    'sound': ['SoundDevice', 15],
-    'power': ['Power', 17],
-    'printer': ['Printer', 18],
-    'communication': ['Communication', 19],
-    'cache': ['CacheMemory', 20],
+    'system': 'ComputerSystem',
+    'baseboard': 'BaseBoard',
+    'bios': 'Firmware',
+    'processor': 'Processor',
+    'memory': 'PhysicalMemory',
+    'pci': 'Pci',
+    'storage': 'Ide',
+    'ide': 'Ide',
+    'disk': 'PhysicalDisk',
+    'partition': 'PartitionDisk',
+    'volume': 'LogicalDisk',
+    'usb': 'Usb',
+    'usbdevices': 'UsbDevice',
+    'cdrom': 'CdRom',
+    'video': 'GraphicCard',
+    'network': 'NetworkCard',
+    'sound': 'SoundDevice',
+    'power': 'Power',
+    'printer': 'Printer',
+    'communication': 'Communication',
+    'cache': 'CacheMemory',
 }
-
-
-EXIT_USAGE = 1
 
 
 def _exit_manager(exit_code, exit_element='', error_detail=None):
@@ -71,9 +71,9 @@ def _exit_manager(exit_code, exit_element='', error_detail=None):
     exit_element: Element affected by exit code
     error_detail: Optional error message for debugging
     """
-    if 1 <= exit_code <= 20:
+    if exit_code != ALL_OK:
         _exit_message = f'there was an error getting "{exit_element}" information'
-        if exit_code == 16:
+        if exit_element == 'system':
             _exit_message = 'There was a critical error getting hardware information'
 
         _exit_text = f'[err #{exit_code}] {_exit_message}'
@@ -83,7 +83,6 @@ def _exit_manager(exit_code, exit_element='', error_detail=None):
 
         print('\n\n')
         sys.stderr.write(_exit_text + '\n')
-        return exit_code
 
     return exit_code
 
@@ -147,7 +146,7 @@ def main(argv=None):
         _class = ''
         if _piece == 'list':
             _help_msg = 'Pieces of hardware to choice:\n'
-            for x, _ in AVAILABLE_CLASSES.items():
+            for x in AVAILABLE_CLASSES:
                 _help_msg += f'\t{x}\n'
 
             print(_help_msg)
@@ -155,16 +154,16 @@ def main(argv=None):
 
         for x, y in AVAILABLE_CLASSES.items():
             if _piece == x:
-                _class = y[0]
+                _class = y
                 try:
                     hw_class = HardwareClass.factory(_class)()
                     formatted_data = hw_class.format_data(children=False)
                 except wmi.x_access_denied as e:
-                    return _exit_manager(y[1], _class, f'Access denied: {e}')
+                    return _exit_manager(EXIT_PERMISSION, _class, f'Access denied: {e}')
                 except wmi.x_wmi as e:
-                    return _exit_manager(y[1], _class, f'WMI error: {e}')
+                    return _exit_manager(EXIT_ERROR, _class, f'WMI error: {e}')
                 except (AttributeError, KeyError, TypeError) as e:
-                    return _exit_manager(y[1], _class, str(e))
+                    return _exit_manager(EXIT_ERROR, _class, str(e))
 
         if not _class:
             # parser.print_help()
@@ -176,11 +175,11 @@ def main(argv=None):
             hw_class = HardwareClass.factory('ComputerSystem')()
             formatted_data = hw_class.format_data(children=True)
         except wmi.x_access_denied as e:
-            return _exit_manager(16, 'system', f'Access denied: {e}')
+            return _exit_manager(EXIT_PERMISSION, 'system', f'Access denied: {e}')
         except wmi.x_wmi as e:
-            return _exit_manager(16, 'system', f'WMI error: {e}')
+            return _exit_manager(EXIT_ERROR, 'system', f'WMI error: {e}')
         except (AttributeError, KeyError, TypeError) as e:
-            return _exit_manager(16, 'system', str(e))
+            return _exit_manager(EXIT_ERROR, 'system', str(e))
 
     if args.json:
         print(json.dumps([x.to_dict() for x in formatted_data], indent=2))

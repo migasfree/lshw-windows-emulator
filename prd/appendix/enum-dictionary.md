@@ -122,28 +122,18 @@ Source: `pci.py` → `_populate_hardware()` → `DeviceID` prefix detection
 
 ## Exit Codes
 
-Source: `__main__.py` → `_exit_manager()` + `EXIT_USAGE`
+Source: `__main__.py` → `_exit_manager()` + Constants
 
-| Exit Code | Meaning | Hardware Class |
-|-----------|---------|---------------|
-| `0` | Success | — |
-| `1` | Error getting ComputerSystem | `system` |
-| `2` | Error getting BaseBoard or Firmware | `baseboard`, `bios` |
-| `3` | Error getting Processor | `processor` |
-| `4` | Error getting PhysicalMemory | `memory` |
-| `5` | Error getting Pci | `pci` |
-| `6` | Error getting Ide | `ide` |
-| `7` | Error getting PhysicalDisk | `disk` |
-| `8` | Error getting PartitionDisk | `partition` |
-| `9` | Error getting LogicalDisk | `volume` |
-| `10` | Error getting Usb | `usb` |
-| `11` | Error getting UsbDevice | `usbdevices` |
-| `12` | Error getting CdRom | `cdrom` |
-| `13` | Error getting GraphicCard | `video` |
-| `14` | Error getting NetworkCard | `network` |
-| `15` | Error getting SoundDevice | `sound` |
-| `16` | Critical error (full scan) | Full system |
-| `EXIT_USAGE = 1` | Unknown `--class-hw` argument | — |
+The tool uses standardized, POSIX-compliant exit codes to categorize errors by the nature of the failure rather than the hardware component requested:
+
+| Exit Code | Constant Name | Meaning |
+|-----------|---------------|---------|
+| `0` | `ALL_OK` | Success. Hardware discovery completed successfully. |
+| `1` | `EXIT_ERROR` | Runtime error / WMI query failure / Python exception. |
+| `2` | `EXIT_USAGE` | Invalid command line arguments / Malformed class requests. |
+| `13` | `EXIT_PERMISSION` | Access denied / Insufficient privileges to query WMI. |
+
+Any other exit code returned by lower levels is propagated unchanged. If a full scan (`ComputerSystem`) fails or gets a permission error, it will exit with `EXIT_ERROR` (1) or `EXIT_PERMISSION` (13) respectively.
 
 ---
 

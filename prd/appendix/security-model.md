@@ -96,7 +96,7 @@ This prevents an injected value from:
 
 **Failure behavior:** If access is denied:
 - `wmi.x_access_denied` exception is caught at the CLI dispatch level.
-- Error code `1–16` is returned depending on which class failed.
+- Standardized exit code `EXIT_PERMISSION` (13) is returned.
 - `"Access denied: {exception}"` is appended to the error message.
 
 ---

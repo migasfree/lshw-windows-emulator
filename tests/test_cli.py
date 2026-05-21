@@ -218,8 +218,8 @@ def test_main_class_hw_access_denied(capsys):
         mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         exit_code = main(['-c', 'memory'])
-        # exit code 4 = PhysicalMemory's code in AVAILABLE_CLASSES
-        assert exit_code == AVAILABLE_CLASSES['memory'][1]
+        # exit code 13 = EXIT_PERMISSION under new POSIX design
+        assert exit_code == 13
 
 
 def test_main_class_hw_wmi_error(capsys):
@@ -232,7 +232,7 @@ def test_main_class_hw_wmi_error(capsys):
         mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         exit_code = main(['-c', 'network'])
-        assert exit_code == AVAILABLE_CLASSES['network'][1]
+        assert exit_code == 1
 
 
 def test_main_class_hw_type_error(capsys):
@@ -243,11 +243,11 @@ def test_main_class_hw_type_error(capsys):
         mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         exit_code = main(['-c', 'memory'])
-        assert exit_code == AVAILABLE_CLASSES['memory'][1]
+        assert exit_code == 1
 
 
 def test_main_system_access_denied(capsys):
-    """main returns exit code 16 when full system scan gets access denied."""
+    """main returns exit code 13 when full system scan gets access denied."""
     from lshw.classes.hardware_class import wmi
 
     with patch('lshw.__main__.HardwareClass') as mock_hardware_class:
@@ -256,11 +256,11 @@ def test_main_system_access_denied(capsys):
         mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         exit_code = main([])
-        assert exit_code == 16
+        assert exit_code == 13
 
 
 def test_main_system_wmi_error(capsys):
-    """main returns exit code 16 on WMI error during full scan."""
+    """main returns exit code 1 on WMI error during full scan."""
     from lshw.classes.hardware_class import wmi
 
     with patch('lshw.__main__.HardwareClass') as mock_hardware_class:
@@ -269,18 +269,18 @@ def test_main_system_wmi_error(capsys):
         mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         exit_code = main([])
-        assert exit_code == 16
+        assert exit_code == 1
 
 
 def test_main_system_type_error(capsys):
-    """main returns exit code 16 on TypeError during full scan."""
+    """main returns exit code 1 on TypeError during full scan."""
     with patch('lshw.__main__.HardwareClass') as mock_hardware_class:
         mock_instance = MagicMock()
         mock_instance.format_data.side_effect = TypeError('bad')
         mock_hardware_class.factory.return_value = MagicMock(return_value=mock_instance)
 
         exit_code = main([])
-        assert exit_code == 16
+        assert exit_code == 1
 
 
 def test_pretty_list(capsys):
