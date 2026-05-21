@@ -69,14 +69,14 @@ class Communication(HardwareClass):
             self._validate_entity('Win32_SerialPort')
             self.execute_wql_query('SELECT * FROM Win32_SerialPort')
         except Exception as e:
-            logger.debug(f'Could not query Win32_SerialPort: {e}')
+            logger.debug('Could not query Win32_SerialPort: %s', e, exc_info=True)
 
         # Query Win32_POTSModem
         try:
             self._validate_entity('Win32_POTSModem')
             self.execute_wql_query('SELECT * FROM Win32_POTSModem')
         except Exception as e:
-            logger.debug(f'Could not query Win32_POTSModem: {e}')
+            logger.debug('Could not query Win32_POTSModem: %s', e, exc_info=True)
 
         self.check_values()
 

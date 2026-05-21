@@ -42,6 +42,13 @@ logger = logging.getLogger(__name__)
 class WMIConnection:
     """
     Singleton for WMI connection management.
+
+    Threading note: WMI relies on Windows COM, which requires
+    per-thread apartment initialization (CoInitialize). This singleton
+    is safe for the standard single-threaded CLI usage. If this module
+    is ever imported as a library from a background thread, callers must
+    ensure pythoncom.CoInitialize() is called on that thread before
+    accessing this connection.
     """
 
     _instance = None
@@ -142,7 +149,7 @@ class HardwareClass(ABC):
         return decorator
 
     def __init__(self):
-        self.wmi_system = WMIConnection.get_instance()
+        self._wmi_system = None
         self.wmi_method = None
 
         self.hardware: List[Hardware] = []
@@ -152,6 +159,18 @@ class HardwareClass(ABC):
 
         self.hardware_set = []
         self.hardware_set_to_return = []
+
+    @property
+    def wmi_system(self):
+        """Lazy WMI connection: acquired on first use, not at instantiation."""
+        if self._wmi_system is None:
+            self._wmi_system = WMIConnection.get_instance()
+        return self._wmi_system
+
+    @wmi_system.setter
+    def wmi_system(self, value):
+        """Allow injection of a custom WMI connection (e.g. for testing)."""
+        self._wmi_system = value
 
     def _validate_entity(self, entity):
         """
@@ -282,4 +301,4 @@ class HardwareClass(ABC):
                     res = child_class().format_data(children=True)
                     hw_instance.children.extend(res)
                 except Exception as e:
-                    logger.warning(f'Could not get children {child_class.__name__} for {self._entity_}: {e}')
+                    logger.warning('Could not get children %s for %s: %s', child_class.__name__, self._entity_, e, exc_info=True)

@@ -69,7 +69,7 @@ class Printer(HardwareClass):
             self._validate_entity('Win32_Printer')
             self.execute_wql_query('SELECT * FROM Win32_Printer')
         except Exception as e:
-            logger.debug(f'Could not query Win32_Printer: {e}')
+            logger.debug('Could not query Win32_Printer: %s', e, exc_info=True)
 
         self.check_values()
 

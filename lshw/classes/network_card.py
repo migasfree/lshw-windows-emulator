@@ -127,7 +127,7 @@ class NetworkCard(HardwareClass):
                 if idx is not None and ips:
                     self.ip_lookup[idx] = ips[0]
         except Exception as e:
-            logger.debug(f'Could not query Win32_NetworkAdapterConfiguration: {e}')
+            logger.debug('Could not query Win32_NetworkAdapterConfiguration: %s', e, exc_info=True)
 
     def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
         item_ret.product = hw_item.get('Description', self.__ERROR__)

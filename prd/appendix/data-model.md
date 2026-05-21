@@ -98,6 +98,18 @@ def to_dict(self):
 - `handle: ""` is always serialized, even though it is always empty.
 - `physid: "0"` is always serialized even for classes that don't use it meaningfully.
 
+### Stability Contract
+
+> [!IMPORTANT]
+> The `Hardware` dataclass and its `to_dict()` serialization output constitute a **public API contract** consumed by `migasfree-client` for hardware inventory synchronization. Changes to this contract require coordination with the downstream consumer.
+
+**Rules for modifying the `Hardware` dataclass:**
+
+1. **Adding new optional fields** (with falsy defaults that are omitted from JSON): Safe. No downstream impact.
+2. **Renaming or removing existing fields**: **Breaking change.** Requires a coordinated release with `migasfree-client`.
+3. **Changing the default value of core fields** (e.g. `product`, `vendor`, `serial`): **Behavioral change.** Must be documented and communicated.
+4. **Changing `to_dict()` serialization logic** (e.g. which fields are always-present vs. optional): **Breaking change.**
+
 ---
 
 ## Dynamic Attributes (not in dataclass)

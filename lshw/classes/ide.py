@@ -122,7 +122,7 @@ class Ide(HardwareClass):
                     if getattr(d, 'PNPDeviceID', None):
                         self._cached_disk_pnp_ids.add(d.PNPDeviceID.strip().replace('\\', '').lower())
             except Exception as e:
-                logger.debug('Error populating disk PNP device cache (non-critical): %s', e)
+                logger.debug('Error populating disk PNP device cache (non-critical): %s', e, exc_info=True)
 
             self.get_hardware()
             if children:
@@ -156,7 +156,7 @@ class Ide(HardwareClass):
                         if len(self.wmi_system.query(wql_test)) != 0:
                             is_disk = True
                     except Exception as e:
-                        logger.debug('Error checking disk PNP device (non-critical): %s', e)
+                        logger.debug('Error checking disk PNP device (non-critical): %s', e, exc_info=True)
 
                 if is_disk:
                     disk = self.factory('PhysicalDisk')(item.PNPDeviceID).format_data(children=True)
@@ -165,4 +165,4 @@ class Ide(HardwareClass):
                 if disk:
                     parent.children.append(disk[0])
             except Exception as e:
-                logger.warning(f'Could not attach child {pnp_id} to Ide component: {e}')
+                logger.warning('Could not attach child %s to Ide component: %s', pnp_id, e, exc_info=True)

@@ -70,21 +70,21 @@ class Power(HardwareClass):
             self._validate_entity('Win32_Battery')
             self.execute_wql_query('SELECT * FROM Win32_Battery')
         except Exception as e:
-            logger.debug(f'Could not query Win32_Battery: {e}')
+            logger.debug('Could not query Win32_Battery: %s', e, exc_info=True)
 
         # Query Win32_PortableBattery
         try:
             self._validate_entity('Win32_PortableBattery')
             self.execute_wql_query('SELECT * FROM Win32_PortableBattery')
         except Exception as e:
-            logger.debug(f'Could not query Win32_PortableBattery: {e}')
+            logger.debug('Could not query Win32_PortableBattery: %s', e, exc_info=True)
 
         # Query Win32_UninterruptiblePowerSupply
         try:
             self._validate_entity('Win32_UninterruptiblePowerSupply')
             self.execute_wql_query('SELECT * FROM Win32_UninterruptiblePowerSupply')
         except Exception as e:
-            logger.debug(f'Could not query Win32_UninterruptiblePowerSupply: {e}')
+            logger.debug('Could not query Win32_UninterruptiblePowerSupply: %s', e, exc_info=True)
 
         self.check_values()
 

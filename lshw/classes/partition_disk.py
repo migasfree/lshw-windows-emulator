@@ -115,7 +115,7 @@ class PartitionDisk(HardwareClass):
                     try:
                         return getattr(ref, 'DeviceID', '')
                     except Exception as e:
-                        logger.debug('Error extracting DeviceID (non-critical): %s', e)
+                        logger.debug('Error extracting DeviceID (non-critical): %s', e, exc_info=True)
                         return ''
 
                 for assoc in self.wmi_system.Win32_DiskDriveToDiskPartition():
@@ -131,7 +131,7 @@ class PartitionDisk(HardwareClass):
                     except (AttributeError, TypeError, KeyError):
                         continue
             except Exception as e:
-                logger.debug('Error in association-based disk-partition matching (falling back): %s', e)
+                logger.debug('Error in association-based disk-partition matching (falling back): %s', e, exc_info=True)
 
             if not success:
                 # Fallback to the old associators method
@@ -142,7 +142,7 @@ class PartitionDisk(HardwareClass):
                         for part in element.associators('Win32_DiskDriveToDiskPartition'):
                             self.hardware_set.append(part)
                 except Exception as e:
-                    logger.debug('Error in associators fallback for disk-partition: %s', e)
+                    logger.debug('Error in associators fallback for disk-partition: %s', e, exc_info=True)
 
         self.check_values()  # partition_disk
 
