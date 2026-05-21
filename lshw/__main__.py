@@ -51,6 +51,9 @@ AVAILABLE_CLASSES = {
     'video': ['GraphicCard', 13],
     'network': ['NetworkCard', 14],
     'sound': ['SoundDevice', 15],
+    'power': ['Power', 17],
+    'printer': ['Printer', 18],
+    'communication': ['Communication', 19],
 }
 
 
@@ -66,7 +69,7 @@ def _exit_manager(exit_code, exit_element='', error_detail=None):
     exit_element: Element affected by exit code
     error_detail: Optional error message for debugging
     """
-    if 1 <= exit_code <= 16:
+    if 1 <= exit_code <= 19:
         _exit_message = f'there was an error getting "{exit_element}" information'
         if exit_code == 16:
             _exit_message = 'There was a critical error getting hardware information'
