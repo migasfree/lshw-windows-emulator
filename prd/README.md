@@ -79,6 +79,7 @@ lshw [--json | -j | -json] [--class-hw CLASS | -c CLASS]
 | [Data Model](./appendix/data-model.md) | `Hardware` dataclass field reference, serialization rules, dynamic attributes, error sentinels |
 | [Security Model](./appendix/security-model.md) | Threat model, WMI allowlist, WQL sanitization, permission requirements, sensitive data in output |
 | [WMI Query Reference](./appendix/wmi-query-reference.md) | Every WMI query executed per hardware class, with query pattern, fields, and conditions |
+| [Linux Parity Specification](./appendix/parity-specification.md) | Full technical specification and multi-phase implementation roadmap to achieve 100% feature parity with Linux `lshw` |
 
 ---
 
