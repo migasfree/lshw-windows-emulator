@@ -301,4 +301,6 @@ class HardwareClass(ABC):
                     res = child_class().format_data(children=True)
                     hw_instance.children.extend(res)
                 except Exception as e:
-                    logger.warning('Could not get children %s for %s: %s', child_class.__name__, self._entity_, e, exc_info=True)
+                    logger.warning(
+                        'Could not get children %s for %s: %s', child_class.__name__, self._entity_, e, exc_info=True
+                    )

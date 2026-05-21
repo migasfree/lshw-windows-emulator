@@ -121,7 +121,9 @@ class LogicalDisk(HardwareClass):
                     except (AttributeError, TypeError, KeyError):
                         continue
             except Exception as e:
-                logger.debug('Error in association-based partition-volume matching (falling back): %s', e, exc_info=True)
+                logger.debug(
+                    'Error in association-based partition-volume matching (falling back): %s', e, exc_info=True
+                )
 
             if not success:
                 # Fallback to the old associators method
