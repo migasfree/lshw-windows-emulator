@@ -111,11 +111,14 @@ Two classes set additional attributes directly on the `Hardware` object that fal
 
 ---
 
-## Error Sentinel Values
+## Error Sentinel & Empty Value Strategy (Hybrid Model)
 
-| Sentinel | Source | Meaning |
-|----------|--------|---------|
-| `"Error getting data"` | `HardwareClass.__ERROR__` | WMI query returned no value or raised an exception |
-| `"Unknown"` | `HardwareClass.__DESC__` | Default placeholder for unresolved properties |
+The emulator implements a **hybrid data integrity policy** to handle absent values and query failures, ensuring clean telemetry report files without losing critical system diagnostics:
 
-Both sentinels are set as class-level constants on `HardwareClass` and used in `Hardware` field defaults and `_populate_hardware()` fallbacks throughout all subclasses.
+| Scenario | Value assigned | Serialized JSON behavior | Description |
+|---|---|---|---|
+| **Absent / Empty Field from Hardware** | `""` (Empty string) / `0` / `None` | **Omitted** or empty | WMI query completed successfully, but the property was empty, null, or unsupported by the hardware OEM (e.g. an unprogrammed battery serial). Avoids false positive errors. |
+| **Complete WMI Query Failure** | `"Error getting data"` | **Serialized as string** | The entire WMI query failed (e.g., class not registered `0x80041010` on target OS image, or `Access Denied`). Sentinel fields alert the sysadmin to recolection errors. |
+| **Unresolved Fallback Properties** | `"Unknown"` | **Serialized as string** | Default fallback placeholder when structural matching did not map a core attribute. |
+
+This hybrid approach guarantees that actual hardware variations or empty fields do not dirty the report with misleading error strings, while ensuring that infrastructure-level WMI connectivity and authorization failures remain completely transparent and actionable.

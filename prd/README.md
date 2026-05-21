@@ -121,14 +121,16 @@ ComputerSystem
 
 Every hardware node is a `Hardware` dataclass with 30 fields. Fields with no value are omitted from JSON output. The `children` field carries sub-components as a nested list.
 
-### Error Handling
+### Error & Empty Field Handling
 
-When a WMI query fails for a class, the tool:
+The emulator applies a **hybrid data integrity policy** to distinguish between successful queries with empty hardware properties and true infrastructure-level failures:
 
-- Returns `"Error getting data"` (`__ERROR__`) as field placeholders
-- Logs the error at `WARNING` or `ERROR` level
-- Continues collecting other classes (does not abort the full scan)
-- Exits with error code 1–16 only when `--class-hw` is specified for the failing class; code 16 for a full-scan failure
+- **Empty / Absent Fields:** If a WMI query succeeds but a specific field is nulo, empty (`""`), or not exposed by the hardware/driver (e.g. absent serial keys), the field is left empty or omitted to avoid polluting telemetry logs.
+- **WMI Query Failures:** When a WMI query fails completely (e.g. class not registered `0x80041010` on target OS image, or `Access Denied`), the tool:
+  - Returns `"Error getting data"` (`__ERROR__`) as field placeholders for that component to alert the administrator.
+  - Logs the error at `WARNING` or `ERROR` level.
+  - Continues collecting other classes (does not abort the full scan).
+  - Exits with error code 1–19 only when `--class-hw` is specified for the failing class; code 16 for a full-scan failure.
 
 ### Security Model
 
