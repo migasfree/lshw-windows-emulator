@@ -16,7 +16,7 @@
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass, wmi
+from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
 
@@ -68,14 +68,14 @@ class Communication(HardwareClass):
         try:
             self._validate_entity('Win32_SerialPort')
             self.execute_wql_query('SELECT * FROM Win32_SerialPort')
-        except (wmi.x_wmi, AttributeError, ValueError) as e:
+        except Exception as e:
             logger.debug(f'Could not query Win32_SerialPort: {e}')
 
         # Query Win32_POTSModem
         try:
             self._validate_entity('Win32_POTSModem')
             self.execute_wql_query('SELECT * FROM Win32_POTSModem')
-        except (wmi.x_wmi, AttributeError, ValueError) as e:
+        except Exception as e:
             logger.debug(f'Could not query Win32_POTSModem: {e}')
 
         self.check_values()

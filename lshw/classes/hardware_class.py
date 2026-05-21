@@ -225,7 +225,7 @@ class HardwareClass(ABC):
             try:
                 for element in getattr(self.wmi_system, self.wmi_method)(self.properties_to_get):
                     self.hardware_set.append(element)
-            except (wmi.x_wmi, AttributeError) as e:
+            except Exception as e:
                 logger.error(f'Error getting hardware info for {self._entity_}: {e}')
                 return
 
@@ -274,5 +274,5 @@ class HardwareClass(ABC):
                 try:
                     res = child_class().format_data(children=True)
                     hw_instance.children.extend(res)
-                except (wmi.x_wmi, wmi.x_access_denied, AttributeError, KeyError, TypeError) as e:
+                except Exception as e:
                     logger.warning(f'Could not get children {child_class.__name__} for {self._entity_}: {e}')

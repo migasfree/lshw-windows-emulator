@@ -16,7 +16,7 @@
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass, wmi
+from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class Printer(HardwareClass):
         try:
             self._validate_entity('Win32_Printer')
             self.execute_wql_query('SELECT * FROM Win32_Printer')
-        except (wmi.x_wmi, AttributeError, ValueError) as e:
+        except Exception as e:
             logger.debug(f'Could not query Win32_Printer: {e}')
 
         self.check_values()

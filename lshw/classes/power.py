@@ -16,7 +16,7 @@
 import logging
 
 from .hardware import Hardware
-from .hardware_class import HardwareClass, wmi
+from .hardware_class import HardwareClass
 
 logger = logging.getLogger(__name__)
 
@@ -69,21 +69,21 @@ class Power(HardwareClass):
         try:
             self._validate_entity('Win32_Battery')
             self.execute_wql_query('SELECT * FROM Win32_Battery')
-        except (wmi.x_wmi, AttributeError, ValueError) as e:
+        except Exception as e:
             logger.debug(f'Could not query Win32_Battery: {e}')
 
         # Query Win32_PortableBattery
         try:
             self._validate_entity('Win32_PortableBattery')
             self.execute_wql_query('SELECT * FROM Win32_PortableBattery')
-        except (wmi.x_wmi, AttributeError, ValueError) as e:
+        except Exception as e:
             logger.debug(f'Could not query Win32_PortableBattery: {e}')
 
         # Query Win32_UninterruptiblePowerSupply
         try:
             self._validate_entity('Win32_UninterruptiblePowerSupply')
             self.execute_wql_query('SELECT * FROM Win32_UninterruptiblePowerSupply')
-        except (wmi.x_wmi, AttributeError, ValueError) as e:
+        except Exception as e:
             logger.debug(f'Could not query Win32_UninterruptiblePowerSupply: {e}')
 
         self.check_values()
