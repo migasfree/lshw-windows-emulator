@@ -12,7 +12,11 @@ def test_physical_memory_format_data(mock_wmi_connection):
     mock_mem.Capacity = 8589934592
     mock_mem.Speed = 2400
     mock_mem.MemoryType = 24  # DDR3 (example value)
+    mock_mem.SMBIOSMemoryType = None
     mock_mem.DataWidth = 64
+    mock_mem.Manufacturer = 'Samsung'
+    mock_mem.SerialNumber = '1234-ABCD'
+    mock_mem.PartNumber = 'M378A1G43DB0'
 
     mock_wmi_connection.Win32_physicalMemory.return_value = [mock_mem]
 
@@ -37,7 +41,9 @@ def test_physical_memory_format_data(mock_wmi_connection):
     assert bank.id == 'bank:0'  # Derived from "Tag"
     assert bank.description == 'Physical Memory 0'
     assert bank.size == 8589934592
-    assert bank.product == 24
+    assert bank.product == 'DDR3 (Part: M378A1G43DB0)'
+    assert bank.vendor == 'Samsung'
+    assert bank.serial == '1234-ABCD'
     assert bank.clock == 2400
 
 
@@ -45,6 +51,11 @@ def test_physical_memory_handles_missing_tag(mock_wmi_connection):
     """Test handling when 'Tag' property is missing."""
     mock_mem = MagicMock()
     mock_mem.DeviceLocator = 'DIMM 1'
+    mock_mem.SMBIOSMemoryType = None
+    mock_mem.MemoryType = None
+    mock_mem.Manufacturer = None
+    mock_mem.SerialNumber = None
+    mock_mem.PartNumber = None
     # Tag is missing
     del mock_mem.Tag
 

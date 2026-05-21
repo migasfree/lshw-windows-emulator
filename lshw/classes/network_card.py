@@ -17,10 +17,13 @@
 __author__ = ['Jose Antonio Chavarría <jachavar@gmail.com>', 'Alfonso Gómez Sánchez <agomez@zaragoza.es>']
 __license__ = 'GPLv3'
 
+import logging
 import platform
 
 from .hardware import Hardware
 from .hardware_class import HardwareClass
+
+logger = logging.getLogger(__name__)
 
 
 @HardwareClass.register('NetworkCard', parent='Pci')
@@ -97,6 +100,9 @@ class NetworkCard(HardwareClass):
             'NetConnectionID',
             'Description',
             'PNPDeviceID',
+            'Index',
+            'NetConnectionStatus',
+            'ServiceName',
         ]
 
         self._update_properties_to_return()
@@ -111,6 +117,18 @@ class NetworkCard(HardwareClass):
         self.execute_wql_query(wql)
         self.check_values()
 
+        # Query IP Addresses from Win32_NetworkAdapterConfiguration
+        self.ip_lookup = {}
+        try:
+            configs = self.wmi_system.query('SELECT Index, IPAddress FROM Win32_NetworkAdapterConfiguration')
+            for c in configs:
+                idx = getattr(c, 'Index', None)
+                ips = getattr(c, 'IPAddress', None)
+                if idx is not None and ips:
+                    self.ip_lookup[idx] = ips[0]
+        except Exception as e:
+            logger.debug(f'Could not query Win32_NetworkAdapterConfiguration: {e}')
+
     def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
         item_ret.product = hw_item.get('Description', self.__ERROR__)
         item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
@@ -122,5 +140,26 @@ class NetworkCard(HardwareClass):
         item_ret.configuration['speed'] = hw_item.get('Speed', self.__ERROR__)
 
         item_ret.capabilities['autonegotiation'] = hw_item.get('Autosense', self.__DESC__)
+
+        # Set driver (ServiceName)
+        driver = hw_item.get('ServiceName')
+        if driver and driver != self.__DESC__:
+            item_ret.configuration['driver'] = str(driver).strip()
+
+        # Set link status from NetConnectionStatus (2 = connected)
+        status = hw_item.get('NetConnectionStatus')
+        if status is not None and status != self.__DESC__:
+            try:
+                status_int = int(status)
+                item_ret.configuration['link'] = 'yes' if status_int == 2 else 'no'
+            except (ValueError, TypeError):
+                item_ret.configuration['link'] = 'no'
+        else:
+            item_ret.configuration['link'] = 'no'
+
+        # Set IP Address from lookup table
+        idx = hw_item.get('Index')
+        if idx is not None and idx in getattr(self, 'ip_lookup', {}):
+            item_ret.configuration['ip'] = self.ip_lookup[idx]
 
         return item_ret

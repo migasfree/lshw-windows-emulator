@@ -52,7 +52,11 @@ class PhysicalMemory(HardwareClass):
             'Capacity',
             'Speed',
             'MemoryType',
+            'SMBIOSMemoryType',
             'DataWidth',
+            'Manufacturer',
+            'SerialNumber',
+            'PartNumber',
         ]
 
         self._update_properties_to_return()
@@ -62,14 +66,74 @@ class PhysicalMemory(HardwareClass):
         # but the Template Method expects to return individual items.
         # We'll adapt it to return the 'bank' as if it were the main item.
 
+        memory_types = {
+            0: 'Unknown',
+            1: 'Other',
+            2: 'DRAM',
+            3: 'Synchronous DRAM',
+            4: 'Cache DRAM',
+            5: 'EDO',
+            6: 'EDRAM',
+            7: 'VRAM',
+            8: 'SRAM',
+            9: 'RAM',
+            10: 'ROM',
+            11: 'Flash',
+            12: 'EEPROM',
+            13: 'FEPROM',
+            14: 'EPROM',
+            15: 'CDRAM',
+            16: '3DRAM',
+            17: 'SDRAM',
+            18: 'SGRAM',
+            19: 'RDRAM',
+            20: 'DDR',
+            21: 'DDR2',
+            22: 'DDR2 FB-DIMM',
+            24: 'DDR3',
+            25: 'FBD2',
+            26: 'DDR4',
+            27: 'LPDDR',
+            28: 'LPDDR2',
+            29: 'LPDDR3',
+            30: 'LPDDR4',
+            31: 'Logical DDR4',
+            32: 'LPDDR4X',
+            34: 'DDR5',
+            35: 'LPDDR5',
+        }
+
+        mem_type_idx = hw_item.get('SMBIOSMemoryType')
+        if not mem_type_idx or mem_type_idx == self.__DESC__ or mem_type_idx == 0:
+            mem_type_idx = hw_item.get('MemoryType')
+
+        try:
+            mem_type_idx = int(mem_type_idx)
+            mem_type_str = memory_types.get(mem_type_idx, 'Unknown')
+        except (ValueError, TypeError):
+            mem_type_str = 'Unknown'
+
+        part = hw_item.get('PartNumber')
+        if part and part != self.__DESC__:
+            part_str = str(part).strip()
+            item_ret.product = f'{mem_type_str} (Part: {part_str})'
+        else:
+            item_ret.product = mem_type_str
+
         item_ret.id = f'bank:{hw_item["Tag"][-1]}' if 'Tag' in hw_item else self.__ERROR__
         item_ret.description = hw_item.get('Tag', self.__ERROR__)
-        item_ret.product = hw_item.get('MemoryType', self.__ERROR__)
         item_ret.slot = hw_item.get('DeviceLocator', self.__ERROR__)
         item_ret.units = 'bytes'
         item_ret.size = hw_item.get('Capacity', 0)
         item_ret.width = hw_item.get('DataWidth', 0)
         item_ret.clock = hw_item.get('Speed', 0)
+        item_ret.vendor = hw_item.get('Manufacturer', self.__ERROR__)
+
+        serial = hw_item.get('SerialNumber')
+        if serial and serial != self.__DESC__:
+            item_ret.serial = str(serial).strip()
+        else:
+            item_ret.serial = ''
 
         return item_ret
 

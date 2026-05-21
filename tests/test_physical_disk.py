@@ -55,6 +55,7 @@ def test_disk_duplication(mock_wmi_connection):
     mock_disk.Index = 0
     mock_disk.Size = '1000000000'
     mock_disk.Manufacturer = 'VirtualBox'
+    mock_disk.SerialNumber = 'VBOX-SN-001'
     mock_wmi_connection.Win32_Diskdrive.return_value = [mock_disk]
 
     # Run Pci.format_data(children=True)
@@ -65,11 +66,6 @@ def test_disk_duplication(mock_wmi_connection):
 
     # Inspect the hierarchy
     pci_node = result[0]
-
-    import json
-
-    # Convert to dict for easier printing
-    print(json.dumps(pci_node.to_dict(), indent=2))
 
     # Count how many times 'VBOX HARDDISK' appears in the whole tree
     def count_product(node, name):
@@ -96,6 +92,7 @@ def test_physical_disk_basic(mock_wmi_connection):
     mock_disk.Index = 0
     mock_disk.Size = '50000000000'
     mock_disk.Manufacturer = 'Vendor'
+    mock_disk.SerialNumber = 'SN-1234'
     mock_wmi_connection.Win32_Diskdrive.return_value = [mock_disk]
 
     disk_class = PhysicalDisk()
@@ -105,6 +102,7 @@ def test_physical_disk_basic(mock_wmi_connection):
     assert result[0].product == 'Basic Disk'
     assert result[0].size == 50000000000
     assert result[0].vendor == 'Vendor'
+    assert result[0].serial == 'SN-1234'
 
 
 def test_physical_disk_multiple(mock_wmi_connection):
@@ -119,6 +117,7 @@ def test_physical_disk_multiple(mock_wmi_connection):
     mock_disk1.Index = 0
     mock_disk1.Size = '100'
     mock_disk1.Manufacturer = 'M1'
+    mock_disk1.SerialNumber = 'SN-1'
 
     mock_disk2 = MagicMock()
     mock_disk2.Caption = 'Disk 2'
@@ -128,6 +127,7 @@ def test_physical_disk_multiple(mock_wmi_connection):
     mock_disk2.Index = 1
     mock_disk2.Size = '200'
     mock_disk2.Manufacturer = 'M2'
+    mock_disk2.SerialNumber = 'SN-2'
 
     mock_wmi_connection.Win32_Diskdrive.return_value = [mock_disk1, mock_disk2]
 
@@ -139,6 +139,8 @@ def test_physical_disk_multiple(mock_wmi_connection):
     assert result[1].product == 'Disk 2'
     assert result[0].size == 100
     assert result[1].size == 200
+    assert result[0].serial == 'SN-1'
+    assert result[1].serial == 'SN-2'
 
 
 def test_physical_disk_size_parsing_error(mock_wmi_connection):
@@ -153,6 +155,7 @@ def test_physical_disk_size_parsing_error(mock_wmi_connection):
     mock_disk.Index = 0
     mock_disk.Size = 'not-a-number'
     mock_disk.Manufacturer = 'M'
+    mock_disk.SerialNumber = None
     mock_wmi_connection.Win32_Diskdrive.return_value = [mock_disk]
 
     disk_class = PhysicalDisk()
@@ -160,6 +163,7 @@ def test_physical_disk_size_parsing_error(mock_wmi_connection):
 
     assert len(result) == 1
     assert result[0].size == 0
+    assert result[0].serial == ''
 
 
 def test_physical_disk_dev_id_filtering(mock_wmi_connection):
@@ -174,6 +178,7 @@ def test_physical_disk_dev_id_filtering(mock_wmi_connection):
     mock_disk.Index = 0
     mock_disk.Size = '1000'
     mock_disk.Manufacturer = 'M'
+    mock_disk.SerialNumber = 'SN-SPECIFIC'
 
     # When dev_id is provided, get_hardware uses execute_wql_query
     # and build_wql_select. We need to mock query() for the WQL string.
@@ -190,3 +195,4 @@ def test_physical_disk_dev_id_filtering(mock_wmi_connection):
     assert len(result) == 1
     assert result[0].product == 'Filtered Disk'
     assert result[0].pnpdeviceid == 'PNP_SPECIFIC'
+    assert result[0].serial == 'SN-SPECIFIC'

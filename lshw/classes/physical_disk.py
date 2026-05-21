@@ -66,6 +66,7 @@ class PhysicalDisk(HardwareClass):
             'Manufacturer',
             'PNPDeviceID',
             'Size',
+            'SerialNumber',
         ]
 
         self._update_properties_to_return()
@@ -91,6 +92,12 @@ class PhysicalDisk(HardwareClass):
         item_ret.deviceid = hw_item['DeviceID']
         item_ret.pnpdeviceid = hw_item['PNPDeviceID']
         item_ret.businfo = f'scsi@{hw_item["Index"]}:0.0.0'
+
+        serial = hw_item.get('SerialNumber')
+        if serial and serial != self.__DESC__:
+            item_ret.serial = str(serial).strip()
+        else:
+            item_ret.serial = ''
 
         try:
             raw_size = int(hw_item['Size'])
