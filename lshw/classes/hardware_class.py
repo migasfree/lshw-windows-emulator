@@ -222,12 +222,8 @@ class HardwareClass(ABC):
     def get_hardware(self):
         if self.wmi_method:
             self._validate_entity(self.wmi_method)
-            try:
-                for element in getattr(self.wmi_system, self.wmi_method)(self.properties_to_get):
-                    self.hardware_set.append(element)
-            except Exception as e:
-                logger.error(f'Error getting hardware info for {self._entity_}: {e}')
-                return
+            for element in getattr(self.wmi_system, self.wmi_method)(self.properties_to_get):
+                self.hardware_set.append(element)
 
             self.check_values()
         else:
@@ -252,6 +248,17 @@ class HardwareClass(ABC):
             item_ret = copy.deepcopy(self.hardware)
             item_ret = self._populate_hardware(item_ret, hw_item)
             if item_ret is not None:
+                # Hybrid Policy: Successful WMI queries with missing/unsupported fields default to empty.
+                # Clean up fallback sentinels ('Error getting data', 'Unknown', or spaces) in final fields.
+                for attr in ['product', 'vendor', 'serial', 'version', 'date', 'slot', 'width', 'clock']:
+                    if hasattr(item_ret, attr):
+                        val = getattr(item_ret, attr)
+                        if (
+                            val == self.__ERROR__
+                            or val == self.__DESC__
+                            or (isinstance(val, str) and (val.strip() == '' or val.strip().lower() == 'unknown'))
+                        ):
+                            setattr(item_ret, attr, '')
                 ret.append(item_ret)
 
         if children:

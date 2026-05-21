@@ -78,4 +78,4 @@ def test_processor_handles_missing_data(mock_wmi_connection):
 
     assert len(result) == 1
     assert result[0].product == 'Generic CPU'
-    assert result[0].vendor == 'Unknown'  # Default error value
+    assert result[0].vendor == ''  # Default empty value under hybrid policy
