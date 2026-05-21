@@ -60,22 +60,42 @@ class Communication(HardwareClass):
         self._comm_id = 0
 
     def get_hardware(self):
+        # Clear hardware_set to avoid duplicates if run multiple times
+        self.hardware_set = []
+        self.hardware_set_to_return = []
+
         # Query Win32_SerialPort
         try:
             self._validate_entity('Win32_SerialPort')
+            orig_properties = self.properties_to_get
+            self.properties_to_get = ['DeviceID', 'Description', 'Name', 'MaxBaudRate', 'Caption']
             wql = self.build_wql_select('Win32_SerialPort')
             self.execute_wql_query(wql)
+            self.properties_to_get = orig_properties
         except (wmi.x_wmi, AttributeError, ValueError) as e:
             logger.debug(f'Could not query Win32_SerialPort: {e}')
 
         # Query Win32_POTSModem
         try:
             self._validate_entity('Win32_POTSModem')
+            orig_properties = self.properties_to_get
+            self.properties_to_get = [
+                'DeviceID',
+                'Description',
+                'Name',
+                'AttachedTo',
+                'Manufacturer',
+                'ProviderName',
+                'Caption',
+            ]
             wql = self.build_wql_select('Win32_POTSModem')
             self.execute_wql_query(wql)
+            self.properties_to_get = orig_properties
         except (wmi.x_wmi, AttributeError, ValueError) as e:
             logger.debug(f'Could not query Win32_POTSModem: {e}')
 
+        # Restore full list of properties to return and run check_values
+        self._update_properties_to_return()
         self.check_values()
 
     def _populate_hardware(self, item_ret: Hardware, hw_item: dict) -> Hardware:
