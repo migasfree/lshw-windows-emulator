@@ -55,6 +55,7 @@ AVAILABLE_CLASSES = {
     'power': ['Power', 17],
     'printer': ['Printer', 18],
     'communication': ['Communication', 19],
+    'cache': ['CacheMemory', 20],
 }
 
 
@@ -70,7 +71,7 @@ def _exit_manager(exit_code, exit_element='', error_detail=None):
     exit_element: Element affected by exit code
     error_detail: Optional error message for debugging
     """
-    if 1 <= exit_code <= 19:
+    if 1 <= exit_code <= 20:
         _exit_message = f'there was an error getting "{exit_element}" information'
         if exit_code == 16:
             _exit_message = 'There was a critical error getting hardware information'
