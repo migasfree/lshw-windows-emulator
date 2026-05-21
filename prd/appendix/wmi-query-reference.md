@@ -160,8 +160,6 @@ All WQL queries are built via `build_wql_select(table, where_clause)` which vali
 
 Fields queried: `Speed`, `SystemCreationClassName`, `AdapterType`, `Autosense`, `Caption`, `MACAddress`, `ProductName`, `Manufacturer`, `NetConnectionID`, `Description`, `PNPDeviceID`.
 
----
-
 ### SoundDevice
 
 | # | Pattern | Query / Call |
@@ -170,8 +168,43 @@ Fields queried: `Speed`, `SystemCreationClassName`, `AdapterType`, `Autosense`, 
 
 ---
 
-## WQL Field Selection
+### Power
 
-All WQL queries use explicit field lists (`SELECT field1, field2 FROM ...`) rather than `SELECT *`. Fields are determined by `self.properties_to_get` per class and joined into a comma-separated string by `build_wql_fields()`.
+| # | Pattern | Query / Call |
+|---|---------|-------------|
+| 1 | WQL | `SELECT * FROM Win32_Battery` |
+| 2 | WQL | `SELECT * FROM Win32_PortableBattery` |
+| 3 | WQL | `SELECT * FROM Win32_UninterruptiblePowerSupply` |
 
-This minimizes data transfer and ensures queries fail predictably when a specific property is unavailable on a given Windows version, rather than silently returning partial data.
+---
+
+### Printer
+
+| # | Pattern | Query / Call |
+|---|---------|-------------|
+| 1 | WQL | `SELECT * FROM Win32_Printer` |
+
+---
+
+### Communication
+
+| # | Pattern | Query / Call |
+|---|---------|-------------|
+| 1 | WQL | `SELECT * FROM Win32_SerialPort` |
+| 2 | WQL | `SELECT * FROM Win32_POTSModem` |
+
+---
+
+### CacheMemory
+
+| # | Pattern | Query / Call |
+|---|---------|-------------|
+| 1 | Method | `Win32_CacheMemory(['DeviceID','Description','MaxCacheSize','Level'])` |
+
+---
+
+## WQL Field Selection & Robust Querying
+
+Most WQL queries use explicit field lists (`SELECT field1, field2 FROM ...`) to minimize data transfer overhead and optimize performance.
+
+However, classes that are subject to hardware driver differences, missing optional properties, or virtualized environments (such as **`Power`**, **`Printer`**, and **`Communication`**) systematically use **`SELECT *`** queries. WMI parses `SELECT *` without throwing OLE errors (like `0x80041017`) when properties are absent on the host drivers, and the framework resolves missing properties in the Python layer via clean `AttributeError` handling. This guarantees 100% crash resilience across all VM, Server, and customized Windows installations.

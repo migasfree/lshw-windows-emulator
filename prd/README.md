@@ -24,10 +24,11 @@ Primary users are **system administrators** and **software management agents** (
 |--------|-----------|-------------------|
 | **CLI Entry Point** | `__main__` | Argument parsing, dispatch, output formatting |
 | **System Layer** | `ComputerSystem`, `BaseBoard`, `Firmware` | Machine identity, motherboard, BIOS |
-| **Compute Layer** | `Processor`, `PhysicalMemory` | CPU and RAM inventory |
+| **Compute Layer** | `Processor`, `PhysicalMemory`, `CacheMemory` | CPU, RAM, and L1/L2/L3 cache inventory |
 | **Storage Layer** | `Ide`, `PhysicalDisk`, `PartitionDisk`, `LogicalDisk`, `CdRom` | Full disk hierarchy |
-| **Expansion Bus** | `Pci`, `GraphicCard`, `SoundDevice`, `NetworkCard` | PCI devices and peripherals |
+| **Expansion Bus** | `Pci`, `GraphicCard`, `SoundDevice`, `NetworkCard`, `Communication` | PCI devices, serial ports, modems, and network/audio peripherals |
 | **USB Subsystem** | `Usb`, `UsbDevice` | USB controllers and connected devices |
+| **Power & Print** | `Power`, `Printer` | Batteries, UPS, printer queues and drivers |
 | **Core Framework** | `HardwareClass`, `Hardware`, `WMIConnection` | Base patterns, data model, WMI singleton |
 
 ---
@@ -52,6 +53,10 @@ Primary users are **system administrators** and **software management agents** (
 | 14 | Graphics Card | `video` | `Win32_VideoController` | [→](./components/14-graphic-card.md) |
 | 15 | Network Card (NIC) | `network` | `Win32_NetworkAdapter` | [→](./components/15-network-card.md) |
 | 16 | Sound Device | `sound` | `Win32_SoundDevice` | [→](./components/16-sound-device.md) |
+| 17 | Power Source | `power` | `Win32_Battery`, `Win32_PortableBattery`, `Win32_UninterruptiblePowerSupply` | [→](./components/17-power.md) |
+| 18 | Printer | `printer` | `Win32_Printer` | [→](./components/18-printer.md) |
+| 19 | Communication | `communication` | `Win32_SerialPort`, `Win32_POTSModem` | [→](./components/19-communication.md) |
+| 20 | Cache Memory | `memory` | `Win32_CacheMemory` | [→](./components/20-cache-memory.md) |
 
 ---
 
@@ -94,7 +99,10 @@ ComputerSystem
 └── BaseBoard
     ├── Firmware (BIOS)
     ├── Processor (one entry per physical socket)
+    │   └── CacheMemory (L1/L2/L3 nested cache segments)
     ├── PhysicalMemory (container → bank children)
+    ├── Power (power supplies & battery modules)
+    ├── Printer (printer queues and drivers)
     └── Pci
         ├── Ide
         │   ├── PhysicalDisk
@@ -104,6 +112,7 @@ ComputerSystem
         ├── GraphicCard
         ├── SoundDevice
         ├── NetworkCard
+        ├── Communication (serial ports & modems)
         └── Usb (one entry per USB controller)
             └── UsbDevice (filtered, one per attached device)
 ```
