@@ -1,0 +1,8 @@
+{
+  "name": "lshw-windows-emulator",
+  "version": "1.6.0",
+  "description": "LsHw Windows Emulator, a simplified Windows port of Hardware Lister (lshw) using WMI.",
+  "maintainer": "Jose Antonio Chavarría <jachavar@gmail.com>",
+  "specification": "1.0.0",
+  "homepage": "https://github.com/migasfree/lshw-windows-emulator"
+}
