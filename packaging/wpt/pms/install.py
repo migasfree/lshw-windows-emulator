@@ -52,7 +52,7 @@ def get_wpt_bin_dir() -> str:
             return d
 
     # Fallback to standard Program Files location
-    program_files = os.environ.get('ProgramFiles', 'C:\\Program Files')
+    program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
     wpt_default = os.path.join(program_files, 'wpt')
     if os.path.isdir(wpt_default):
         return wpt_default
@@ -86,7 +86,7 @@ def main():
         print('Error: WPT_INSTALL_DIR is not set.', file=sys.stderr)
         sys.exit(1)
 
-    program_files = os.environ.get('ProgramFiles', 'C:\\Program Files')
+    program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
     target_install_dir = os.path.join(program_files, 'lshw-windows-emulator')
     target_exe_path = os.path.join(target_install_dir, EXE_NAME)
 

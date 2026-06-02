@@ -50,7 +50,7 @@ def get_wpt_bin_dir() -> str:
         if os.path.exists(os.path.join(d, 'wpt.exe')):
             return d
 
-    program_files = os.environ.get('ProgramFiles', 'C:\\Program Files')
+    program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
     wpt_default = os.path.join(program_files, 'wpt')
     if os.path.isdir(wpt_default):
         return wpt_default
@@ -83,7 +83,7 @@ def main():
     remove_shim()
 
     # 3. Clean up Program Files directory
-    program_files = os.environ.get('ProgramFiles', 'C:\\Program Files')
+    program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
     target_install_dir = os.path.join(program_files, 'lshw-windows-emulator')
     if os.path.isdir(target_install_dir):
         try:
