@@ -25,9 +25,9 @@ import sys
 if sys.platform == 'win32':
     import wmi
 else:
-    from .classes.hardware_class import wmi  # use the stub
+    from lshw.classes.hardware_class import wmi  # use the stub
 
-from .classes import HardwareClass
+from lshw.classes import HardwareClass
 
 logger = logging.getLogger(__name__)
 
